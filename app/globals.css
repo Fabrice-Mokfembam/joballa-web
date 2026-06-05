@@ -1,0 +1,375 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafafa;
+  --foreground: #0a0a0a;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --line: #d8e2dc;
+  --brand: #16a34a;
+  --brand-strong: #0f766e;
+  --font-mono: "Consolas", "Liberation Mono", monospace;
+  /* Joballa UI — light (default) */
+  --joballa-primary: #0d7377;
+  --joballa-primary-logo: #0e7377;
+  --joballa-jade-3: #e6f7ed;
+  --joballa-jade-4: #d6f1e3;
+  --joballa-jade-5: #c3e9d7;
+  --joballa-jade-8: #56ba9f;
+  --joballa-muted: #737373;
+  --joballa-border: #e5e5e5;
+  --joballa-card: #ffffff;
+  --joballa-page: #fafafa;
+  --joballa-page-tint: #f9f9f9;
+  --joballa-fg: #0a0a0a;
+  --joballa-sidebar: #ffffff;
+  --joballa-header: #ffffff;
+  --joballa-input-bg: #ffffff;
+  --joballa-dropdown-bg: #ffffff;
+  --joballa-row-hover: rgba(0, 0, 0, 0.05);
+  --joballa-tag-bg: #f5f5f5;
+  --joballa-tag-fg: #404040;
+  --joballa-match: #f9bc06;
+  --joballa-match-accent: #f4a623;
+  --joballa-on-primary: #fafafa;
+  --joballa-danger-bg: rgba(239, 68, 68, 0.12);
+  --joballa-danger-fg: #b91c1c;
+  --joballa-skeleton: #e5e5e5;
+  --joballa-skeleton-shine: rgba(255, 255, 255, 0.45);
+  --joballa-highlight-bg: #fefce9;
+  --joballa-highlight-fg: #d97706;
+  --joballa-fg-subtle: #7a7a7a;
+  --joballa-label-fg: #707070;
+  --joballa-avatar-bg: #d9dde1;
+  --joballa-border-strong: #d4d4d4;
+  --joballa-segment-active: #e0e0e0;
+  --joballa-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --joballa-shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --joballa-nav-fg: #0a0a0a;
+  --joballa-nav-fg-muted: #737373;
+  --joballa-nav-hover: rgba(0, 0, 0, 0.05);
+  --joballa-empty-bg: #ffffff;
+  --joballa-empty-border: #e5e5e5;
+  --joballa-control-bg: #ffffff;
+  --joballa-control-border: #e5e5e5;
+  --joballa-control-fg: #171717;
+  --joballa-pill-bg: #f9f9f9;
+  --joballa-pill-border: #f0f0f0;
+  --joballa-row-selected: #fcfcfc;
+  --joballa-table-header: #8d8d8d;
+  --joballa-danger-border: #ffdbdc;
+  --joballa-danger-soft: #feebec;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /*
+   * Figma Joballa UI primitives (design file tokens — light).
+   * Do not reference these directly in components; use --auth-* aliases below.
+   */
+  --figma-foreground: #171717;
+  --figma-muted-foreground: #737373;
+  --figma-muted: #e5e5e5;
+  --figma-background: #ffffff;
+  --figma-gray-2: #f9f9f9;
+  --figma-gray-3: #f0f0f0;
+  --figma-gray-5: #e0e0e0;
+  --figma-gray-9: #8d8d8d;
+  --figma-primary: #0d7377;
+  --figma-primary-foreground: #fafafa;
+  --figma-jade-3: #e6f7ed;
+  --figma-jade-6: #acdec8;
+  --figma-jade-7: #8bceb6;
+  --figma-jade-8: #56ba9f;
+  --figma-white: #ffffff;
+  --figma-shadow-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+  --figma-shadow-drop-sm: 0px 1px 1px rgba(0, 0, 0, 0.1);
+  --figma-focus-ring: rgba(13, 115, 119, 0.2);
+  --figma-focus-ring-strong: rgba(13, 115, 119, 0.4);
+  --figma-success-border-soft: rgba(13, 115, 119, 0.25);
+  --figma-danger-border: #fecaca;
+  --figma-danger-surface: #fff7f7;
+  --figma-danger-fg: #b91c1c;
+  --figma-danger-fg-soft: #ef4444;
+  --figma-neutral-300: #d4d4d4;
+  --figma-neutral-900: #171717;
+  --figma-google-blue: #4285f4;
+  --figma-google-green: #34a853;
+  --figma-google-yellow: #fbbc05;
+  --figma-google-red: #ea4335;
+  --figma-placeholder: #a3a3a3;
+  --figma-dropzone-drag-surface: rgba(230, 247, 237, 0.4);
+  /* Auth / marketing lockup (Figma brand) */
+  --figma-brand-orange: #f2a33a;
+  --figma-brand-auth-wordmark: #e6f4f1;
+  --figma-brand-auth-lockup-bg: #0a0a0a;
+
+  /* Figma-aligned dark primitives (auth shell only) */
+  --figma-dark-shell: #0a0a0a;
+  --figma-dark-page: #0a0a0a;
+  --figma-dark-surface: #141414;
+  --figma-dark-surface-muted: #1c1c1c;
+  --figma-dark-surface-muted-strong: #262626;
+  --figma-dark-fg: #fafafa;
+  --figma-dark-fg-muted: #a3a3a3;
+  --figma-dark-fg-subtle: #737373;
+  --figma-dark-border: #262626;
+  --figma-dark-border-strong: #404040;
+  --figma-dark-primary: #14a3a8;
+  --figma-dark-primary-foreground: #fafafa;
+  --figma-dark-link: #7dd3d6;
+  --figma-dark-success-surface: rgba(20, 163, 168, 0.18);
+  --figma-dark-success-border: rgba(125, 211, 214, 0.35);
+  --figma-dark-success-fg: #7dd3d6;
+  --figma-dark-danger-surface: rgba(239, 68, 68, 0.12);
+  --figma-dark-danger-border: rgba(248, 113, 113, 0.45);
+  --figma-dark-danger-fg: #fecaca;
+  --figma-dark-danger-fg-input: #f87171;
+  --figma-dark-shadow-input: 0px 1px 2px 0px rgba(0, 0, 0, 0.35);
+  --figma-dark-shadow-button: 0px 1px 1px rgba(0, 0, 0, 0.35);
+  --figma-dark-focus-border: #14a3a8;
+  --figma-dark-focus-ring: rgba(20, 163, 168, 0.28);
+  --figma-dark-focus-ring-strong: rgba(20, 163, 168, 0.45);
+  --figma-dark-brand-panel: #0b5c5f;
+  --figma-dark-role-active-surface: rgba(20, 163, 168, 0.16);
+  --figma-dark-role-active-icon-bg: rgba(172, 222, 200, 0.35);
+  --figma-dark-dropzone-drag-surface: rgba(20, 163, 168, 0.12);
+
+  /* Semantic auth / split-layout (light — maps from Figma primitives above) */
+  --auth-shell-bg: var(--figma-background);
+  --auth-page-bg: var(--figma-gray-2);
+  --auth-surface: var(--figma-background);
+  --auth-surface-muted: var(--figma-gray-3);
+  --auth-surface-muted-strong: var(--figma-gray-5);
+  --auth-fg: var(--figma-foreground);
+  --auth-fg-muted: var(--figma-muted-foreground);
+  --auth-fg-subtle: var(--figma-gray-9);
+  --auth-border: var(--figma-muted);
+  --auth-border-strong: var(--figma-neutral-300);
+  --auth-placeholder-fg: var(--figma-placeholder);
+  --auth-primary: var(--figma-primary);
+  --auth-on-primary: var(--figma-primary-foreground);
+  --auth-link: var(--figma-primary);
+  --auth-success-surface: var(--figma-jade-3);
+  --auth-success-border: var(--figma-success-border-soft);
+  --auth-success-fg: var(--figma-primary);
+  --auth-danger-surface: var(--figma-danger-surface);
+  --auth-danger-border: var(--figma-danger-border);
+  --auth-danger-fg: var(--figma-danger-fg);
+  --auth-danger-fg-input: var(--figma-danger-fg-soft);
+  --auth-shadow-input: var(--figma-shadow-xs);
+  --auth-shadow-button: var(--figma-shadow-drop-sm);
+  --auth-focus-border: var(--figma-primary);
+  --auth-focus-ring: var(--figma-focus-ring);
+  --auth-focus-ring-button: var(--figma-focus-ring-strong);
+  --auth-brand-panel-bg: var(--figma-primary);
+  --auth-brand-wordmark-fg: var(--figma-jade-3);
+  --auth-brand-tagline-fg: var(--figma-jade-7);
+  --auth-brand-support-fg: var(--figma-white);
+  --auth-role-active-border: var(--figma-jade-8);
+  --auth-role-active-surface: var(--figma-jade-3);
+  --auth-role-active-icon-bg: var(--figma-jade-6);
+  --auth-role-active-fg: var(--figma-primary);
+  --auth-role-inactive-surface: var(--figma-gray-3);
+  --auth-role-inactive-border: var(--figma-muted);
+  --auth-role-inactive-icon-bg: var(--figma-gray-5);
+  --auth-role-inactive-fg: var(--figma-muted-foreground);
+  --auth-radio-border: var(--figma-muted);
+  --auth-radio-surface: var(--figma-background);
+  --auth-radio-active-border: var(--figma-primary);
+  --auth-radio-active-surface: var(--figma-primary);
+  --auth-radio-dot: var(--figma-background);
+  --auth-dropzone-bg: var(--figma-gray-2);
+  --auth-dropzone-border: var(--figma-muted);
+  --auth-dropzone-drag-border: var(--figma-primary);
+  --auth-dropzone-drag-surface: var(--figma-dropzone-drag-surface);
+  --auth-pill-inactive-bg: var(--figma-gray-2);
+  --auth-pill-inactive-border: var(--figma-muted);
+  --auth-pill-inactive-fg: var(--figma-foreground);
+  --auth-pill-active-bg: var(--figma-primary);
+  --auth-pill-active-fg: var(--figma-primary-foreground);
+  --auth-divider: var(--figma-muted);
+  --auth-outline-hover: var(--figma-gray-3);
+  --auth-topbar-fg-hover: var(--figma-foreground);
+
+  color-scheme: light;
+}
+
+/*
+ * Dark theme — portals, marketing home, and auth (user choice via Settings).
+ */
+[data-joballa-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --surface: #141414;
+  --surface-muted: #1c1c1c;
+  --line: #262626;
+  --joballa-page: #0a0a0a;
+  --joballa-page-tint: #0a0a0a;
+  --joballa-card: #141414;
+  --joballa-border: #262626;
+  --joballa-muted: #a1a1a1;
+  --joballa-primary: #14a3a8;
+  --joballa-primary-logo: #0e7377;
+  --joballa-jade-3: rgba(20, 163, 168, 0.22);
+  --joballa-jade-4: rgba(20, 163, 168, 0.35);
+  --joballa-jade-5: #b8e8eb;
+  --joballa-jade-8: #56ba9f;
+  --joballa-fg: #ffffff;
+  --joballa-sidebar: #0a0a0a;
+  --joballa-header: #141414;
+  --joballa-input-bg: #141414;
+  --joballa-dropdown-bg: #1c1c1c;
+  --joballa-row-hover: rgba(255, 255, 255, 0.06);
+  --joballa-tag-bg: #262626;
+  --joballa-tag-fg: #d4d4d4;
+  --joballa-match: #ffb800;
+  --joballa-match-accent: #f4a623;
+  --joballa-on-primary: #ffffff;
+  --joballa-danger-bg: rgba(239, 68, 68, 0.2);
+  --joballa-danger-fg: #fecaca;
+  --joballa-skeleton: #333333;
+  --joballa-skeleton-shine: rgba(255, 255, 255, 0.06);
+  --joballa-highlight-bg: rgba(255, 184, 0, 0.16);
+  --joballa-highlight-fg: #ffb800;
+  --joballa-fg-subtle: #a3a3a3;
+  --joballa-label-fg: #a1a1a1;
+  --joballa-avatar-bg: #333333;
+  --joballa-border-strong: #404040;
+  --joballa-segment-active: #404040;
+  --joballa-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --joballa-shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --joballa-nav-fg: #ffffff;
+  --joballa-nav-fg-muted: #a1a1a1;
+  --joballa-nav-hover: rgba(255, 255, 255, 0.08);
+  --joballa-empty-bg: #141414;
+  --joballa-empty-border: #333333;
+  --joballa-control-bg: #141414;
+  --joballa-control-border: #262626;
+  --joballa-control-fg: #fafafa;
+  --joballa-pill-bg: #1c1c1c;
+  --joballa-pill-border: #262626;
+  --joballa-row-selected: #1a1a1a;
+  --joballa-table-header: #8d8d8d;
+  --joballa-danger-border: rgba(239, 68, 68, 0.35);
+  --joballa-danger-soft: rgba(239, 68, 68, 0.12);
+
+  /* Auth / split sign-in (follows global dark when set in Settings) */
+  --auth-shell-bg: var(--figma-dark-shell);
+  --auth-page-bg: var(--figma-dark-page);
+  --auth-surface: var(--figma-dark-surface);
+  --auth-surface-muted: var(--figma-dark-surface-muted);
+  --auth-surface-muted-strong: var(--figma-dark-surface-muted-strong);
+  --auth-fg: var(--figma-dark-fg);
+  --auth-fg-muted: var(--figma-dark-fg-muted);
+  --auth-fg-subtle: var(--figma-dark-fg-subtle);
+  --auth-border: var(--figma-dark-border);
+  --auth-border-strong: var(--figma-dark-border-strong);
+  --auth-placeholder-fg: var(--figma-dark-fg-subtle);
+  --auth-primary: var(--figma-dark-primary);
+  --auth-on-primary: var(--figma-dark-primary-foreground);
+  --auth-link: var(--figma-dark-link);
+  --auth-success-surface: var(--figma-dark-success-surface);
+  --auth-success-border: var(--figma-dark-success-border);
+  --auth-success-fg: var(--figma-dark-success-fg);
+  --auth-danger-surface: var(--figma-dark-danger-surface);
+  --auth-danger-border: var(--figma-dark-danger-border);
+  --auth-danger-fg: var(--figma-dark-danger-fg);
+  --auth-danger-fg-input: var(--figma-dark-danger-fg-input);
+  --auth-shadow-input: var(--figma-dark-shadow-input);
+  --auth-shadow-button: var(--figma-dark-shadow-button);
+  --auth-focus-border: var(--figma-dark-focus-border);
+  --auth-focus-ring: var(--figma-dark-focus-ring);
+  --auth-focus-ring-button: var(--figma-dark-focus-ring-strong);
+  --auth-brand-panel-bg: var(--figma-dark-brand-panel);
+  --auth-brand-wordmark-fg: var(--figma-jade-3);
+  --auth-brand-tagline-fg: var(--figma-jade-7);
+  --auth-brand-support-fg: var(--figma-dark-fg);
+  --auth-role-active-border: var(--figma-jade-8);
+  --auth-role-active-surface: var(--figma-dark-role-active-surface);
+  --auth-role-active-icon-bg: var(--figma-dark-role-active-icon-bg);
+  --auth-role-active-fg: var(--figma-dark-success-fg);
+  --auth-role-inactive-surface: var(--figma-dark-surface-muted);
+  --auth-role-inactive-border: var(--figma-dark-border);
+  --auth-role-inactive-icon-bg: var(--figma-dark-surface-muted-strong);
+  --auth-role-inactive-fg: var(--figma-dark-fg-muted);
+  --auth-radio-border: var(--figma-dark-border-strong);
+  --auth-radio-surface: var(--figma-dark-surface);
+  --auth-radio-active-border: var(--figma-dark-primary);
+  --auth-radio-active-surface: var(--figma-dark-primary);
+  --auth-radio-dot: var(--figma-dark-fg);
+  --auth-dropzone-bg: var(--figma-dark-surface);
+  --auth-dropzone-border: var(--figma-dark-border-strong);
+  --auth-dropzone-drag-border: var(--figma-dark-focus-border);
+  --auth-dropzone-drag-surface: var(--figma-dark-dropzone-drag-surface);
+  --auth-pill-inactive-bg: var(--figma-dark-surface);
+  --auth-pill-inactive-border: var(--figma-dark-border);
+  --auth-pill-inactive-fg: var(--figma-dark-fg);
+  --auth-pill-active-bg: var(--figma-dark-primary);
+  --auth-pill-active-fg: var(--figma-dark-primary-foreground);
+  --auth-divider: var(--figma-dark-border);
+  --auth-outline-hover: var(--figma-dark-surface-muted-strong);
+  --auth-topbar-fg-hover: var(--figma-dark-fg);
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-joballa-primary: var(--joballa-primary);
+  --color-joballa-border: var(--joballa-border);
+  --color-joballa-muted: var(--joballa-muted);
+  --color-joballa-page-tint: var(--joballa-page-tint);
+  --color-joballa-page: var(--joballa-page);
+  --color-joballa-jade-3: var(--joballa-jade-3);
+  --color-joballa-card: var(--joballa-card);
+  --color-joballa-fg: var(--joballa-fg);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-joballa-theme="dark"] body {
+  letter-spacing: -0.01em;
+}
+
+.font-remixa {
+  font-family: var(--font-remixa), ui-sans-serif, system-ui, sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(13, 115, 119, 0.2);
+}
+
+[data-joballa-theme="dark"] ::selection {
+  background: rgba(13, 115, 119, 0.45);
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}

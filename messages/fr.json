@@ -1,0 +1,2112 @@
+{
+  "localeSwitcher": {
+    "chooseLanguage": "Choisir la langue",
+    "localeNames": {
+      "en": "English",
+      "fr": "Français"
+    }
+  },
+  "common": {
+    "confirm": {
+      "cancel": "Annuler",
+      "signOut": {
+        "title": "Se deconnecter ?",
+        "description": "Vous devrez vous reconnecter pour acceder a votre compte.",
+        "confirm": "Se deconnecter"
+      },
+      "delete": {
+        "title": "Supprimer cet element ?",
+        "description": "Cette action est irreversible.",
+        "confirm": "Supprimer"
+      },
+      "unsaveJob": {
+        "title": "Retirer l'offre sauvegardee ?",
+        "description": "Cette offre sera retiree de votre liste.",
+        "confirm": "Retirer"
+      },
+      "deleteApplication": {
+        "title": "Supprimer la candidature ?",
+        "description": "Cette candidature sera retiree de votre liste.",
+        "confirm": "Supprimer"
+      },
+      "deleteJobPosting": {
+        "title": "Supprimer l'offre ?",
+        "description": "Cette offre sera supprimee definitivement.",
+        "confirm": "Supprimer l'offre"
+      }
+    }
+  },
+  "ui": {
+    "passwordInput": {
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe"
+    }
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas, a ete deplacee, ou vous n'avez peut-etre pas l'autorisation de la consulter.",
+    "ctaDashboard": "Aller au tableau de bord",
+    "ctaSignIn": "Se connecter"
+  },
+  "public": {
+    "brand": {
+      "kicker": "Carrieres & recrutement",
+      "name": "Joballa"
+    },
+    "nav": {
+      "home": "Accueil",
+      "signIn": "Connexion",
+      "getStarted": "Commencer",
+      "findJobs": "Trouver un emploi",
+      "forEmployers": "Pour les employeurs",
+      "resources": "Ressources",
+      "about": "A propos",
+      "logIn": "Se connecter",
+      "signUp": "S'inscrire",
+      "navAria": "Navigation principale",
+      "menuOpen": "Ouvrir le menu",
+      "menuClose": "Fermer le menu",
+      "menuTitle": "Menu"
+    },
+    "hero": {
+      "title": "La maison du Cameroun pour l'emploi et le recrutement",
+      "titleLead": "Trouvez votre prochain emploi. ",
+      "titleAccent": "Recrutez votre prochain talent.",
+      "description": "Des premiers emplois aux equipes en croissance, Joballa aide les professionnels et les employeurs a reussir ensemble.",
+      "findJobsCta": "Trouver un emploi",
+      "hireTalentCta": "Recruter",
+      "trustLine": "Securise. Fiable. Pense pour le travail de demain.",
+      "imageAlt": "Personne enthousiaste avec un ordinateur portable portant la marque Joballa",
+      "primaryCta": "Creer un compte",
+      "secondaryCta": "Connexion",
+      "signInWithEmail": "Connexion par email",
+      "signInWithPhone": "Connexion par telephone"
+    },
+    "floatingSeekers": {
+      "title": "Pour les candidats",
+      "items": {
+        "0": "Offres verifiees",
+        "1": "Un profil reutilisable",
+        "2": "Suivi candidatures & paiements"
+      }
+    },
+    "floatingEmployers": {
+      "title": "Pour les employeurs",
+      "items": {
+        "0": "Publier des offres structurees vite",
+        "1": "Examiner des profils standardises",
+        "2": "Gerer les embauches au meme endroit"
+      }
+    },
+    "trustedBy": {
+      "title": "Ils nous font confiance",
+      "logos": {
+        "0": "TechCorp",
+        "1": "Innova",
+        "2": "BrightPay",
+        "3": "Marketiq",
+        "4": "HubStaff",
+        "5": "Globex"
+      }
+    },
+    "featureColumns": {
+      "seekers": {
+        "title": "Trouvez des opportunites alignees sur vos competences",
+        "description": "Parcourez des offres selectionnees, enregistrez vos recherches et postulez avec un profil Joballa verifie au lieu d'un CV ponctuel.",
+        "cta": "Explorer les offres →"
+      },
+      "employers": {
+        "title": "Recrutez des talents qui font grandir votre activite",
+        "description": "Publiez des roles avec des garde-fous, evaluez les candidats de maniere homogene et gardez la main-d'oeuvre et les paiements synchronises.",
+        "cta": "Publier une offre →"
+      }
+    },
+    "howDual": {
+      "title": "Comment fonctionne Joballa",
+      "subtitle": "Des parcours differents, une meme place de marche de confiance.",
+      "seekers": {
+        "label": "Candidats",
+        "steps": {
+          "0": { "title": "Creez votre profil", "description": "Competences, experience, documents et preferences de paiement au meme endroit structure." },
+          "1": { "title": "Decouvrir & postuler", "description": "Recherche par categorie, offres sauvegardees et candidatures avec le contexte attendu par les employeurs." },
+          "2": { "title": "Etre embauche & paye", "description": "Suivez entretiens et offres avec une visibilite sur l'engagement et la preparation mobile money." }
+        }
+      },
+      "employers": {
+        "label": "Employeurs",
+        "steps": {
+          "0": { "title": "Publier une offre", "description": "Offres structurees pour roles formels et informels, alignees sur la moderation Joballa." },
+          "1": { "title": "Examiner les candidats", "description": "Profils standardises et filtres pour comparer de maniere homogene." },
+          "2": { "title": "Gerer votre main-d'oeuvre", "description": "Suivez embauches, passations et decaissements depuis le tableau employeur." }
+        }
+      }
+    },
+    "metricsBanner": {
+      "users": { "value": "50 000+", "label": "Utilisateurs actifs" },
+      "jobs": { "value": "10 000+", "label": "Offres publiees" },
+      "companies": { "value": "2 500+", "label": "Entreprises qui recrutent" },
+      "satisfaction": { "value": "98 %", "label": "Satisfaction utilisateurs" }
+    },
+    "testimonials": {
+      "title": "Ce que disent nos utilisateurs",
+      "items": {
+        "0": { "quote": "Enfin un seul endroit pour mon profil et mes paiements—plus de relances RH sur WhatsApp.", "name": "Sarah N.", "role": "Product designer" },
+        "1": { "quote": "Publier des roles domestiques etait le chaos. Joballa rend les examens previsibles.", "name": "Marc T.", "role": "Responsable operations" },
+        "2": { "quote": "On embauche les saisonniers plus vite car les profils se ressemblent enfin.", "name": "Grace E.", "role": "Responsable RH" }
+      }
+    },
+    "appPromo": {
+      "kicker": "Mobile d'abord",
+      "title": "Emportez Joballa partout",
+      "description": "Gerez candidatures, messages et paiements en deplacement—applications natives Android et iOS prevues.",
+      "scanHint": "Scannez pour telecharger des que disponible",
+      "storeSoon": "App Store & Google Play — bientot"
+    },
+    "footer": {
+      "tagline": "Carrieres et recrutement structures pour le Cameroun et au-dela.",
+      "copyright": "© {year} Joballa. Tous droits reserves.",
+      "columns": {
+        "seekers": {
+          "title": "Pour les candidats",
+          "signup": "Creer un compte",
+          "signIn": "Connexion",
+          "jobs": "Parcourir les offres"
+        },
+        "employers": {
+          "title": "Pour les employeurs",
+          "signup": "Publier une offre",
+          "hub": "Espace employeur"
+        },
+        "resources": {
+          "title": "Ressources",
+          "support": "Support",
+          "privacy": "Confidentialite"
+        },
+        "about": {
+          "title": "A propos de Joballa",
+          "story": "Notre histoire",
+          "contact": "Contact"
+        }
+      },
+      "socialTitle": "Restez connectes"
+    },
+    "stats": {
+      "languages": {
+        "value": "2 langues",
+        "label": "Anglais et francais des le lancement"
+      },
+      "workflow": {
+        "value": "1 flux",
+        "label": "Du premier contact jusqu'au paiement"
+      },
+      "payments": {
+        "value": "MoMo pret",
+        "label": "Prepare pour MTN MoMo et Orange Money"
+      }
+    },
+    "audiences": {
+      "worker": {
+        "title": "Les travailleurs construisent un profil verifie au lieu d'envoyer un CV different a chaque fois.",
+        "description": "L'espace travailleur est pense pour la completion du profil, les candidatures structurees, les recommandations et la visibilite des paiements."
+      },
+      "employer": {
+        "title": "Les employeurs examinent des profils candidats standardises et gerent tout le flux d'embauche.",
+        "description": "L'espace employeur couvre la publication d'offres, l'examen des candidats, la gestion de la main-d'oeuvre et la preparation de la paie."
+      },
+      "admin": {
+        "title": "Les administrateurs protegent la confiance sur la place de marche.",
+        "description": "L'espace admin est construit autour de la verification, de la moderation des offres, des litiges, des rapports et des departements Joballa."
+      }
+    },
+    "preview": {
+      "kicker": "Surfaces produit",
+      "title": "Une structure frontend plus claire pour le vrai produit",
+      "status": "Structure active"
+    },
+    "howItWorks": {
+      "kicker": "Fonctionnement",
+      "title": "Le produit reflete maintenant le vrai perimetre de la plateforme",
+      "description": "Au lieu d'une landing page generique, l'experience publique presente maintenant les flux decrits dans votre document de cadrage.",
+      "steps": {
+        "profile": {
+          "title": "Construire une identite professionnelle",
+          "description": "Les travailleurs completent un profil structure avec competences, historique, documents et details de paiement."
+        },
+        "match": {
+          "title": "Examiner et recruter avec contexte",
+          "description": "Les employeurs recoivent des instantanes de profil standardises et peuvent gerer les candidats dans un parcours plus clair."
+        },
+        "pay": {
+          "title": "Suivre l'engagement et le paiement",
+          "description": "La plateforme est concue autour de relations documentees, de la visibilite de la paie et d'un decaissement fiable."
+        }
+      }
+    },
+    "departments": {
+      "kicker": "Secteurs informels inclus",
+      "title": "Les departements geres par Joballa gardent le travail informel dans le meme systeme de confiance",
+      "description": "La landing page communique maintenant que Joballa ne s'adresse pas seulement aux entreprises enregistrees. Elle prend aussi en charge des departements internes pour les categories de travail informel importantes au Cameroun.",
+      "items": {
+        "education": {
+          "title": "Education",
+          "description": "Tutorat, ecole a domicile et missions d'enseignement informel."
+        },
+        "domestic": {
+          "title": "Domestique",
+          "description": "Menage, garde d'enfants, cuisine et aide a domicile."
+        },
+        "logistics": {
+          "title": "Logistique",
+          "description": "Livreurs, demenageurs et soutien transport."
+        },
+        "events": {
+          "title": "Evenementiel",
+          "description": "Accueil, installation, service et equipes evenementielles."
+        },
+        "agriculture": {
+          "title": "Agriculture",
+          "description": "Travail saisonnier, recolte et agro-transformation."
+        },
+        "construction": {
+          "title": "Construction",
+          "description": "Main-d'oeuvre occasionnelle, peinture, maconnerie et bricolage."
+        }
+      }
+    },
+    "closing": {
+      "kicker": "Rejoignez-nous",
+      "title": "Rejoignez Joballa aujourd'hui",
+      "description": "Creez votre compte en quelques minutes, ou reconnectez-vous par email ou telephone sur les pages prevues pour chaque canal.",
+      "signIn": "Connexion",
+      "createAccount": "Creer un compte",
+      "postJobCta": "Publier une offre"
+    }
+  },
+  "auth": {
+    "layout": {
+      "backHome": "Retour a l'accueil"
+    },
+    "mobile": {
+      "back": "Retour"
+    },
+    "branding": {
+      "line1": "ici,",
+      "line2": "vous chassez",
+      "line3": "et vous",
+      "line4": "attrapez",
+      "supportTitle": "Un souci ?",
+      "supportBody": "Obtenez de l'aide via",
+      "supportEmail": "support@joballa.cm"
+    },
+    "login": {
+      "back": "Retour a l'accueil",
+      "eyebrow": "Points d'entree",
+      "title": "Choisissez la surface que vous voulez ouvrir",
+      "description": "Connectez-vous avec votre compte Joballa pour ouvrir l'espace travailleur, employeur ou admin qui correspond a votre role.",
+      "signIn": "Se connecter",
+      "signUp": "Creer un compte",
+      "afterAuthHint": "Apres Connexion, vous choisissez la page email ou la page telephone : chaque formulaire correspond a un type d'identifiant. Les nouveaux comptes utilisent un code OTP ; la session repose sur des jetons JWT, avec rafraichissement en cookie httpOnly lorsque c'est supporte.",
+      "worker": {
+        "title": "Acces travailleur",
+        "description": "Consultez les recommandations, suivez les candidatures et preparez votre profil professionnel.",
+        "cta": "Ouvrir l'espace travailleur"
+      },
+      "employer": {
+        "title": "Acces employeur",
+        "description": "Publiez des offres, examinez les candidats et gerez les personnes recrutees.",
+        "cta": "Ouvrir l'espace employeur"
+      },
+      "admin": {
+        "title": "Acces admin",
+        "description": "Examinez les files de verification, les litiges et le reporting operationnel.",
+        "cta": "Ouvrir l'espace admin"
+      }
+    },
+    "signup": {
+      "back": "Retour a l'accueil",
+      "already": "Vous avez deja un compte ?",
+      "signInLink": "Connexion",
+      "eyebrow": "Commencer",
+      "title": "Demarrez dans le role qui correspond a votre place sur la plateforme",
+      "description": "Le document de cadrage definit des experiences distinctes pour les travailleurs et les employeurs, donc l'inscription reflete maintenant clairement cette separation.",
+      "worker": {
+        "title": "Creer un compte travailleur",
+        "description": "Pour les chercheurs d'emploi et professionnels qui construisent une identite de candidature basee sur le profil.",
+        "points": {
+          "profile": "Construisez votre profil professionnel une seule fois et reutilisez-le.",
+          "jobs": "Parcourez des offres qui correspondent a vos competences et categories preferees.",
+          "payments": "Suivez vos gains et votre historique de paiements mobile money."
+        },
+        "cta": "Continuer comme travailleur"
+      },
+      "employer": {
+        "title": "Creer un compte employeur",
+        "description": "Pour les entreprises, departements et organisations qui recrutent et gerent des travailleurs.",
+        "points": {
+          "jobs": "Creez des offres structurees pour revue et publication.",
+          "review": "Examinez des profils standardises au lieu d'un chaos de CV.",
+          "payroll": "Suivez les travailleurs, la paie et l'etat des decaissements."
+        },
+        "cta": "Continuer comme employeur"
+      }
+    },
+    "signInHub": {
+      "eyebrow": "Connexion",
+      "title": "Comment voulez-vous vous connecter ?",
+      "description": "L'email et le telephone ont chacun une page, pour que le formulaire corresponde a votre inscription.",
+      "noteTitle": "Deux facons de se connecter",
+      "noteBody": "Utilisez la page email si votre compte repose sur une adresse e-mail, ou la page telephone si vous vous etes inscrit avec un numero mobile. Les deux ne se melangent pas dans un seul champ.",
+      "afterPasswordResetHint": "Votre mot de passe a ete mis a jour. Choisissez email ou telephone ci-dessous, puis connectez-vous avec le nouveau mot de passe.",
+      "email": {
+        "title": "Email et mot de passe",
+        "description": "Connectez-vous avec l'adresse email de votre compte Joballa.",
+        "cta": "Continuer avec l'email"
+      },
+      "phone": {
+        "title": "Telephone et mot de passe",
+        "description": "Connectez-vous avec le numero de telephone de votre compte, indicatif pays inclus.",
+        "cta": "Continuer avec le telephone"
+      },
+      "forgotLead": "Mot de passe oublie ?",
+      "forgotLink": "Reinitialiser",
+      "noAccount": "Pas encore de compte ?",
+      "signUp": "Creer un compte"
+    },
+    "signInForm": {
+      "backToHub": "Retour aux options de connexion",
+      "emailTitle": "Connexion par email",
+      "phoneTitle": "Connexion par telephone",
+      "subheadInvite": "Pas encore de compte ? <create>Creer un compte</create>.",
+      "emailField": "Adresse email",
+      "emailPlaceholder": "vous@example.com",
+      "phoneField": "Numero de telephone",
+      "phonePlaceholder": "+237612345678",
+      "passwordField": "Mot de passe",
+      "passwordPlaceholder": "Entrez votre mot de passe",
+      "signInWithEmail": "Se connecter avec l'email",
+      "signInWithPhone": "Se connecter avec le telephone",
+      "actions": {
+        "signIn": "Se connecter",
+        "signingIn": "Connexion…"
+      },
+      "forgotPassword": "Mot de passe oublie ?",
+      "or": "ou",
+      "google": "Continuer avec Google",
+      "googleSoon": "La connexion Google n'est pas encore disponible.",
+      "loading": "Chargement…",
+      "afterPasswordResetHint": "Votre mot de passe a ete mis a jour. Connectez-vous avec le nouveau mot de passe.",
+      "sessionExpiredHint": "Votre session a expire. Veuillez vous reconnecter pour continuer.",
+      "errors": {
+        "submit": "Connexion impossible. Verifiez vos informations et reessayez.",
+        "invalidCredentials": "Email ou mot de passe incorrect. Reessayez.",
+        "notVerified": "Compte non verifie. Saisissez le code recu pour terminer l'inscription."
+      }
+    },
+    "signUpForm": {
+      "eyebrow": "Creer un compte",
+      "title": "Inscription Joballa",
+      "description": "Choisissez email ou telephone, puis confirmez le code a six chiffres. Le role a ete choisi a l'etape precedente (travailleur ou employeur).",
+      "roleHint": "Inscription en tant que : {role}",
+      "roles": {
+        "worker": "Travailleur",
+        "employer": "Employeur"
+      },
+      "contact": {
+        "email": "Email",
+        "phone": "Telephone"
+      },
+      "passwordRules": "Mot de passe : 8 a 128 caracteres.",
+      "fields": {
+        "email": "Adresse email",
+        "phone": "Numero de telephone",
+        "password": "Creer un mot de passe",
+        "code": "Code de verification"
+      },
+      "placeholders": {
+        "email": "vous@example.com",
+        "phone": "+237612345678",
+        "password": "Creez un mot de passe fort",
+        "code": "Code a six chiffres"
+      },
+      "actions": {
+        "create": "Envoyer le code",
+        "creating": "Envoi…",
+        "verify": "Verifier et continuer",
+        "verifying": "Verification…",
+        "resend": "Renvoyer le code",
+        "back": "Retour aux informations"
+      },
+      "verify": {
+        "eyebrow": "Verifiez vos messages",
+        "title": "Saisissez votre code",
+        "description": "Entrez le code a six chiffres envoye a {identifier}.",
+        "sent": "Code envoye. Verifiez votre email ou telephone.",
+        "resent": "Un nouveau code a ete envoye."
+      },
+      "haveAccount": "Deja un compte ?",
+      "signIn": "Connexion",
+      "heroTitle": "Inscription",
+      "introLead": "Deja un compte ? ",
+      "introSignIn": "Connexion",
+      "orDivider": "ou",
+      "googleContinue": "Continuer avec Google",
+      "googleSoon": "La connexion Google n'est pas encore disponible.",
+      "legalPrefix": "En vous inscrivant vous acceptez la ",
+      "legalPrivacy": "Politique de confidentialite",
+      "legalAnd": " et les ",
+      "legalTerms": "Conditions d'utilisation",
+      "errors": {
+        "submit": "Inscription impossible. Verifiez vos informations et reessayez.",
+        "verification": "Impossible d'envoyer un nouveau code pour le moment. Reessayez bientot.",
+        "code": "Code incorrect. Verifiez-le ou demandez-en un nouveau.",
+        "codeFormat": "Saisissez les 6 chiffres du code.",
+        "incomplete": "Terminez les etapes ci-dessus pour continuer."
+      }
+    },
+    "signUpPhone": {
+      "title": "Inscription",
+      "intro": "Deja un compte ?",
+      "loginHere": "Connexion",
+      "fields": {
+        "name": "Nom complet",
+        "phone": "Numero de telephone",
+        "password": "Creer un mot de passe"
+      },
+      "placeholders": {
+        "name": "Ex : Marie Dupont",
+        "phone": "000 000 000",
+        "password": "Creez un mot de passe fort"
+      },
+      "back": "Retour",
+      "actions": {
+        "signUp": "Creer un compte",
+        "creating": "Creation…"
+      },
+      "or": "ou",
+      "google": "Continuer avec Google",
+      "googleSoon": "La connexion Google n'est pas encore disponible.",
+      "useEmail": "S'inscrire avec l'email a la place",
+      "legal": {
+        "prefix": "En vous inscrivant vous acceptez la ",
+        "privacy": "Politique de confidentialite",
+        "and": " et les ",
+        "terms": "Conditions d'utilisation"
+      },
+      "errors": {
+        "submit": "Impossible de creer le compte. Verifiez vos informations et reessayez."
+      }
+    },
+    "signUpEmail": {
+      "title": "Inscription",
+      "intro": "Deja un compte ?",
+      "loginHere": "Connexion",
+      "fields": {
+        "name": "Nom complet",
+        "email": "Adresse email",
+        "password": "Creer un mot de passe"
+      },
+      "placeholders": {
+        "name": "Ex : Marie Dupont",
+        "email": "Ex : marie@mail.com",
+        "password": "Creez un mot de passe fort"
+      },
+      "back": "Retour",
+      "actions": {
+        "signUp": "Creer un compte",
+        "creating": "Creation…"
+      },
+      "or": "ou",
+      "google": "Continuer avec Google",
+      "googleSoon": "La connexion Google n'est pas encore disponible.",
+      "usePhone": "S'inscrire avec le telephone a la place",
+      "legal": {
+        "prefix": "En vous inscrivant vous acceptez la ",
+        "privacy": "Politique de confidentialite",
+        "and": " et les ",
+        "terms": "Conditions d'utilisation"
+      },
+      "errors": {
+        "submit": "Impossible de creer le compte. Verifiez vos informations et reessayez."
+      }
+    },
+    "signUpOtp": {
+      "redirecting": "Redirection vers la verification…",
+      "titleEmail": "Verifiez votre boite mail",
+      "titlePhone": "Verifiez votre telephone",
+      "leadEmail": "Nous avons envoye un code a six chiffres a",
+      "leadPhone": "Nous avons envoye un code a six chiffres au",
+      "back": "Retour",
+      "codeLabel": "Saisir le code",
+      "digitAria": "Chiffre {n}",
+      "actions": {
+        "signUp": "Verifier et continuer",
+        "verifying": "Verification…",
+        "sending": "Envoi…",
+        "resend": "Renvoyer le code"
+      },
+      "resent": "Un nouveau code a ete envoye.",
+      "legal": {
+        "prefix": "En vous inscrivant vous acceptez la ",
+        "privacy": "Politique de confidentialite",
+        "and": " et les ",
+        "terms": "Conditions d'utilisation"
+      },
+      "errors": {
+        "format": "Saisissez les 6 chiffres du code.",
+        "verify": "Code incorrect. Verifiez-le ou demandez-en un nouveau.",
+        "resend": "Impossible d'envoyer un nouveau code pour le moment. Reessayez bientot."
+      }
+    },
+    "signUpRole": {
+      "title": "Que ferez-vous ?",
+      "worker": {
+        "title": "Travailleur",
+        "description": "Chercher des emplois et suivre les candidatures"
+      },
+      "employer": {
+        "title": "Employeur",
+        "description": "Trouver des talents, gerer les candidats et la main-d'oeuvre"
+      },
+      "hint": "Choisissez une option pour continuer.",
+      "actions": {
+        "continue": "Continuer",
+        "working": "Suite…"
+      },
+      "errors": {
+        "generic": "Une erreur s'est produite. Reessayez."
+      }
+    },
+    "signUpProfile": {
+      "title": "Televersez des documents pour votre profil",
+      "subtitle": "Ajoutez des certificats ou un CV pour que les employeurs voient votre experience. Vous pourrez les mettre a jour plus tard.",
+      "dropTitle": "Glissez-deposez des certificats ou des documents",
+      "dropHint": "PDF, PNG ou JPG (max. 10 Mo)",
+      "browse": "Parcourir les fichiers",
+      "actions": {
+        "continue": "Continuer"
+      }
+    },
+    "signUpInterests": {
+      "title": "Quels metiers vous interessent ?",
+      "subtitle": "Choisissez au moins trois domaines. Vous pourrez les modifier plus tard dans votre profil.",
+      "actions": {
+        "continue": "Continuer",
+        "working": "Suite…"
+      },
+      "errors": {
+        "min": "Choisissez au moins trois options pour continuer.",
+        "generic": "Une erreur est survenue. Reessayez."
+      },
+      "options": {
+        "retail": "Commerce",
+        "hospitality": "Hotellerie",
+        "logistics": "Logistique",
+        "healthcare": "Sante",
+        "education": "Education",
+        "technology": "Technologie",
+        "construction": "Construction",
+        "domestic": "Services a domicile",
+        "agriculture": "Agriculture",
+        "events": "Evenements",
+        "sales": "Ventes",
+        "security": "Securite"
+      }
+    },
+    "signUpPostCategories": {
+      "title": "Quelles offres allez-vous publier ?",
+      "subtitle": "Indiquez les secteurs et types d'emploi que vous prevoyez de proposer. Vous pourrez les modifier plus tard dans votre profil.",
+      "sections": {
+        "categories": "Categories d'offres",
+        "kinds": "Types d'emploi",
+        "kindsHint": "Choisissez au moins un type d'offre que vous comptez publier."
+      },
+      "actions": {
+        "continue": "Terminer l'inscription",
+        "working": "Enregistrement…"
+      },
+      "errors": {
+        "minCategories": "Choisissez au moins trois categories pour continuer.",
+        "minTypes": "Choisissez au moins un type d'emploi pour continuer.",
+        "generic": "Une erreur est survenue. Reessayez."
+      },
+      "jobTypes": {
+        "full_time": "Temps plein",
+        "part_time": "Temps partiel",
+        "contract": "Contrat",
+        "casual": "Occasionnel",
+        "seasonal": "Saisonnier",
+        "internship": "Stage"
+      }
+    },
+    "forgotPasswordPage": {
+      "back": "Retour a l'accueil"
+    },
+    "forgotPassword": {
+      "eyebrow": "Aide mot de passe",
+      "title": "Mot de passe oublie ?",
+      "description": "Si un compte verifie existe pour cet identifiant, nous enverrons un code de reinitialisation.",
+      "loading": "Chargement…",
+      "fields": {
+        "identifier": "Email ou telephone",
+        "email": "Adresse email",
+        "phone": "Numero de telephone"
+      },
+      "placeholders": {
+        "identifier": "vous@example.com ou +237…",
+        "email": "Ex : marie@mail.com",
+        "phone": "000 000 000"
+      },
+      "actions": {
+        "submit": "Envoyer le code",
+        "sending": "Envoi…"
+      },
+      "backToSignIn": "Retour a la connexion",
+      "alreadyHaveCode": "J'ai deja un code de reinitialisation",
+      "errors": {
+        "generic": "Une erreur s'est produite. Reessayez."
+      }
+    },
+    "resetPasswordPage": {
+      "back": "Retour a l'accueil"
+    },
+    "resetPassword": {
+      "eyebrow": "Nouveau mot de passe",
+      "title": "Definir un nouveau mot de passe",
+      "description": "Saisissez le code a six chiffres recu par email ou SMS, puis un nouveau mot de passe (8 a 128 caracteres). Apres enregistrement, vous serez connecte automatiquement.",
+      "verify": {
+        "title": "Saisir le code",
+        "description": "Saisissez le code a six chiffres recu par email ou SMS. Vous choisirez un nouveau mot de passe a l'etape suivante."
+      },
+      "password": {
+        "title": "Definir un nouveau mot de passe",
+        "description": "Choisissez un nouveau mot de passe (8 a 128 caracteres). Apres enregistrement, vous serez connecte automatiquement.",
+        "codeConfirmed": "Code verifie"
+      },
+      "sentHint": "Si un compte existe pour cet email ou telephone, un code a ete envoye. Saisissez-le ci-dessous.",
+      "identifierLockedHint": "Pour changer d'email ou de telephone, revenez a l'etape precedente.",
+      "loading": "Chargement…",
+      "fields": {
+        "identifier": "Email ou telephone",
+        "code": "Code",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le mot de passe"
+      },
+      "placeholders": {
+        "identifier": "vous@example.com ou +237…",
+        "code": "Code a six chiffres",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Saisir a nouveau le mot de passe"
+      },
+      "actions": {
+        "verify": "Verifier le code",
+        "verifying": "Verification…",
+        "changeCode": "Utiliser un autre code",
+        "submit": "Enregistrer et se connecter",
+        "saving": "Enregistrement…",
+        "resend": "Renvoyer le code",
+        "resending": "Envoi…"
+      },
+      "resendSuccess": "Si un compte verifie existe, un nouveau code a ete envoye.",
+      "backToForgot": "Demander un nouveau code",
+      "backToSignIn": "Retour a la connexion",
+      "loginAfterResetHint": "Mot de passe mis a jour. Connectez-vous avec votre nouveau mot de passe.",
+      "errors": {
+        "generic": "Reinitialisation impossible. Verifiez le code et reessayez.",
+        "codeFormat": "Saisissez les 6 chiffres du code.",
+        "passwordMismatch": "Les mots de passe ne correspondent pas. Saisissez-les a nouveau.",
+        "passwordLength": "Utilisez un mot de passe de 8 a 128 caracteres.",
+        "needIdentifier": "Saisissez votre email ou numero de telephone.",
+        "resend": "Impossible d'envoyer un nouveau code pour le moment. Reessayez plus tard."
+      }
+    },
+    "logout": {
+      "button": "Deconnexion",
+      "busy": "Deconnexion…"
+    }
+  },
+  "worker": {
+    "brand": "Espace travailleur",
+    "shell": {
+      "title": "Espace travailleur",
+      "subtitle": "Candidatures basees sur le profil, decouverte d'offres et visibilite des paiements pour le parcours travailleur mobile-first.",
+      "utility": "Cette surface est maintenant separee des flux employeur et admin afin que le parcours travailleur reste concentre.",
+      "userName": "Ako James",
+      "userEmail": "james@example.com",
+      "userInitials": "AJ",
+      "mainNav": "Sections travailleur",
+      "bottomNav": "Navigation principale",
+      "tabDashboard": "Tableau de bord",
+      "tabJobs": "Offres",
+      "tabApplications": "Candidatures",
+      "tabSaved": "Enregistrees",
+      "tabEarnings": "Gains",
+      "tabNotifications": "Alertes",
+      "notifications": "Notifications",
+      "engagements": "Engagements"
+    },
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "profile": "Profil",
+      "jobs": "Trouver des offres",
+      "applications": "Mes candidatures",
+      "saved": "Offres enregistrees",
+      "earnings": "Gains",
+      "settings": "Parametres",
+      "notifications": "Notifications",
+      "postJob": "Publier une offre"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Mises a jour sur vos candidatures, paiements, offres et profil.",
+      "viewDetails": "Voir les details",
+      "filtersButton": "Filtres",
+      "filters": {
+        "all": "Tout",
+        "jobs": "Offres",
+        "payments": "Paiements"
+      },
+      "actions": {
+        "open": "Actions notification",
+        "markAsRead": "Marquer comme lu",
+        "delete": "Supprimer"
+      },
+      "kinds": {
+        "application": "Candidature",
+        "payment": "Paiement",
+        "job": "Offre",
+        "profile": "Profil"
+      },
+      "empty": "Aucune notification pour le moment."
+    },
+    "dashboardPage": {
+      "title": "Tableau de bord",
+      "searchPlaceholder": "Rechercher des offres",
+      "period": {
+        "aria": "Periode des indicateurs",
+        "week": "Cette semaine",
+        "month": "Ce mois-ci",
+        "all": "Tout"
+      },
+      "setupBanner": {
+        "title": "Bonjour, {name}. Vous n'avez pas encore configure votre profil",
+        "cta": "Aller au profil"
+      },
+      "sort": {
+        "aria": "Trier les offres recommandees",
+        "newest": "Plus recentes",
+        "match": "Meilleure correspondance",
+        "pay": "Salaire"
+      },
+      "appFilter": {
+        "aria": "Filtrer par statut",
+        "all": "Tous les statuts",
+        "shortlisted": "Preselectionnees",
+        "pending": "En attente",
+        "rejected": "Refusees"
+      },
+      "stats": {
+        "applications": {
+          "label": "CANDIDATURES",
+          "value": "07",
+          "hint": "4 actives ce mois-ci",
+          "hintWeek": "2 envoyees cette semaine",
+          "hintMonth": "4 actives ce mois-ci",
+          "hintAll": "12 candidatures au total"
+        },
+        "earnings": {
+          "label": "GAINS",
+          "value": "1,2M",
+          "hint": "200k ce mois-ci",
+          "hintWeek": "45k cette semaine",
+          "hintMonth": "200k ce mois-ci",
+          "hintAll": "1,2M au total"
+        },
+        "views": {
+          "label": "VUES DU PROFIL",
+          "value": "38",
+          "hint": "+12 cette semaine",
+          "hintWeek": "+12 cette semaine",
+          "hintMonth": "+28 ce mois-ci",
+          "hintAll": "312 vues au total"
+        },
+        "strength": {
+          "label": "FORCE DU PROFIL",
+          "value": "60%",
+          "hint": "Ajoutez un CV pour progresser",
+          "hintWeek": "Mis a jour cette semaine",
+          "hintMonth": "En hausse",
+          "hintAll": "Ajoutez un CV pour 100%"
+        }
+      },
+      "profileBoostCta": "Ameliorer le profil",
+      "dialogs": {
+        "applicationTitle": "Candidature",
+        "applicationIntro": "Vous avez postule a {title} chez {company}.",
+        "viewFull": "Ouvrir la candidature",
+        "viewJob": "Voir l'offre",
+        "close": "Fermer",
+        "profileTitle": "Renforcer le profil",
+        "profileIntro": "Completez les elements restants pour une meilleure visibilite aupres des employeurs.",
+        "profileCta": "Aller au profil"
+      },
+      "recommended": {
+        "title": "Offres recommandees",
+        "seeAll": "Tout voir",
+        "match": "{pct}% de correspondance",
+        "posted": "il y a {time}",
+        "bookmark": "Enregistrer l'offre",
+        "menu": "Actions",
+        "apply": "Postuler",
+        "save": "Enregistrer",
+        "share": "Partager",
+        "flag": "Signaler",
+        "hide": "Masquer"
+      },
+      "applications": {
+        "title": "Etat des candidatures",
+        "seeAll": "Tout voir",
+        "applied": "Candidature envoyee il y a {time}",
+        "details": "Details",
+        "emptyFiltered": "Aucune candidature pour ce filtre.",
+        "statusShortlisted": "Preselectionnee",
+        "statusPending": "En attente",
+        "statusRejected": "Refusee"
+      },
+      "profileStrength": {
+        "title": "Force du profil",
+        "percent": "{pct}% complete",
+        "subtitle": "Ajoutez ceci pour atteindre 100%",
+        "empty": "La liste apparaitra une fois le profil charge.",
+        "sections": {
+          "personal": "Infos personnelles",
+          "summary": "Resume professionnel",
+          "skills": "Competences",
+          "work": "Experience",
+          "education": "Formation",
+          "verification": "Verification",
+          "payment": "Paiement"
+        }
+      }
+    },
+    "findJobsPage": {
+      "title": "Trouver des offres",
+      "resultsTitle": "Resultats de recherche",
+      "searchPlaceholder": "Rechercher par titre, competence ou entreprise.",
+      "submitSearch": "Rechercher des offres",
+      "filtersButton": "Filtres",
+      "sort": "Pertinence",
+      "filters": {
+        "region": "Region",
+        "city": "Ville",
+        "type": "Type",
+        "pay": "Salaire",
+        "department": "Departement"
+      },
+      "cityAll": "Toutes les villes",
+      "regionAll": "Toutes les regions",
+      "typeAll": "Tous les types",
+      "payAll": "Toutes les fourchettes",
+      "deptAll": "Toutes les categories",
+      "regions": {
+        "adamawa": "Adamaoua",
+        "centre": "Centre",
+        "east": "Est",
+        "farNorth": "Extreme-Nord",
+        "littoral": "Littoral",
+        "north": "Nord",
+        "northwest": "Nord-Ouest",
+        "south": "Sud",
+        "southwest": "Sud-Ouest",
+        "west": "Ouest"
+      },
+      "typeOptions": ["Temps plein", "Temps partiel", "Contrat"],
+      "deptOptions": [
+        "Aucun",
+        "Agriculture",
+        "Construction",
+        "Domestique",
+        "Education",
+        "Divertissement",
+        "Evenements",
+        "Logistique"
+      ],
+      "match": "{pct}% de correspondance",
+      "posted": "il y a {time}",
+      "payOptions": ["Moins de 50k XAF", "50k – 150k XAF", "Plus de 150k XAF"],
+      "bookmark": "Enregistrer",
+      "apply": "Postuler",
+      "cardMenu": "Plus d'actions sur l'offre",
+      "menu": {
+        "openDetails": "Ouvrir les details",
+        "save": "Enregistrer l'offre",
+        "share": "Partager l'offre",
+        "report": "Signaler l'offre",
+        "hide": "Masquer l'offre",
+        "unsave": "Retirer des offres enregistrees"
+      },
+      "viewGrid": "Grille",
+      "viewList": "Liste",
+      "emptySearch": "Aucune offre ne correspond a votre recherche.",
+      "emptySearchTitle": "Aucune offre trouvee",
+      "loadError": "Impossible de charger les offres. Reessayez.",
+      "backToJobs": "Retour aux offres",
+      "listColPosted": "Publie",
+      "listColTitle": "Intitule",
+      "listColCompany": "Entreprise",
+      "listColPay": "Remuneration"
+    },
+    "jobDetail": {
+      "back": "Retour aux offres",
+      "closePanel": "Fermer",
+      "applyCta": "Postuler a cette offre",
+      "aboutTitle": "A propos du role",
+      "aboutLead": "{company} recrute pour ce poste : {title}. Voici ce qu'il faut attendre de l'equipe et du quotidien.",
+      "aboutBody": "Des objectifs clairs, des delais previsibles et une communication reguliere avec les parties prenantes. Nous valorisons le soin du travail, la fiabilite et le respect des horaires convenus.",
+      "reqTitle": "Profil recherche",
+      "req1": "Experience pertinente dans un poste comparable",
+      "req2": "A l'aise en anglais et en francais",
+      "req3": "Engagement sur les horaires et les resultats convenus",
+      "whatTitle": "Ce que vous ferez",
+      "what1": "Realiser le travail decrit dans le brief avec des mises a jour claires.",
+      "what2": "Coordonner avec l'equipe recrutement sur les horaires, le lieu et les attentes.",
+      "what3": "Respecter les heures convenues, les resultats et une communication professionnelle.",
+      "sidebarHint": "La candidature prend quelques minutes : verifiez votre profil et ajoutez une note optionnelle a l'employeur.",
+      "applyNow": "Postuler",
+      "saveJob": "Enregistrer",
+      "savedJob": "Enregistre",
+      "expand": "Ouvrir les details complets",
+      "moreActions": "Plus d'actions offre",
+      "cadencePartTime": "3j/semaine",
+      "cadenceFullTime": "5j/semaine",
+      "meta": {
+        "jobType": "Type de poste",
+        "location": "Lieu",
+        "startDate": "Date de debut",
+        "duration": "Duree",
+        "applications": "Candidatures",
+        "remote": "A distance"
+      },
+      "values": {
+        "startDate": "Des que possible",
+        "duration": "9 mois",
+        "applications": "{count} pour le moment"
+      },
+      "menu": {
+        "openDetails": "Ouvrir les details",
+        "save": "Enregistrer l'offre",
+        "unsave": "Retirer des offres enregistrees",
+        "share": "Partager l'offre",
+        "shareCopied": "Lien copie dans le presse-papiers",
+        "report": "Signaler l'offre",
+        "hide": "Masquer l'offre"
+      },
+      "emptyDescription": "Aucune description fournie pour ce poste."
+    },
+    "apply": {
+      "closeModal": "Fermer le formulaire de candidature",
+      "breadcrumbJobs": "Trouver des offres",
+      "back": "Retour",
+      "step1": "Verifier le profil",
+      "step2": "Ajouter une note",
+      "step3": "Terminer",
+      "submit": "Envoyer la candidature",
+      "submitting": "Envoi en cours…",
+      "profileIncomplete": "Votre profil est complete a {pct} %. Atteignez au moins 60 % pour postuler.",
+      "customizeCta": "Souhaitez-vous ajuster votre profil avant de postuler ?",
+      "customizeLink": "Personnaliser pour ce role",
+      "noteTitle": "AJOUTER UNE NOTE",
+      "noteHint": "Une courte note a l'equipe de recrutement peut faire la difference.",
+      "notePlaceholder": "Je combine une approche analytique du developpement frontend et une communication claire issue du marketing et de la redaction. J'accompagne les eleves avec patience pour rendre les mathematiques et l'anglais accessibles et motivants.",
+      "chars": "{used}/500 caracteres",
+      "saveContinue": "Enregistrer et continuer",
+      "attachedNote": "Note jointe",
+      "vettedFooter": "Profil identite et paiement verifie par l'equipe joballa",
+      "profile": {
+        "name": "Ako James",
+        "headline": "Developpeur front-end, Marketer",
+        "location": "Buea, Cameroun",
+        "phone": "(+237) 652036786",
+        "languages": "Parle anglais, francais",
+        "summaryLabel": "RESUME PROFESSIONNEL",
+        "summaryLead": "Developpeur senior front-end, 5 ans d'experience Fintech et SaaS",
+        "summaryRest": "Design & creatif, logiciel & tech…",
+        "summaryTypes": "Temps plein, temps partiel",
+        "skillsLabel": "COMPETENCES",
+        "skills": "React, Tailwind CSS, NextJs, Claude Code, Figma, redaction, publicite, leadership",
+        "workLabel": "EXPERIENCE",
+        "job1Co": "TechoCameroun",
+        "job1Role": "Developpeur front-end",
+        "job1Body": "Tableaux de bord clients, performance, bibliotheque de composants avec le design.",
+        "job1Meta": "janv. 2023 - aout 2025 • Buea, Cameroun",
+        "job2Co": "Bafta Technologies",
+        "job2Role": "Responsable marketing",
+        "job2Body": "Campagnes digitales, coordination freelances, reporting funnel.",
+        "job2Meta": "sept. 2021 - dec. 2022 • Douala, Cameroun"
+      }
+    },
+    "savedJobsPage": {
+      "title": "Offres enregistrees",
+      "searchPlaceholder": "Rechercher par titre, competence ou entreprise",
+      "applied": "Candidature envoyee il y a {time}",
+      "savedBookmark": "Offre enregistree",
+      "empty": "Aucune offre ne correspond a votre recherche.",
+      "loadError": "Impossible de charger les offres enregistrees. Reessayez.",
+      "cardMenu": "Plus d'actions sur l'offre",
+      "listColStatus": "Statut",
+      "listColTitle": "Intitule",
+      "listColCompany": "Entreprise",
+      "listColPay": "Salaire"
+    },
+    "engagements": {
+      "title": "Mes engagements",
+      "description": "Offres pour lesquelles vous avez ete embauche — suivez le statut du contrat ici.",
+      "loadError": "Impossible de charger les engagements. Reessayez.",
+      "empty": "Aucun engagement pour le moment. Lorsqu'un employeur vous embauche, les contrats apparaissent ici.",
+      "untitledJob": "Offre",
+      "viewJob": "Voir l'offre",
+      "tabs": {
+        "all": "Tout",
+        "ACTIVE": "Actifs",
+        "COMPLETED": "Termines",
+        "TERMINATED": "Resilies"
+      },
+      "detail": {
+        "view": "Voir le detail",
+        "started": "Debut"
+      }
+    },
+    "myJobs": {
+      "title": "Mes offres",
+      "description": "Les offres que vous avez publiees depuis votre compte travailleur.",
+      "postJob": "Publier une offre",
+      "empty": "Vous n'avez pas encore publie d'offre. Creez-en une pour recevoir des candidatures.",
+      "backToProfile": "Retour au profil",
+      "bookmark": "Enregistrer l'offre",
+      "manage": "Gerer",
+      "menu": "Actions de l'offre"
+    },
+    "postJob": {
+      "title": "Publier une offre",
+      "description": "Partagez un role avec les candidats sur Joballa.",
+      "comingSoon": "Le flux de publication cote travailleur arrive bientot. Cette page sert a tester la navigation depuis le profil.",
+      "viewMyJobs": "Mes offres",
+      "backToProfile": "Retour au profil"
+    },
+    "profile": {
+      "eyebrow": "Constructeur de profil",
+      "title": "Profil",
+      "description": "Apercu public du profil et champs modifiables synchronises avec votre compte.",
+      "loadError": "Impossible de charger votre profil. Reessayez.",
+      "strength": {
+        "title": "Force du profil",
+        "percent": "{pct} % complete",
+        "sections": {
+          "personal": "Informations personnelles",
+          "summary": "Resume professionnel",
+          "skills": "Competences",
+          "work": "Experience",
+          "education": "Formation",
+          "verification": "Verification",
+          "payment": "Paiement"
+        }
+      },
+      "editor": {
+        "replacePhoto": "Remplacer la photo",
+        "firstName": "Prenom",
+        "lastName": "Nom",
+        "city": "Ville",
+        "region": "Region",
+        "languages": "Langues (separees par des virgules)",
+        "available": "Disponible pour travailler",
+        "yourTitle": "Votre titre",
+        "shortBio": "Bio courte",
+        "skillsHint": "Competences (separees par des virgules)",
+        "jobTitle": "Intitule du poste",
+        "company": "Entreprise",
+        "startDate": "Date de debut (AAAA-MM-JJ)",
+        "endDate": "Date de fin (optionnel)",
+        "currentRole": "J'occupe actuellement ce poste",
+        "currentStudy": "J'y suis actuellement en formation",
+        "description": "Description",
+        "phone": "Numero mobile money",
+        "save": "Enregistrer les modifications",
+        "saving": "Enregistrement…",
+        "saved": "Profil enregistre.",
+        "saveError": "Impossible d'enregistrer le profil. Reessayez.",
+        "addWork": "Ajouter une experience",
+        "addExperience": "Ajouter une experience",
+        "institution": "Etablissement",
+        "degree": "Diplome ou qualification",
+        "addEducation": "Ajouter une formation",
+        "certificationsTitle": "Certifications",
+        "certificationName": "Nom de la certification",
+        "certificationIssuer": "Organisme emetteur",
+        "issueDate": "Date d'obtention",
+        "addCertification": "Ajouter une certification",
+        "delete": "Supprimer",
+        "uploadDocument": "Televerser un document",
+        "kycStatus": "Statut KYC : {status}",
+        "kycNone": "Aucune verification soumise.",
+        "kycVerified": "Votre KYC a ete verifie. Vous pouvez postuler avec un badge de profil verifie.",
+        "kycPending": "Votre KYC est en cours d'examen. Cela peut prendre jusqu'a 24 heures ou moins.",
+        "kycRejected": "Votre KYC demande une correction.",
+        "kycReason": "Raison : {reason}",
+        "documentType": "Type de document",
+        "nationalId": "Carte nationale d'identite",
+        "passport": "Passeport",
+        "driversLicense": "Permis de conduire",
+        "passportDocument": "Document du passeport",
+        "idFront": "Recto de la piece",
+        "idBack": "Verso de la piece",
+        "selfie": "Selfie",
+        "submitKyc": "Soumettre le KYC",
+        "documentUploaded": "Document televerse.",
+        "documentUploadError": "Impossible de televerser le document. Reessayez."
+      },
+      "preview": {
+        "editProfile": "Modifier le profil",
+        "viewMyJobs": "Voir vos offres",
+        "postJob": "Publier une offre",
+        "verified": "Profil verifie",
+        "verifyKyc": "Verifier le badge KYC",
+        "availableForHire": "Disponible",
+        "verificationTooltip": "Piece d'identite verifiee par Joballa",
+        "summaryLabel": "Resume professionnel",
+        "skillsLabel": "Competences",
+        "workLabel": "Experience",
+        "educationLabel": "Formation",
+        "certificationsLabel": "Certifications",
+        "documentsLabel": "Pieces jointes",
+        "emptyWork": "Aucune experience ajoutee.",
+        "emptySkills": "Aucune competence ajoutee.",
+        "emptyEducation": "Aucune formation ajoutee.",
+        "emptyCertifications": "Aucune certification ajoutee.",
+        "emptyDocuments": "Aucun document televerse.",
+        "documentTitle": "HubSpot Marketing Manager_Ako_James.pdf",
+        "documentMeta": "PDF"
+      },
+      "editSectionTitle": "Modifier les details du profil",
+      "editSectionLead": "Ces champs correspondent a PATCH /worker-profiles/me. Les changements s'appliquent a votre profil actif.",
+      "sections": {
+        "identity": {
+          "title": "Identite et disponibilite",
+          "description": "Nom complet, ville, region, langues parlees et statut de disponibilite."
+        },
+        "experience": {
+          "title": "Competences et historique",
+          "description": "Blocs d'experience structures pour l'examen employeur et le score de completion du profil."
+        },
+        "documents": {
+          "title": "Verification et pieces jointes",
+          "description": "Piece d'identite nationale, certificats et documents optionnels."
+        },
+        "payments": {
+          "title": "Configuration mobile money",
+          "description": "Coordonnees de paiement du travailleur pour les futurs decaissements et la visibilite des gains."
+        }
+      },
+      "formIntro": {
+        "title": "Details du profil synchronises avec le backend",
+        "description": "Ces champs correspondent a PATCH /worker-profiles/me. D'autres sections pourront suivre."
+      },
+      "profileForm": {
+        "loading": "Chargement du profil…",
+        "loadError": "Impossible de charger votre profil.",
+        "saveError": "Impossible d'enregistrer les modifications.",
+        "saved": "Profil mis a jour.",
+        "saving": "Enregistrement…",
+        "submit": "Enregistrer le profil",
+        "completeness": "Completion du profil : {value} %",
+        "fields": {
+          "fullName": "Nom complet",
+          "city": "Ville",
+          "region": "Region",
+          "bio": "Bio"
+        }
+      }
+    },
+    "applications": {
+      "title": "Mes candidatures",
+      "resultsTitle": "Resultats de recherche des candidatures",
+      "tabsAria": "Filtrer les candidatures par statut",
+      "match": "{pct}% correspondance",
+      "mode": {
+        "outgoing": "Candidatures que j'ai envoyees",
+        "incoming": "Candidatures a mes offres"
+      },
+      "searchPlaceholder": "Rechercher par titre d'offre ou description.",
+      "incomingSearchPlaceholder": "Rechercher les candidatures a vos offres par candidat ou poste",
+      "submitSearch": "Rechercher des candidatures",
+      "filtersButton": "Filtres",
+      "summary": "{count} candidatures",
+      "resultsFor": "Resultats pour \"{query}\"",
+      "tabs": {
+        "all": "Tous({count})",
+        "shortlisted": "Preselection({count})",
+        "pending": "En attente({count})",
+        "rejected": "Refusees({count})"
+      },
+      "viewGrid": "Grille",
+      "viewList": "Liste",
+      "applied": "Candidature envoyee il y a {time}",
+      "incomingApplied": "Postule il y a {time}",
+      "status": {
+        "shortlisted": "Preselectionnee",
+        "pending": "En attente",
+        "rejected": "Refusee"
+      },
+      "timeline": {
+        "interview": "Entretien lundi, 10h.",
+        "offerDue": "Offre valable jusqu'a vendredi prochain."
+      },
+      "table": {
+        "applied": "Date",
+        "appliedShort": "il y a {time}",
+        "employer": "Employeur",
+        "applicant": "Candidat",
+        "jobTitle": "Intitule",
+        "pay": "Remuneration",
+        "jobType": "Type",
+        "location": "Lieu",
+        "match": "Match %",
+        "status": "Statut"
+      },
+      "rowMenu": {
+        "label": "Actions",
+        "open": "Ouvrir",
+        "save": "Enregistrer",
+        "share": "Partager",
+        "flag": "Signaler",
+        "delete": "Supprimer"
+      },
+      "empty": "Aucune candidature ne correspond a vos filtres.",
+      "incomingEmpty": "Personne n'a encore postule a vos offres.",
+      "loadError": "Impossible de charger les candidatures. Reessayez.",
+      "detail": {
+        "back": "Retour",
+        "jobMenu": "Actions",
+        "aboutTitle": "A propos du role",
+        "aboutIntro": "{company} recrute pour ce poste : {role}. Voici un apercu des attentes et de la facon dont votre profil soumis sera examine.",
+        "requirementsTitle": "Exigences",
+        "requirements": [
+          "Diplome universitaire ou experience equivalente",
+          "Au moins 1 an dans un poste similaire",
+          "Bilingue anglais et francais",
+          "Transport fiable pour les jours sur site",
+          "Disponibilite sur les creneaux convenus"
+        ],
+        "whatYouDoTitle": "Vos missions",
+        "whatYouWillDo": [
+          "Mener des sessions structurees selon le brief employeur",
+          "Suivre la progression et communiquer clairement avec l'equipe recrutement",
+          "Faire preuve de professionnalisme et de ponctualite tout au long de la mission"
+        ],
+        "jobMeta": {
+          "jobType": "Type de poste",
+          "location": "Lieu",
+          "start": "Date de demarrage",
+          "duration": "Duree",
+          "applicants": "Candidatures"
+        },
+        "emptyDescription": "Aucune description fournie pour ce poste."
+      }
+    },
+    "earnings": {
+      "title": "Gains",
+      "historyTitle": "Historique des transactions",
+      "printStatement": "Imprimer le releve",
+      "loadError": "Impossible de charger les gains. Reessayez.",
+      "empty": "Aucune transaction pour le moment.",
+      "stats": {
+        "total": { "label": "Total des gains", "value": "1,2M", "hint": "Depuis le debut" },
+        "month": { "label": "Ce mois-ci", "value": "195k", "hint": "+20% ce mois-ci" },
+        "pending": { "label": "En attente", "value": "320k", "hint": "1 en attente" },
+        "jobs": { "label": "Vos missions", "value": "03", "hint": "2 actives" }
+      },
+      "tabs": {
+        "all": "Tous({count})",
+        "paid": "Payes({count})",
+        "pending": "En attente({count})",
+        "overdue": "En retard({count})"
+      },
+      "table": {
+        "date": "Date",
+        "employer": "Employeur",
+        "jobTitle": "Intitule du poste",
+        "amount": "Montant",
+        "status": "Statut"
+      },
+      "status": {
+        "paid": "Paye",
+        "pending": "En attente",
+        "overdue": "En retard"
+      },
+      "rowMenu": {
+        "label": "Actions sur la ligne",
+        "open": "Ouvrir",
+        "save": "Enregistrer",
+        "share": "Partager",
+        "flag": "Signaler",
+        "delete": "Supprimer"
+      }
+    },
+    "settings": {
+      "eyebrow": "Preferences",
+      "title": "Gerer la langue et les notifications",
+      "description": "La langue, les preferences de notification in-app et les controles du compte vivront ici.",
+      "pageTitle": "Parametres",
+      "pageDescription": "Gerez vos preferences et les parametres du compte.",
+      "documents": {
+        "title": "Documents du profil",
+        "description": "Televersez votre CV ou vos certificats pour que les employeurs voient votre experience.",
+        "dropTitle": "Glissez-deposez des certificats ou des documents",
+        "dropHint": "PDF, PNG ou JPG (max. 10 Mo)",
+        "browse": "Parcourir les fichiers"
+      },
+      "language": {
+        "title": "Langue",
+        "description": "Selectionnez votre langue preferee.",
+        "controlLabel": "Langue d'affichage"
+      },
+      "appearance": {
+        "title": "Apparence",
+        "description": "Selectionnez le theme a utiliser dans l'espace travailleur.",
+        "controlLabel": "Theme",
+        "options": {
+          "system": "Par defaut du systeme",
+          "light": "Clair",
+          "dark": "Sombre"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choisissez comment rester informe.",
+        "push": {
+          "title": "Notifications push",
+          "description": "Recevez des notifications push sur votre appareil."
+        },
+        "email": {
+          "title": "Notifications email",
+          "description": "Recevez les mises a jour importantes par email."
+        },
+        "jobs": {
+          "title": "Alertes emploi",
+          "description": "Recevez des notifications pour les nouvelles offres compatibles."
+        },
+        "messages": {
+          "title": "Messages",
+          "description": "Recevez une notification quand vous recevez un nouveau message."
+        }
+      },
+      "account": {
+        "title": "Compte",
+        "description": "Gerez votre profil et votre session sur cet appareil.",
+        "profile": {
+          "title": "Modifier le profil",
+          "description": "Mettez a jour votre profil public, vos documents et vos details de paiement."
+        },
+        "engagements": {
+          "title": "Mes engagements",
+          "description": "Voir les contrats actifs et termines apres embauche."
+        },
+        "signOut": {
+          "title": "Se deconnecter",
+          "description": "Terminer votre session Joballa sur cet appareil.",
+          "button": "Se deconnecter",
+          "busy": "Deconnexion..."
+        }
+      }
+    }
+  },
+  "employer": {
+    "brand": "Espace employeur",
+    "shell": {
+      "title": "Espace employeur",
+      "subtitle": "Publication d'offres, examen des candidats, suivi de la main-d'oeuvre et paie sont regroupes dans une surface frontend dediee.",
+      "utility": "Cette disposition reflete maintenant le flux employeur du document de cadrage au lieu de reutiliser une page utilisateur generique.",
+      "mainNav": "Sections employeur",
+      "bottomNav": "Navigation principale",
+      "notifications": "Notifications",
+      "companyFallback": "Votre entreprise",
+      "tabDashboard": "Accueil",
+      "tabJobs": "Mes offres",
+      "tabApplicants": "Candidats",
+      "tabWorkforce": "Equipe",
+      "tabPayroll": "Paie"
+    },
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "jobs": "Mes offres",
+      "applicants": "Revue candidats",
+      "workforce": "Main-d'oeuvre",
+      "payroll": "Paiements",
+      "profile": "Profil",
+      "settings": "Parametres"
+    },
+    "dashboard": {
+      "eyebrow": "Tableau de bord employeur",
+      "title": "Gerez tout le cycle d'embauche depuis une seule surface",
+      "description": "Le tableau de bord employeur est maintenant structure autour des vraies taches produit au lieu d'un tableau de stats generique.",
+      "stats": {
+        "jobs": { "label": "Offres actives", "value": "0" },
+        "applicants": { "label": "Candidats", "value": "0" },
+        "workers": { "label": "Travailleurs embauches", "value": "0" },
+        "payroll": { "label": "Paie a regler", "value": "XAF 0" }
+      },
+      "queue": {
+        "title": "File operationnelle",
+        "description": "Cette zone est prete pour les nouveaux candidats, la performance des offres et les rappels de paie.",
+        "items": {
+          "review": {
+            "title": "Examiner les nouveaux candidats",
+            "description": "Utilisez les instantanes de profil et les signaux de matching pour avancer rapidement."
+          },
+          "payroll": {
+            "title": "Preparer le decaissement",
+            "description": "Passez des journaux d'heures a la paie puis a l'execution du paiement."
+          }
+        }
+      },
+      "jobs": {
+        "title": "Flux de publication d'offre",
+        "description": "Les offres employeur passeront par la moderation avant publication, c'est pourquoi le frontend rend ce flux explicite.",
+        "highlight": {
+          "title": "Brouillon -> en revue -> active",
+          "description": "Ce modele d'etat correspond au document de cadrage et informe clairement l'employeur."
+        }
+      }
+    },
+    "dashboardPage": {
+      "title": "Tableau de bord",
+      "actions": {
+        "postJob": "Publier une offre",
+        "viewApplicants": "Voir les candidats"
+      },
+      "stats": {
+        "activeJobs": {
+          "label": "Offres actives",
+          "value": "02",
+          "hint": "creees ce mois-ci"
+        },
+        "totalApplicants": {
+          "label": "Total candidats",
+          "value": "517",
+          "hint": "+89 ce mois-ci"
+        },
+        "hiredWorkers": {
+          "label": "Travailleurs recrutes",
+          "value": "24",
+          "hint": "-4 cette annee"
+        },
+        "totalPayroll": {
+          "label": "Paie totale",
+          "value": "2.2M",
+          "hint": "+10% ce mois-ci"
+        }
+      },
+      "applicants": {
+        "title": "Candidats",
+        "seeAll": "Voir tout",
+        "viewGrid": "Vue grille",
+        "viewList": "Vue liste",
+        "applied": "Postule {time}",
+        "appliedAgo": "Postule il y a {time}",
+        "moreActions": "Plus d'actions candidat",
+        "table": {
+          "applied": "Postule",
+          "appliedAgo": "il y a {time}",
+          "applicant": "Candidat",
+          "applyingFor": "Poste vise",
+          "topSkills": "Top competences",
+          "jobType": "Type de poste",
+          "location": "Lieu",
+          "match": "Match %",
+          "status": "Statut"
+        },
+        "status": {
+          "shortlisted": "Preselectionne",
+          "rejected": "Rejete",
+          "pending": "En attente",
+          "hired": "Recrute"
+        },
+        "menu": {
+          "open": "Ouvrir",
+          "shortlist": "Preselectionner",
+          "reject": "Rejeter",
+          "flag": "Signaler",
+          "hide": "Masquer"
+        },
+        "empty": "Aucun candidat pour le moment."
+      },
+      "jobStatus": {
+        "title": "Statut des offres",
+        "applicants": "Candidats",
+        "shortlisted": "Preselectionnes",
+        "pay": "Paie",
+        "live": "Active",
+        "empty": "Aucune offre active pour le moment.",
+        "posted": "Publiee il y a {time}",
+        "moreActions": "Plus d'actions offre",
+        "applicantsCount": "{count} candidats",
+        "shortlistedCount": "{count} preselectionnes"
+      }
+    },
+    "jobs": {
+      "eyebrow": "Publication d'offres",
+      "title": "Creer et suivre les offres d'emploi",
+      "description": "La page est prete pour des champs structures comme la categorie, la duree, la structure de paie, le nombre de postes et les documents demandes.",
+      "cards": {
+        "post": {
+          "title": "Publier une nouvelle offre",
+          "description": "Un flux dedie pour previsualiser et soumettre des offres vers la file de revue admin."
+        },
+        "review": {
+          "title": "Suivre le statut de moderation",
+          "description": "Voyez si une offre est en brouillon, en revue, active, en pause ou fermee."
+        }
+      },
+      "previewTitle": "Apercu des offres publiees",
+      "previewDescription": "Meme composant carte que cote travailleur.",
+      "cardPosted": "il y a {time}",
+      "cardManage": "Gerer l'offre",
+      "cardMenu": "Actions sur l'offre",
+      "cardApplicants": "Voir les candidats",
+      "cardDuplicate": "Dupliquer le brouillon",
+      "cardClose": "Fermer l'offre"
+    },
+    "postJobFlow": {
+      "title": "Publier une offre",
+      "description": "Creez le role, ajoutez les details utiles aux candidats, puis relisez l'apercu final avant soumission.",
+      "backToJobs": "Retour aux offres",
+      "stepsLabel": "Etapes de publication",
+      "steps": {
+        "basics": "Base",
+        "details": "Details",
+        "preview": "Apercu"
+      },
+      "helpers": {
+        "scheduleDescription": "Definissez le calendrier, la duree et le rythme afin que les candidats comprennent clairement l'organisation du poste.",
+        "descriptionDescription": "Ceci est le coeur de l'offre. Restez clair, precis et facile a parcourir.",
+        "requirementsDescription": "Decoupez les exigences en points individuels plutot qu'en un long paragraphe.",
+        "responsibilitiesDescription": "Listez les attentes du quotidien sous forme d'elements separes pour garder un apercu bien structure."
+      },
+      "placeholders": {
+        "description": "Decrivez le role, le contexte et ce qu'un bon candidat doit attendre.",
+        "requirement": "Ajouter une exigence",
+        "responsibility": "Ajouter une responsabilite"
+      },
+      "fields": {
+        "title": "Intitule du poste",
+        "department": "Departement / employeur",
+        "category": "Categorie",
+        "jobType": "Type de poste",
+        "workMode": "Mode de travail",
+        "location": "Lieu",
+        "pay": "Paie",
+        "openings": "Postes ouverts",
+        "startDate": "Date de debut",
+        "duration": "Duree",
+        "schedule": "Rythme",
+        "description": "Description du role",
+        "requirements": "Exigences",
+        "responsibilities": "Ce que le travailleur fera"
+      },
+      "summary": {
+        "title": "Resume rapide",
+        "readyTitle": "Pret pour l'apercu",
+        "readyDescription": "Relisez le texte final et la structure du role avant de passer a l'etat d'apercu visible cote candidat."
+      },
+      "preview": {
+        "status": "Apercu",
+        "aboutTitle": "A propos du role",
+        "requirementsTitle": "Exigences",
+        "doTitle": "Ce que vous ferez",
+        "panelTitle": "Panneau de soumission",
+        "panelDescription": "Quand vous soumettez, l'offre entre dans le flux de moderation avant publication.",
+        "moderationTitle": "Note de moderation",
+        "moderationDescription": "Joballa verifie la structure, la securite et la clarte avant publication."
+      },
+      "actions": {
+        "continue": "Continuer",
+        "back": "Retour",
+        "preview": "Ouvrir l'apercu",
+        "submit": "Soumettre pour revue",
+        "submitting": "Envoi en cours…",
+        "saveDraft": "Enregistrer comme brouillon",
+        "edit": "Modifier les details",
+        "addRequirement": "Ajouter une exigence",
+        "addResponsibility": "Ajouter une responsabilite",
+        "returnDashboard": "Retour au tableau de bord",
+        "returnJobs": "Retour aux offres"
+      }
+    },
+    "jobDetail": {
+      "closePanel": "Fermer les details",
+      "viewApplicants": "Voir les candidats",
+      "delete": "Supprimer",
+      "crumbPrefix": "Tableau de bord >",
+      "back": "Retour",
+      "more": "Plus d'actions",
+      "summary": {
+        "status": "Statut",
+        "jobType": "Type de poste",
+        "location": "Lieu",
+        "startDate": "Date de debut",
+        "duration": "Duree",
+        "applications": "Candidatures"
+      },
+      "aboutTitle": "A propos du role",
+      "requirementsTitle": "Exigences",
+      "doTitle": "Ce que vous ferez",
+      "listedBy": "Publie par {employer}\npour {person}"
+    },
+    "applicants": {
+      "title": "Candidats",
+      "description": "Recherchez, filtrez et examinez les candidatures au meme endroit.",
+      "searchPlaceholder": "Rechercher par nom, competence ou lieu",
+      "submitSearch": "Rechercher des candidats",
+      "filtersButton": "Filtres",
+      "jobFilter": "Filtrer par offre",
+      "allJobs": "Toutes les offres",
+      "showingForJob": "Resultats pour {job}",
+      "applied": "Postule il y a {time}",
+      "moreActions": "Plus d'actions candidat",
+      "viewGrid": "Vue cartes",
+      "viewList": "Vue tableau",
+      "empty": "Aucun candidat ne correspond a vos filtres.",
+      "panelEmptyTitle": "Selectionnez un candidat",
+      "panelEmptyDescription": "Choisissez quelqu'un dans la liste pour voir sa candidature et son profil.",
+      "tabs": {
+        "all": "Tous({count})",
+        "shortlisted": "Preselectionnes({count})",
+        "pending": "En attente({count})",
+        "rejected": "Rejetes({count})"
+      },
+      "status": {
+        "shortlisted": "Preselectionne",
+        "rejected": "Rejete",
+        "pending": "En attente",
+        "hired": "Embauche"
+      },
+      "actions": {
+        "shortlisted": "Preselectionner",
+        "rejected": "Rejeter",
+        "hired": "Embaucher"
+      },
+      "table": {
+        "applied": "Postule",
+        "appliedAgo": "il y a {time}",
+        "applicant": "Candidat",
+        "applyingFor": "Poste vise",
+        "topSkills": "Top competences",
+        "jobType": "Type de poste",
+        "location": "Lieu",
+        "match": "Match %",
+        "status": "Statut"
+      }
+    },
+    "applicantDetail": {
+      "closePanel": "Fermer les details",
+      "openFull": "Ouvrir en pleine page",
+      "seeMore": "voir plus",
+      "seeLess": "voir moins",
+      "share": "Copier le lien de partage",
+      "profileTitle": "Profil soumis",
+      "crumbPrefix": "Tableau de bord >",
+      "back": "Retour",
+      "more": "Plus d'actions",
+      "summary": {
+        "jobType": "Type de poste",
+        "location": "Lieu",
+        "startDate": "Date de debut",
+        "duration": "Duree",
+        "applications": "Candidatures"
+      },
+      "jobInfo": {
+        "aboutTitle": "A propos du role",
+        "requirementsTitle": "Exigences",
+        "doTitle": "Ce que vous ferez"
+      },
+      "profile": {
+        "summaryTitle": "RESUME PROFESSIONNEL",
+        "skillsTitle": "COMPETENCES",
+        "workTitle": "EXPERIENCE",
+        "documentsTitle": "DOCUMENTS JUSTIFICATIFS"
+      }
+    },
+    "jobsPage": {
+      "title": "Vos offres",
+      "description": "Parcourez les offres, ouvrez les details et gerez les candidats.",
+      "postJob": "Publier une offre",
+      "companyFallback": "Votre entreprise",
+      "searchPlaceholder": "Rechercher par titre, type ou salaire",
+      "submitSearch": "Rechercher",
+      "filtersButton": "Filtres",
+      "viewGrid": "Vue grille",
+      "viewList": "Vue liste",
+      "emptySearch": "Aucune offre ne correspond a votre recherche ou filtres.",
+      "listColPosted": "Publie",
+      "listColTitle": "Intitule",
+      "listColStatus": "Statut",
+      "listColApplicants": "Candidats",
+      "listColPay": "Salaire",
+      "filters": {
+        "all": "Toutes",
+        "live": "Actives",
+        "draft": "Brouillon",
+        "paused": "En pause"
+      },
+      "posted": "Publie il y a {time}",
+      "applicantsShort": "{count} candidats · {shortlisted} preselectionnes",
+      "viewApplicants": "Voir les candidats",
+      "empty": "Aucune offre pour le moment. Publiez votre premiere offre pour recevoir des candidats."
+    },
+    "workforce": {
+      "title": "Main-d'oeuvre",
+      "description": "Travailleurs actifs, journaux d'heures et statut d'engagement.",
+      "filters": {
+        "all": "Tous",
+        "active": "Actifs",
+        "terminated": "Termines"
+      },
+      "stats": {
+        "activeWorkers": "Travailleurs actifs",
+        "totalShifts": "Total des quarts ce mois",
+        "engagementsEnded": "Engagements termines"
+      },
+      "status": {
+        "active": "Actif",
+        "terminated": "Termine",
+        "rejected": "Rejete"
+      },
+      "table": {
+        "dateJoined": "Date d'embauche",
+        "worker": "Travailleur",
+        "role": "Role",
+        "shiftLogged": "Quarts enregistres",
+        "jobType": "Type de poste",
+        "status": "Statut",
+        "shiftsValue": "{count} quarts",
+        "shiftDate": "Date",
+        "shiftHours": "Heures",
+        "shiftNotes": "Notes",
+        "loggedBy": "Enregistre par",
+        "hoursValue": "{count} heures"
+      },
+      "empty": "Aucun travailleur dans cette vue.",
+      "shiftsTitle": "Journal des quarts",
+      "shiftsEmpty": "Aucun quart enregistre.",
+      "logShift": "Enregistrer un quart",
+      "shiftNotes": "Notes (optionnel)",
+      "logging": "Enregistrement…",
+      "logShiftSubmit": "Enregistrer",
+      "cancelLogShift": "Annuler",
+      "actions": {
+        "terminate": "Mettre fin",
+        "reinstate": "Reactiver"
+      }
+    },
+    "workforceDetail": {
+      "back": "Retour",
+      "actions": "Actions",
+      "more": "Plus d'actions",
+      "summary": {
+        "dateJoined": "Date d'embauche",
+        "jobType": "Type de poste",
+        "shiftsLogged": "Quarts enregistres",
+        "shiftsLoggedValue": "{count} quarts",
+        "status": "Statut"
+      },
+      "jobInfo": {
+        "aboutTitle": "A propos du role",
+        "requirementsTitle": "Exigences",
+        "doTitle": "Ce que vous ferez"
+      },
+      "profile": {
+        "summaryTitle": "RESUME PROFESSIONNEL",
+        "skillsTitle": "COMPETENCES",
+        "workTitle": "EXPERIENCE"
+      }
+    },
+    "payroll": {
+      "title": "Paiements",
+      "description": "Consultez les montants dus, payez via mobile money et suivez l'historique.",
+      "month": "Mois",
+      "year": "Annee",
+      "workersTitle": "Travailleurs a payer",
+      "workersEmpty": "Aucun travailleur a payer pour cette periode.",
+      "historySearch": "Rechercher un paiement…",
+      "pay": "Payer",
+      "paying": "Paiement…",
+      "paid": "Paye",
+      "phoneLabel": "Numero MoMo",
+      "table": {
+        "worker": "Travailleur",
+        "role": "Role",
+        "amount": "Montant du",
+        "action": "Action"
+      },
+      "summary": {
+        "totalPayroll": "Paie totale",
+        "pending": "En attente",
+        "paidThisMonth": "Paye ce mois",
+        "outstanding": "Solde du",
+        "totalDue": "Total du"
+      },
+      "history": {
+        "title": "Historique des paiements",
+        "empty": "Aucun paiement ne correspond a votre recherche.",
+        "amount": "Montant"
+      }
+    },
+    "requests": {
+      "title": "Demandes informelles",
+      "description": "Demandes orientees par departement, en dehors des offres standard.",
+      "new": "Nouvelle demande",
+      "newTitle": "Soumettre une demande",
+      "newDescription": "Orientez un besoin vers le bon departement pour examen.",
+      "empty": "Aucune demande pour le moment.",
+      "departmentId": "ID du departement",
+      "titleLabel": "Titre de la demande",
+      "category": "Categorie",
+      "paymentManaged": "Paiement gere par Joballa",
+      "notes": "Details supplementaires",
+      "validation": "L'ID departement et le titre sont obligatoires.",
+      "submitError": "Impossible d'envoyer la demande. Reessayez.",
+      "submitting": "Envoi…",
+      "submit": "Envoyer"
+    },
+    "profile": {
+      "eyebrow": "Profil employeur",
+      "title": "Profil entreprise et verification",
+      "description": "Utilisez cette page pour les details d'entreprise, les documents de verification, le logo et les parametres de paiement.",
+      "preview": {
+        "editProfile": "Modifier le profil",
+        "backToProfile": "Retour au profil",
+        "aboutLabel": "A propos de l'entreprise",
+        "applicantsLabel": "Candidats",
+        "employeesLabel": "Employes au total",
+        "websiteLabel": "Site web"
+      },
+      "editSectionTitle": "Modifier le profil entreprise",
+      "editSectionLead": "Mettez a jour les informations de votre organisation. Les changements sont synchronises avec votre profil public.",
+      "cards": {
+        "company": {
+          "title": "Identite de l'entreprise",
+          "description": "Nom, secteur, localisation, site web et section a propos."
+        },
+        "verification": {
+          "title": "Verification de l'entreprise",
+          "description": "Documents d'enregistrement et statut de confiance."
+        }
+      },
+      "formIntro": {
+        "title": "Profil entreprise synchronise avec le backend",
+        "description": "Ces champs correspondent a PATCH /employer-profiles/me."
+      },
+      "profileForm": {
+        "loading": "Chargement du profil…",
+        "loadError": "Impossible de charger le profil de l'organisation.",
+        "saveError": "Impossible d'enregistrer les modifications.",
+        "saved": "Profil mis a jour.",
+        "saving": "Enregistrement…",
+        "submit": "Enregistrer le profil",
+        "fields": {
+          "companyName": "Nom de l'entreprise",
+          "industry": "Secteur",
+          "location": "Localisation",
+          "about": "A propos",
+          "website": "Site web",
+          "logo": "Logo de l'entreprise"
+        }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Mises a jour sur les candidats, les paiements et vos offres.",
+      "empty": "Aucune notification pour le moment.",
+      "filters": {
+        "all": "Toutes",
+        "applicants": "Candidats",
+        "payments": "Paiements"
+      }
+    },
+    "settings": {
+      "pageTitle": "Parametres",
+      "pageDescription": "Gerez vos preferences et les parametres du compte.",
+      "language": {
+        "title": "Langue",
+        "description": "Choisissez votre langue preferee.",
+        "controlLabel": "Langue d'affichage"
+      },
+      "appearance": {
+        "title": "Apparence",
+        "description": "Choisissez le theme de l'espace employeur.",
+        "controlLabel": "Theme",
+        "options": {
+          "system": "Systeme",
+          "light": "Clair",
+          "dark": "Sombre"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choisissez comment rester informe.",
+        "push": {
+          "title": "Notifications push",
+          "description": "Recevez des notifications sur votre appareil."
+        },
+        "email": {
+          "title": "Notifications e-mail",
+          "description": "Recevez les mises a jour importantes par e-mail."
+        },
+        "applicants": {
+          "title": "Alertes candidats",
+          "description": "Soyez averti lorsqu'un candidat postule a vos offres."
+        },
+        "messages": {
+          "title": "Messages",
+          "description": "Soyez averti lorsque vous recevez un nouveau message."
+        }
+      },
+      "account": {
+        "title": "Compte",
+        "description": "Gerez le profil de votre entreprise et la session sur cet appareil.",
+        "profile": {
+          "title": "Profil entreprise",
+          "description": "Mettez a jour les informations et documents de verification."
+        },
+        "signOut": {
+          "title": "Deconnexion",
+          "description": "Terminez votre session Joballa sur cet appareil.",
+          "button": "Se deconnecter",
+          "busy": "Deconnexion…"
+        }
+      }
+    }
+  },
+  "admin": {
+    "brand": "Panneau admin",
+    "shell": {
+      "title": "Operations admin",
+      "subtitle": "Verification, revue des offres, litiges, departements et reporting ont maintenant une coquille operationnelle dediee.",
+      "utility": "Le frontend admin est maintenant organise autour de la confiance et des operations plutot qu'un simple filler dashboard."
+    },
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "users": "Utilisateurs",
+      "jobs": "Offres",
+      "disputes": "Litiges",
+      "departments": "Departements",
+      "reports": "Rapports",
+      "settings": "Parametres"
+    },
+    "dashboard": {
+      "eyebrow": "Tableau de bord admin",
+      "title": "Centre de commande operationnel",
+      "description": "L'accueil admin reflete maintenant la moderation, la confiance et la supervision de la plateforme.",
+      "stats": {
+        "pendingUsers": { "label": "Utilisateurs en attente", "value": "0" },
+        "pendingJobs": { "label": "Offres en revue", "value": "0" },
+        "disputes": { "label": "Litiges ouverts", "value": "0" },
+        "payments": { "label": "Paiements suivis", "value": "0" }
+      },
+      "queue": {
+        "title": "File d'action",
+        "description": "La file est l'endroit ou les moderateurs peuvent se concentrer d'abord sur ce qui affecte la confiance de la place de marche.",
+        "items": {
+          "users": {
+            "title": "File de verification utilisateurs",
+            "description": "Examinez les soumissions de verification des travailleurs et employeurs avec notes et issues."
+          },
+          "jobs": {
+            "title": "File de revue des offres",
+            "description": "Approuvez, rejetez ou demandez des modifications avant que les offres n'atteignent les travailleurs."
+          }
+        }
+      },
+      "operations": {
+        "title": "Operations admin",
+        "description": "Cet espace prepare la gestion des departements, les flux de litiges et les metriques de sante.",
+        "highlight": {
+          "title": "Les departements geres par Joballa restent de premiere classe",
+          "description": "La surface admin a maintenant une place dediee pour l'activite des departements internes."
+        }
+      }
+    },
+    "users": {
+      "eyebrow": "File de verification",
+      "title": "Examiner les comptes travailleurs et employeurs",
+      "description": "Cette page est prete pour la revue de documents, les notes de statut et les actions de verification.",
+      "cards": {
+        "workers": {
+          "title": "Travailleurs en attente",
+          "description": "Inspectez les photos d'identite, les details du profil travailleur et les notes de suivi."
+        },
+        "employers": {
+          "title": "Employeurs en attente",
+          "description": "Examinez les pieces societes, les contacts et les documents soumis."
+        }
+      }
+    },
+    "jobs": {
+      "eyebrow": "Moderation des offres",
+      "title": "Moderer les opportunites publiees",
+      "description": "Utilisez cette route pour les offres en attente d'approbation, de rejet ou de demande de correction.",
+      "cards": {
+        "review": {
+          "title": "File de moderation",
+          "description": "La moderation des offres est maintenant une route dediee au lieu d'un lien mort."
+        }
+      }
+    },
+    "disputes": {
+      "eyebrow": "Litiges",
+      "title": "Traiter les problemes avec contexte",
+      "description": "La resolution des litiges a sa propre page afin que les preuves, chronologies et actions puissent s'etendre proprement.",
+      "cards": {
+        "timeline": {
+          "title": "Chronologie du litige",
+          "description": "Suivez les deux parties, les preuves et les etapes finales de resolution."
+        }
+      }
+    },
+    "departments": {
+      "eyebrow": "Departements",
+      "title": "Gerer les departements Joballa",
+      "description": "Cette route prend en charge les categories d'emploi informel decrites dans le scope document.",
+      "cards": {
+        "departments": {
+          "title": "Catalogue des departements",
+          "description": "Creer et gerer des categories comme l'education, le domestique, la logistique et les evenements."
+        },
+        "listings": {
+          "title": "Offres des departements",
+          "description": "Publier et maintenir des opportunites informelles directement depuis la surface admin."
+        }
+      }
+    },
+    "reports": {
+      "eyebrow": "Rapports",
+      "title": "Metriques plateforme et exports",
+      "description": "La route des rapports est maintenant disponible pour la croissance, l'activite du marche, les paiements et les performances des departements.",
+      "cards": {
+        "metrics": {
+          "title": "Metriques operationnelles",
+          "description": "Les rapports exportables et resumes de dashboard vivront ici."
+        }
+      }
+    },
+    "settings": {
+      "eyebrow": "Parametres admin",
+      "title": "Permissions et controles admin",
+      "description": "Un endroit pour les parametres sensibles au role et les futurs controles systeme.",
+      "cards": {
+        "roles": {
+          "title": "Controle des roles et acces",
+          "description": "Preparez l'interface pour les capacites reservees aux admins et la configuration securisee."
+        }
+      }
+    }
+  }
+}

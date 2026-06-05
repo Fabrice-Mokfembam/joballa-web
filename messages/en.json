@@ -1,0 +1,2114 @@
+{
+  "localeSwitcher": {
+    "chooseLanguage": "Choose language",
+    "localeNames": {
+      "en": "English",
+      "fr": "Français"
+    }
+  },
+  "common": {
+    "confirm": {
+      "cancel": "Cancel",
+      "signOut": {
+        "title": "Sign out?",
+        "description": "You will need to sign in again to access your account.",
+        "confirm": "Sign out"
+      },
+      "delete": {
+        "title": "Delete this item?",
+        "description": "This action cannot be undone.",
+        "confirm": "Delete"
+      },
+      "unsaveJob": {
+        "title": "Remove saved job?",
+        "description": "This job will be removed from your saved list.",
+        "confirm": "Remove"
+      },
+      "deleteApplication": {
+        "title": "Delete application?",
+        "description": "This application will be removed from your list.",
+        "confirm": "Delete"
+      },
+      "deleteJobPosting": {
+        "title": "Delete job posting?",
+        "description": "This posting will be permanently removed.",
+        "confirm": "Delete posting"
+      }
+    }
+  },
+  "ui": {
+    "passwordInput": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist, was moved, or you may not have permission to view it.",
+    "ctaDashboard": "Go to dashboard",
+    "ctaSignIn": "Sign in"
+  },
+  "public": {
+    "brand": {
+      "kicker": "Careers & hiring",
+      "name": "Joballa"
+    },
+    "nav": {
+      "home": "Home",
+      "signIn": "Sign in",
+      "getStarted": "Get started",
+      "findJobs": "Find jobs",
+      "forEmployers": "For employers",
+      "resources": "Resources",
+      "about": "About us",
+      "logIn": "Log in",
+      "signUp": "Sign up",
+      "navAria": "Main navigation",
+      "menuOpen": "Open menu",
+      "menuClose": "Close menu",
+      "menuTitle": "Menu"
+    },
+    "hero": {
+      "title": "Cameroon's Home for Jobs and Hiring",
+      "titleLead": "Land your next job. ",
+      "titleAccent": "Hire your next teammate.",
+      "description": "From first jobs to growing teams, Joballa helps professionals and employers succeed together.",
+      "findJobsCta": "Find jobs",
+      "hireTalentCta": "Hire talent",
+      "trustLine": "Secure. Reliable. Built for the future of work.",
+      "imageAlt": "Job seeker celebrating with a laptop wearing Joballa branded apparel",
+      "primaryCta": "Create an account",
+      "secondaryCta": "Sign in",
+      "signInWithEmail": "Email sign-in",
+      "signInWithPhone": "Phone sign-in"
+    },
+    "floatingSeekers": {
+      "title": "For job seekers",
+      "items": {
+        "0": "Find verified roles",
+        "1": "One reusable profile",
+        "2": "Track applications & payouts"
+      }
+    },
+    "floatingEmployers": {
+      "title": "For employers",
+      "items": {
+        "0": "Post structured jobs fast",
+        "1": "Review standardised profiles",
+        "2": "Manage hires in one place"
+      }
+    },
+    "trustedBy": {
+      "title": "Trusted by leading teams",
+      "logos": {
+        "0": "TechCorp",
+        "1": "Innova",
+        "2": "BrightPay",
+        "3": "Marketiq",
+        "4": "HubStaff",
+        "5": "Globex"
+      }
+    },
+    "featureColumns": {
+      "seekers": {
+        "title": "Find opportunities that match your skills",
+        "description": "Browse curated roles, save searches, and apply with a verified Joballa profile instead of sending another one-off CV.",
+        "cta": "Explore jobs →"
+      },
+      "employers": {
+        "title": "Hire talent that drives your business",
+        "description": "Publish roles with guardrails, evaluate applicants consistently, and keep workforce and payout context in sync.",
+        "cta": "Post a job →"
+      }
+    },
+    "howDual": {
+      "title": "How Joballa works",
+      "subtitle": "Different journeys, same trusted marketplace.",
+      "seekers": {
+        "label": "Job seekers",
+        "steps": {
+          "0": { "title": "Create your profile", "description": "Skills, experience, documents, and payout preferences in one structured place." },
+          "1": { "title": "Discover & apply", "description": "Search by category, save jobs, and send applications with context employers can trust." },
+          "2": { "title": "Get hired & paid", "description": "Track interviews and offers with visibility into engagement and mobile-money readiness." }
+        }
+      },
+      "employers": {
+        "label": "Employers",
+        "steps": {
+          "0": { "title": "Post a job", "description": "Structured postings for informal and formal roles, aligned to how Joballa reviews work." },
+          "1": { "title": "Review applicants", "description": "Standardised profiles and filters so hiring teams compare consistently." },
+          "2": { "title": "Manage your workforce", "description": "Track hires, handoffs, and disbursement workflows from the employer dashboard." }
+        }
+      }
+    },
+    "metricsBanner": {
+      "users": { "value": "50,000+", "label": "Active users" },
+      "jobs": { "value": "10,000+", "label": "Jobs posted" },
+      "companies": { "value": "2,500+", "label": "Companies hiring" },
+      "satisfaction": { "value": "98%", "label": "User satisfaction" }
+    },
+    "testimonials": {
+      "title": "What our users say",
+      "items": {
+        "0": { "quote": "Finally one place for my profile and payouts—no more chasing HR on WhatsApp.", "name": "Sarah N.", "role": "Product designer" },
+        "1": { "quote": "Posting domestic roles used to be chaos. Joballa makes reviews predictable.", "name": "Marc T.", "role": "Operations lead" },
+        "2": { "quote": "We onboard seasonal workers faster because profiles already look the same.", "name": "Grace E.", "role": "HR manager" }
+      }
+    },
+    "appPromo": {
+      "kicker": "Mobile first",
+      "title": "Take Joballa with you",
+      "description": "Manage applications, messages, and payouts on the go—native Android and iOS apps are on the roadmap.",
+      "scanHint": "Scan to download when available",
+      "storeSoon": "App Store & Google Play — coming soon"
+    },
+    "footer": {
+      "tagline": "Careers and hiring, structured for Cameroon and beyond.",
+      "copyright": "© {year} Joballa. All rights reserved.",
+      "columns": {
+        "seekers": {
+          "title": "For job seekers",
+          "signup": "Create account",
+          "signIn": "Sign in",
+          "jobs": "Browse jobs"
+        },
+        "employers": {
+          "title": "For employers",
+          "signup": "Post a role",
+          "hub": "Employer hub"
+        },
+        "resources": {
+          "title": "Resources",
+          "support": "Support",
+          "privacy": "Privacy"
+        },
+        "about": {
+          "title": "About Joballa",
+          "story": "Our story",
+          "contact": "Contact"
+        }
+      },
+      "socialTitle": "Stay connected"
+    },
+    "stats": {
+      "languages": {
+        "value": "2 languages",
+        "label": "English and French from day one"
+      },
+      "workflow": {
+        "value": "1 workflow",
+        "label": "From first contact to payment"
+      },
+      "payments": {
+        "value": "MoMo ready",
+        "label": "Prepared for MTN MoMo and Orange Money"
+      }
+    },
+    "audiences": {
+      "worker": {
+        "title": "Workers build verified profiles instead of sending a different CV every time.",
+        "description": "The worker side is designed for profile completeness, structured applications, recommendations, and payment visibility."
+      },
+      "employer": {
+        "title": "Employers review standardised applicant profiles and manage the full hiring flow.",
+        "description": "The employer surface covers job posting, applicant review, workforce tracking, and payroll preparation."
+      },
+      "admin": {
+        "title": "Admins moderate trust across the marketplace.",
+        "description": "The admin surface is built around verification queues, job review, disputes, reporting, and Joballa-managed departments."
+      }
+    },
+    "preview": {
+      "kicker": "Product surfaces",
+      "title": "A clearer frontend structure for the real product",
+      "status": "Structure live"
+    },
+    "howItWorks": {
+      "kicker": "How it works",
+      "title": "The product now reflects the actual platform scope",
+      "description": "Instead of a generic landing page, the public experience now introduces the exact flows described in your scope document.",
+      "steps": {
+        "profile": {
+          "title": "Build a professional identity",
+          "description": "Workers complete a structured profile with skills, history, documents, and payment details."
+        },
+        "match": {
+          "title": "Review and hire with context",
+          "description": "Employers receive standardised profile snapshots and can manage applicants through a clearer dashboard flow."
+        },
+        "pay": {
+          "title": "Track engagement and payment",
+          "description": "The platform is designed around documented relationships, payroll visibility, and trusted disbursement."
+        }
+      }
+    },
+    "departments": {
+      "kicker": "Informal sectors included",
+      "title": "Joballa-managed departments keep informal work inside the same trusted system",
+      "description": "The landing page now communicates that Joballa is not only for registered companies. It also supports internal departments for informal hiring categories that matter in the Cameroonian market.",
+      "items": {
+        "education": {
+          "title": "Education",
+          "description": "Tutoring, homeschooling, and informal teaching roles."
+        },
+        "domestic": {
+          "title": "Domestic",
+          "description": "Cleaning, childcare, cooking, and house help opportunities."
+        },
+        "logistics": {
+          "title": "Logistics",
+          "description": "Delivery riders, movers, and transport support work."
+        },
+        "events": {
+          "title": "Events",
+          "description": "Event staffing, ushering, setup, and service crews."
+        },
+        "agriculture": {
+          "title": "Agriculture",
+          "description": "Seasonal farm work, harvest support, and agro-processing roles."
+        },
+        "construction": {
+          "title": "Construction",
+          "description": "Casual labour, painting, masonry, and handyman work."
+        }
+      }
+    },
+    "closing": {
+      "kicker": "Join today",
+      "title": "Join Joballa today",
+      "description": "Create your account in minutes, or sign back in with email or phone on the pages built for each.",
+      "signIn": "Sign in",
+      "createAccount": "Create account",
+      "postJobCta": "Post a job"
+    }
+  },
+  "auth": {
+    "layout": {
+      "backHome": "Back to home"
+    },
+    "mobile": {
+      "back": "Back"
+    },
+    "branding": {
+      "line1": "over here,",
+      "line2": "you hunt",
+      "line3": "and actually",
+      "line4": "catch",
+      "supportTitle": "Experiencing Issues?",
+      "supportBody": "Get assistance via",
+      "supportEmail": "support@joballa.cm"
+    },
+    "login": {
+      "back": "Back to home",
+      "eyebrow": "Entry points",
+      "title": "Choose the surface you want to enter",
+      "description": "Sign in with your Joballa account to open the worker, employer, or admin workspace that matches your role.",
+      "signIn": "Sign in",
+      "signUp": "Create account",
+      "afterAuthHint": "After you tap Sign in, you choose either the email page or the phone page—each form matches one identifier type. New accounts use OTP verification; sessions use JWT access tokens from our API, with refresh tokens in an httpOnly cookie where supported.",
+      "worker": {
+        "title": "Worker access",
+        "description": "Review recommendations, track applications, and prepare your professional profile.",
+        "cta": "Open worker workspace"
+      },
+      "employer": {
+        "title": "Employer access",
+        "description": "Post roles, review applicants, and manage the people you hire.",
+        "cta": "Open employer workspace"
+      },
+      "admin": {
+        "title": "Admin access",
+        "description": "Review verification queues, disputes, and operational reporting.",
+        "cta": "Open admin workspace"
+      }
+    },
+    "signup": {
+      "back": "Back to home",
+      "already": "Already have an account?",
+      "signInLink": "Sign in",
+      "eyebrow": "Get started",
+      "title": "Start in the role that matches your side of the marketplace",
+      "description": "The scope document defines separate worker and employer experiences, so the signup experience now reflects that split clearly.",
+      "worker": {
+        "title": "Create a worker account",
+        "description": "For job seekers and professionals building a reusable profile-first application identity.",
+        "points": {
+          "profile": "Build your professional profile once and reuse it.",
+          "jobs": "Browse roles that match your skills and preferred categories.",
+          "payments": "Track earnings and mobile money payment history."
+        },
+        "cta": "Continue as worker"
+      },
+      "employer": {
+        "title": "Create an employer account",
+        "description": "For companies, departments, and organisations hiring and managing workers.",
+        "points": {
+          "jobs": "Create structured job postings for review and publication.",
+          "review": "Review standardised candidate profiles instead of raw CV chaos.",
+          "payroll": "Track workers, payroll, and disbursement readiness."
+        },
+        "cta": "Continue as employer"
+      }
+    },
+    "signInHub": {
+      "eyebrow": "Sign in",
+      "title": "How do you want to sign in?",
+      "description": "Email and phone each have their own page so the form matches what you used when you registered.",
+      "noteTitle": "Two sign-in options",
+      "noteBody": "Use the email page if your account is tied to an email address, or the phone page if you registered with a mobile number. You cannot enter both in one field.",
+      "afterPasswordResetHint": "Your password was updated. Choose email or phone below, then sign in with your new password.",
+      "email": {
+        "title": "Email and password",
+        "description": "Sign in with the email address on your Joballa account.",
+        "cta": "Continue with email"
+      },
+      "phone": {
+        "title": "Phone and password",
+        "description": "Sign in with the phone number on your account, including country code.",
+        "cta": "Continue with phone"
+      },
+      "forgotLead": "Forgot your password?",
+      "forgotLink": "Reset it",
+      "noAccount": "No account yet?",
+      "signUp": "Create an account"
+    },
+    "signInForm": {
+      "backToHub": "Back to sign-in options",
+      "emailTitle": "Sign in with email",
+      "phoneTitle": "Sign in with phone",
+      "subheadInvite": "Don't have an account? <create>Create account</create>.",
+      "emailField": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "phoneField": "Phone number",
+      "phonePlaceholder": "+237612345678",
+      "passwordField": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "signInWithEmail": "Sign in with email",
+      "signInWithPhone": "Sign in with phone",
+      "actions": {
+        "signIn": "Sign in",
+        "signingIn": "Signing in…"
+      },
+      "forgotPassword": "Forgot password?",
+      "or": "or",
+      "google": "Continue with Google",
+      "googleSoon": "Google sign-in is not connected yet.",
+      "loading": "Loading…",
+      "afterPasswordResetHint": "Your password was updated. Sign in with your new password.",
+      "sessionExpiredHint": "Your session has expired. Please sign in again to continue.",
+      "errors": {
+        "submit": "We couldn't sign you in. Please check your details and try again.",
+        "invalidCredentials": "That email or password doesn't look right. Please try again.",
+        "notVerified": "Your account isn't verified yet. Enter the code we sent to finish signing up."
+      }
+    },
+    "signUpForm": {
+      "eyebrow": "Create account",
+      "title": "Register with Joballa",
+      "description": "Choose email or phone, then confirm the six-digit code we send you. Your role was picked on the previous step when you tapped worker or employer.",
+      "roleHint": "Signing up as: {role}",
+      "roles": {
+        "worker": "Worker",
+        "employer": "Employer"
+      },
+      "contact": {
+        "email": "Email",
+        "phone": "Phone"
+      },
+      "passwordRules": "Password: 8–128 characters.",
+      "fields": {
+        "email": "Email address",
+        "phone": "Phone number",
+        "password": "Create password",
+        "code": "Verification code"
+      },
+      "placeholders": {
+        "email": "you@example.com",
+        "phone": "+237612345678",
+        "password": "Create a strong password",
+        "code": "Six-digit code"
+      },
+      "actions": {
+        "create": "Sign up",
+        "creating": "Sending…",
+        "verify": "Verify and continue",
+        "verifying": "Verifying…",
+        "resend": "Resend code",
+        "back": "Back to details"
+      },
+      "verify": {
+        "eyebrow": "Check your messages",
+        "title": "Enter your code",
+        "description": "Enter the six-digit code sent to {identifier}.",
+        "sent": "Verification code sent. Check your email or phone.",
+        "resent": "A new code has been sent."
+      },
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "heroTitle": "Sign Up",
+      "introLead": "Already have an account? ",
+      "introSignIn": "Sign in",
+      "orDivider": "or",
+      "googleContinue": "Continue with Google",
+      "googleSoon": "Google sign-in is not connected yet.",
+      "legalPrefix": "By signing up you agree to joballa's ",
+      "legalPrivacy": "Privacy Policy",
+      "legalAnd": " and ",
+      "legalTerms": "Terms of Service",
+      "errors": {
+        "submit": "We couldn't start your signup. Please check your details and try again.",
+        "verification": "We couldn't send a new code right now. Please try again in a moment.",
+        "code": "That code didn't work. Check it or request a new one.",
+        "codeFormat": "Please enter all 6 digits.",
+        "incomplete": "Please finish the steps above to continue."
+      }
+    },
+    "signUpPhone": {
+      "title": "Sign Up",
+      "intro": "Already have an account?",
+      "loginHere": "Sign in",
+      "fields": {
+        "name": "Full name",
+        "phone": "Phone Number",
+        "password": "Create Password"
+      },
+      "placeholders": {
+        "name": "Ex: Jane Doe",
+        "phone": "000 000 000",
+        "password": "Create a strong password"
+      },
+      "back": "Back",
+      "actions": {
+        "signUp": "Create Account",
+        "creating": "Creating…"
+      },
+      "or": "or",
+      "google": "Continue with Google",
+      "googleSoon": "Google sign-in is not connected yet.",
+      "useEmail": "Sign Up with Email Instead",
+      "legal": {
+        "prefix": "By signing up you agree to joballa's ",
+        "privacy": "Privacy Policy",
+        "and": " and ",
+        "terms": "Terms of Service"
+      },
+      "errors": {
+        "submit": "We couldn't create your account. Please check your details and try again."
+      }
+    },
+    "signUpEmail": {
+      "title": "Sign Up",
+      "intro": "Already have an account?",
+      "loginHere": "Sign in",
+      "fields": {
+        "name": "Full name",
+        "email": "Email address",
+        "password": "Create Password"
+      },
+      "placeholders": {
+        "name": "Ex: Jane Doe",
+        "email": "Ex: jane@mail.com",
+        "password": "Create a strong password"
+      },
+      "back": "Back",
+      "actions": {
+        "signUp": "Create Account",
+        "creating": "Creating…"
+      },
+      "or": "or",
+      "google": "Continue with Google",
+      "googleSoon": "Google sign-in is not connected yet.",
+      "usePhone": "Sign up with phone instead",
+      "legal": {
+        "prefix": "By signing up you agree to joballa's ",
+        "privacy": "Privacy Policy",
+        "and": " and ",
+        "terms": "Terms of Service"
+      },
+      "errors": {
+        "submit": "We couldn't create your account. Please check your details and try again."
+      }
+    },
+    "signUpOtp": {
+      "redirecting": "Taking you to verification…",
+      "titleEmail": "Check your mail",
+      "titlePhone": "Check your phone",
+      "leadEmail": "We've sent a six-digit code to",
+      "leadPhone": "We've sent a six-digit code to",
+      "back": "Back",
+      "codeLabel": "Enter code",
+      "digitAria": "Digit {n}",
+      "actions": {
+        "signUp": "Verify and continue",
+        "verifying": "Verifying…",
+        "sending": "Sending…",
+        "resend": "Resend code"
+      },
+      "resent": "A new code has been sent.",
+      "legal": {
+        "prefix": "By signing up you agree to joballa's ",
+        "privacy": "Privacy Policy",
+        "and": " and ",
+        "terms": "Terms of Service"
+      },
+      "errors": {
+        "format": "Please enter all 6 digits.",
+        "verify": "That code didn't work. Check it or tap resend for a new one.",
+        "resend": "We couldn't send a new code right now. Please try again shortly."
+      }
+    },
+    "signUpRole": {
+      "title": "Which will you do?",
+      "worker": {
+        "title": "Worker",
+        "description": "Search jobs and track applications"
+      },
+      "employer": {
+        "title": "Employer",
+        "description": "Search for talent, manage applicants and workforce"
+      },
+      "hint": "Choose one to continue.",
+      "actions": {
+        "continue": "Continue",
+        "working": "Continuing…"
+      },
+      "errors": {
+        "generic": "Something went wrong. Try again."
+      }
+    },
+    "signUpProfile": {
+      "title": "Upload documents for your profile",
+      "subtitle": "Add certificates or a CV so employers can see your experience. You can update these later.",
+      "dropTitle": "Drag and drop relevant certificates or documents",
+      "dropHint": "PDF, PNG or JPG (max. 10 MB)",
+      "browse": "Browse files",
+      "actions": {
+        "continue": "Continue"
+      }
+    },
+    "signUpInterests": {
+      "title": "What work interests you?",
+      "subtitle": "Pick at least three areas. You can change these later in your profile.",
+      "actions": {
+        "continue": "Continue",
+        "working": "Continuing…"
+      },
+      "errors": {
+        "min": "Pick at least three options to continue.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "options": {
+        "retail": "Retail",
+        "hospitality": "Hospitality",
+        "logistics": "Logistics",
+        "healthcare": "Healthcare",
+        "education": "Education",
+        "technology": "Technology",
+        "construction": "Construction",
+        "domestic": "Domestic",
+        "agriculture": "Agriculture",
+        "events": "Events",
+        "sales": "Sales",
+        "security": "Security"
+      }
+    },
+    "signUpPostCategories": {
+      "title": "What jobs will you post?",
+      "subtitle": "Tell us which sectors and employment types you plan to offer. You can update these later in your profile.",
+      "sections": {
+        "categories": "Job categories",
+        "kinds": "Employment types",
+        "kindsHint": "Pick at least one type of job you expect to post."
+      },
+      "actions": {
+        "continue": "Finish sign-up",
+        "working": "Saving…"
+      },
+      "errors": {
+        "minCategories": "Pick at least three job categories to continue.",
+        "minTypes": "Pick at least one employment type to continue.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "jobTypes": {
+        "full_time": "Full-time",
+        "part_time": "Part-time",
+        "contract": "Contract",
+        "casual": "Casual",
+        "seasonal": "Seasonal",
+        "internship": "Internship"
+      }
+    },
+    "forgotPasswordPage": {
+      "back": "Back to home"
+    },
+    "forgotPassword": {
+      "eyebrow": "Password help",
+      "title": "Forgot your password?",
+      "description": "We will email or text a reset code if a verified account exists for this identifier.",
+      "loading": "Loading…",
+      "fields": {
+        "identifier": "Email or phone",
+        "email": "Email address",
+        "phone": "Phone number"
+      },
+      "placeholders": {
+        "identifier": "you@example.com or +237…",
+        "email": "Ex: jane@mail.com",
+        "phone": "000 000 000"
+      },
+      "actions": {
+        "submit": "Send reset code",
+        "sending": "Sending…"
+      },
+      "backToSignIn": "Back to sign in",
+      "alreadyHaveCode": "I already have a reset code",
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "resetPasswordPage": {
+      "back": "Back to home"
+    },
+    "resetPassword": {
+      "eyebrow": "New password",
+      "title": "Set a new password",
+      "description": "Enter the 6-digit code from your email or SMS, then choose a new password (8–128 characters). After saving, you will be signed in automatically.",
+      "verify": {
+        "title": "Enter reset code",
+        "description": "Enter the 6-digit code from your email or SMS. You will choose a new password on the next step."
+      },
+      "password": {
+        "title": "Set a new password",
+        "description": "Choose a new password (8–128 characters). After saving, you will be signed in automatically.",
+        "codeConfirmed": "Reset code verified"
+      },
+      "sentHint": "If an account exists for this email/phone, a reset code has been sent. Enter it below.",
+      "identifierLockedHint": "To use a different email or phone, go back to the previous step.",
+      "loading": "Loading…",
+      "fields": {
+        "identifier": "Email or phone",
+        "code": "Reset code",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm new password"
+      },
+      "placeholders": {
+        "identifier": "you@example.com or +237…",
+        "code": "Six-digit code",
+        "newPassword": "New password",
+        "confirmPassword": "Re-enter new password"
+      },
+      "actions": {
+        "verify": "Verify code",
+        "verifying": "Verifying…",
+        "changeCode": "Use a different code",
+        "submit": "Save password and sign in",
+        "saving": "Saving…",
+        "resend": "Resend reset code",
+        "resending": "Sending…"
+      },
+      "resendSuccess": "If a verified account exists, a new code has been sent.",
+      "backToForgot": "Request a new code",
+      "backToSignIn": "Back to sign in",
+      "loginAfterResetHint": "Password updated. Please sign in with your new password.",
+      "errors": {
+        "generic": "We couldn't reset your password. Check the code and try again.",
+        "codeFormat": "Please enter all 6 digits.",
+        "passwordMismatch": "Those passwords don't match. Please re-enter them.",
+        "passwordLength": "Use a password between 8 and 128 characters.",
+        "needIdentifier": "Please enter your email or phone number.",
+        "resend": "We couldn't send a new code right now. Please try again later."
+      }
+    },
+    "logout": {
+      "button": "Log out",
+      "busy": "Signing out…"
+    }
+  },
+  "worker": {
+    "brand": "Worker portal",
+    "shell": {
+      "title": "Worker workspace",
+      "subtitle": "Profile-first applications, job discovery, and payment visibility for the mobile-first worker journey.",
+      "utility": "This surface is now separated from employer and admin flows so the worker journey can stay focused.",
+      "userName": "Ako James",
+      "userEmail": "james@example.com",
+      "userInitials": "AJ",
+      "mainNav": "Worker sections",
+      "bottomNav": "Primary navigation",
+      "tabDashboard": "Dashboard",
+      "tabJobs": "Jobs",
+      "tabApplications": "Applications",
+      "tabSaved": "Saved",
+      "tabEarnings": "Earnings",
+      "tabNotifications": "Alerts",
+      "notifications": "Notifications",
+      "engagements": "Engagements"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "jobs": "Find Jobs",
+      "applications": "My Applications",
+      "saved": "Saved Jobs",
+      "earnings": "Earnings",
+      "settings": "Settings",
+      "notifications": "Notifications",
+      "postJob": "Post a job"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Updates about applications, payments, job matches, and your profile.",
+      "viewDetails": "View details",
+      "filtersButton": "Filters",
+      "filters": {
+        "all": "All",
+        "jobs": "Jobs",
+        "payments": "Payments"
+      },
+      "actions": {
+        "open": "Notification actions",
+        "markAsRead": "Mark as read",
+        "delete": "Delete"
+      },
+      "kinds": {
+        "application": "Application",
+        "payment": "Payment",
+        "job": "Job",
+        "profile": "Profile"
+      },
+      "empty": "No notifications yet."
+    },
+    "dashboardPage": {
+      "title": "Dashboard",
+      "searchPlaceholder": "Search jobs",
+      "period": {
+        "aria": "Time range for dashboard metrics",
+        "week": "This week",
+        "month": "This month",
+        "all": "All time"
+      },
+      "setupBanner": {
+        "title": "Hi, {name}. You have not yet set up your profile",
+        "cta": "Go to Profile"
+      },
+      "sort": {
+        "aria": "Sort recommended jobs",
+        "newest": "Newest",
+        "match": "Highest match",
+        "pay": "Pay rate"
+      },
+      "appFilter": {
+        "aria": "Filter applications by status",
+        "all": "All statuses",
+        "shortlisted": "Shortlisted",
+        "pending": "Pending",
+        "rejected": "Rejected"
+      },
+      "stats": {
+        "applications": {
+          "label": "APPLICATIONS",
+          "value": "07",
+          "hint": "4 active this month",
+          "hintWeek": "2 submitted this week",
+          "hintMonth": "4 active this month",
+          "hintAll": "12 total applications"
+        },
+        "earnings": {
+          "label": "EARNINGS",
+          "value": "1.2M",
+          "hint": "200k this month",
+          "hintWeek": "45k this week",
+          "hintMonth": "200k this month",
+          "hintAll": "1.2M lifetime"
+        },
+        "views": {
+          "label": "PROFILE VIEWS",
+          "value": "38",
+          "hint": "+12 this week",
+          "hintWeek": "+12 this week",
+          "hintMonth": "+28 this month",
+          "hintAll": "312 all-time views"
+        },
+        "strength": {
+          "label": "PROFILE STRENGTH",
+          "value": "60%",
+          "hint": "Add CV to Boost",
+          "hintWeek": "Updated this week",
+          "hintMonth": "Trending up",
+          "hintAll": "Add CV to reach 100%"
+        }
+      },
+      "profileBoostCta": "Improve profile",
+      "dialogs": {
+        "applicationTitle": "Application",
+        "applicationIntro": "You applied to {title} at {company}.",
+        "viewFull": "Open full application",
+        "viewJob": "View job posting",
+        "close": "Close",
+        "profileTitle": "Boost your profile",
+        "profileIntro": "Complete the remaining checklist items so employers see a fuller picture of your experience.",
+        "profileCta": "Go to profile"
+      },
+      "recommended": {
+        "title": "Recommended Jobs",
+        "seeAll": "See all",
+        "match": "{pct}% match",
+        "posted": "{time} ago",
+        "bookmark": "Save job",
+        "menu": "Job actions",
+        "apply": "Apply",
+        "save": "Save",
+        "share": "Share",
+        "flag": "Flag",
+        "hide": "Hide"
+      },
+      "applications": {
+        "title": "Application Status",
+        "seeAll": "See all",
+        "applied": "You applied {time} ago",
+        "details": "Details",
+        "emptyFiltered": "No applications match this filter.",
+        "statusShortlisted": "Shortlisted",
+        "statusPending": "Pending",
+        "statusRejected": "Rejected"
+      },
+      "profileStrength": {
+        "title": "Profile strength",
+        "percent": "{pct}% Complete",
+        "subtitle": "Add these to reach 100%",
+        "empty": "Profile checklist will appear once your profile loads.",
+        "sections": {
+          "personal": "Personal info",
+          "summary": "Professional summary",
+          "skills": "Skills",
+          "work": "Experience",
+          "education": "Education",
+          "verification": "Verification",
+          "payment": "Payment details"
+        }
+      }
+    },
+    "findJobsPage": {
+      "title": "Find Jobs",
+      "resultsTitle": "Search results",
+      "searchPlaceholder": "Search jobs by title, skill or company.",
+      "submitSearch": "Search jobs",
+      "filtersButton": "Filters",
+      "sort": "Most Relevant",
+      "filters": {
+        "region": "Region",
+        "city": "City",
+        "type": "Type",
+        "pay": "Pay",
+        "department": "Department"
+      },
+      "cityAll": "All cities",
+      "regionAll": "All regions",
+      "typeAll": "All types",
+      "payAll": "All ranges",
+      "deptAll": "All categories",
+      "regions": {
+        "adamawa": "Adamawa",
+        "centre": "Centre",
+        "east": "East",
+        "farNorth": "Far North",
+        "littoral": "Littoral",
+        "north": "North",
+        "northwest": "Northwest",
+        "south": "South",
+        "southwest": "Southwest",
+        "west": "West"
+      },
+      "typeOptions": ["Full-time", "Part-time", "Contract"],
+      "deptOptions": [
+        "None",
+        "Agriculture",
+        "Construction",
+        "Domestic",
+        "Education",
+        "Entertainment",
+        "Events",
+        "Logistics"
+      ],
+      "match": "{pct}% match",
+      "posted": "{time} ago",
+      "payOptions": ["Under 50k XAF", "50k – 150k XAF", "Over 150k XAF"],
+      "bookmark": "Save job",
+      "apply": "Apply",
+      "cardMenu": "More job actions",
+      "menu": {
+        "openDetails": "Open details",
+        "save": "Save job",
+        "share": "Share job",
+        "report": "Report job",
+        "hide": "Hide job",
+        "unsave": "Remove saved job"
+      },
+      "viewGrid": "Grid view",
+      "viewList": "List view",
+      "emptySearch": "No jobs match your search.",
+      "emptySearchTitle": "No jobs found",
+      "loadError": "Could not load jobs. Please try again.",
+      "backToJobs": "Back to jobs",
+      "listColPosted": "Posted",
+      "listColTitle": "Title",
+      "listColCompany": "Company",
+      "listColPay": "Pay"
+    },
+    "jobDetail": {
+      "back": "Back to jobs",
+      "closePanel": "Close",
+      "applyCta": "Apply for this job",
+      "aboutTitle": "About the role",
+      "aboutLead": "{company} is hiring for this role: {title}. Here is what to expect from the team and the day-to-day.",
+      "aboutBody": "Expect clear objectives, predictable timelines, and regular communication with stakeholders. We value craft, reliability, and respect for agreed schedules.",
+      "reqTitle": "What we are looking for",
+      "req1": "Relevant experience in a comparable role",
+      "req2": "Comfort working in English and French",
+      "req3": "Accountability for agreed hours and outcomes",
+      "whatTitle": "What you will do",
+      "what1": "Deliver the work described in the role brief with clear updates.",
+      "what2": "Coordinate with the hiring team on timing, location, and expectations.",
+      "what3": "Keep agreed hours, outcomes, and communication professional.",
+      "sidebarHint": "Applying takes a few minutes — review your profile and add an optional note to the hiring team.",
+      "applyNow": "Apply Now",
+      "saveJob": "Save Job",
+      "savedJob": "Saved",
+      "expand": "Open full job details",
+      "moreActions": "More job actions",
+      "cadencePartTime": "3d/week",
+      "cadenceFullTime": "5d/week",
+      "meta": {
+        "jobType": "Job type",
+        "location": "Location",
+        "startDate": "Start Date",
+        "duration": "Duration",
+        "applications": "Applications",
+        "remote": "Remote"
+      },
+      "values": {
+        "startDate": "As soon as possible",
+        "duration": "9 months",
+        "applications": "{count} so far"
+      },
+      "menu": {
+        "openDetails": "Open details",
+        "save": "Save job",
+        "unsave": "Remove saved job",
+        "share": "Share job",
+        "shareCopied": "Link copied to clipboard",
+        "report": "Report job",
+        "hide": "Hide job"
+      },
+      "emptyDescription": "No description provided for this role."
+    },
+    "apply": {
+      "closeModal": "Close application form",
+      "breadcrumbJobs": "Find Jobs",
+      "back": "Back",
+      "step1": "Review Profile",
+      "step2": "Add Note",
+      "step3": "Finish",
+      "submit": "Submit Application",
+      "submitting": "Submitting…",
+      "profileIncomplete": "Your profile is {pct}% complete. Complete at least 60% to apply.",
+      "customizeCta": "Would you like to make any adjustments before applying?",
+      "customizeLink": "Customize for this Role",
+      "noteTitle": "INCLUDE A NOTE",
+      "noteHint": "A quick note to the hiring team can help your application stand out from the crowd.",
+      "notePlaceholder": "I bring a unique analytical and communicative background to tutoring, combining the logic used in building complex software frontends with the clarity required for professional copywriting and advertising. My experience training and mentoring interns has allowed me to develop a patient, structured approach to teaching, ensuring that difficult concepts in Maths and English are accessible and engaging for students. I am dedicated to helping students build both technical proficiency and expressive confidence through personalized, clear instruction.",
+      "chars": "{used}/500 characters",
+      "saveContinue": "Save and Continue",
+      "attachedNote": "Attached Note",
+      "vettedFooter": "Identity and payment-ready profile vetted by the joballa Team",
+      "profile": {
+        "name": "Ako James",
+        "headline": "Frontend Developer, Marketer",
+        "location": "Buea, Cameroon",
+        "phone": "(+237) 652036786",
+        "languages": "Speaks English, French",
+        "summaryLabel": "PROFESSIONAL SUMMARY",
+        "summaryLead": "Senior frontend developer with 5 years experience in Fintech and SaaS",
+        "summaryRest": "Design & Creative, Software & Tech…",
+        "summaryTypes": "Full-time, part-time",
+        "skillsLabel": "SKILLS",
+        "skills": "React, Tailwind CSS, NextJs, Claude Code, Figma, Copywriting, Advertising, Leadership",
+        "workLabel": "WORK HISTORY",
+        "job1Co": "TechoCameroun",
+        "job1Role": "Frontend Developer",
+        "job1Body": "Built and maintained customer-facing dashboards, improved performance, and collaborated with design on a shared component library.",
+        "job1Meta": "Jan. 2023 - Aug. 2025 • Buea, Cameroon",
+        "job2Co": "Bafta Technologies",
+        "job2Role": "Marketing Manager",
+        "job2Body": "Led campaigns across digital channels, coordinated freelancers, and reported on funnel metrics to leadership.",
+        "job2Meta": "Sep. 2021 - Dec. 2022 • Douala, Cameroon"
+      }
+    },
+    "savedJobsPage": {
+      "title": "Saved Jobs",
+      "searchPlaceholder": "Search jobs by title, skill or company",
+      "applied": "You applied {time} ago",
+      "savedBookmark": "Saved job",
+      "empty": "No saved jobs match your search.",
+      "loadError": "Could not load saved jobs. Please try again.",
+      "cardMenu": "More job actions",
+      "listColStatus": "Status",
+      "listColTitle": "Title",
+      "listColCompany": "Company",
+      "listColPay": "Pay"
+    },
+    "myJobs": {
+      "title": "My jobs",
+      "description": "Roles you have posted and manage from your worker account.",
+      "postJob": "Post a job",
+      "empty": "You have not posted any jobs yet. Create one to start receiving applicants.",
+      "backToProfile": "Back to profile",
+      "bookmark": "Save job",
+      "manage": "Manage",
+      "menu": "Job actions"
+    },
+    "postJob": {
+      "title": "Post a job",
+      "description": "Share a role with candidates on Joballa.",
+      "comingSoon": "The worker job posting flow is coming soon. Use this page to preview navigation from your profile.",
+      "viewMyJobs": "My jobs",
+      "backToProfile": "Back to profile"
+    },
+    "profile": {
+      "eyebrow": "Profile builder",
+      "title": "Profile",
+      "description": "Your public profile preview and editable details synced with your account.",
+      "loadError": "Could not load your profile. Please try again.",
+      "strength": {
+        "title": "Profile strength",
+        "percent": "{pct}% complete",
+        "sections": {
+          "personal": "Personal info",
+          "summary": "Professional summary",
+          "skills": "Skills",
+          "work": "Experience",
+          "education": "Education",
+          "verification": "Verification",
+          "payment": "Payment details"
+        }
+      },
+      "editor": {
+        "replacePhoto": "Replace photo",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "city": "City",
+        "region": "Region",
+        "languages": "Languages (comma-separated)",
+        "available": "Available to work",
+        "yourTitle": "Your title",
+        "shortBio": "Short bio",
+        "skillsHint": "Skills (comma-separated)",
+        "jobTitle": "Job title",
+        "company": "Company",
+        "startDate": "Start date (YYYY-MM-DD)",
+        "endDate": "End date (optional)",
+        "currentRole": "I currently work in this role",
+        "currentStudy": "I am currently studying here",
+        "description": "Description",
+        "phone": "Mobile money number",
+        "save": "Save changes",
+        "saving": "Saving…",
+        "saved": "Profile saved.",
+        "saveError": "Could not save profile. Please try again.",
+        "addWork": "Add work experience",
+        "addExperience": "Add experience",
+        "institution": "Institution",
+        "degree": "Degree or qualification",
+        "addEducation": "Add education",
+        "certificationsTitle": "Certifications",
+        "certificationName": "Certification name",
+        "certificationIssuer": "Issuing organization",
+        "issueDate": "Issue date",
+        "addCertification": "Add certification",
+        "delete": "Remove",
+        "uploadDocument": "Upload document",
+        "kycStatus": "KYC status: {status}",
+        "kycNone": "No verification submitted yet.",
+        "kycVerified": "Your KYC has been verified. You can apply for jobs with a verified profile badge.",
+        "kycPending": "Your KYC is under review. It can take up to 24 hours or less.",
+        "kycRejected": "Your KYC needs attention.",
+        "kycReason": "Reason: {reason}",
+        "documentType": "Document type",
+        "nationalId": "National ID",
+        "passport": "Passport",
+        "driversLicense": "Driver's license",
+        "passportDocument": "Passport document",
+        "idFront": "ID front",
+        "idBack": "ID back",
+        "selfie": "Selfie",
+        "submitKyc": "Submit KYC",
+        "documentUploaded": "Document uploaded.",
+        "documentUploadError": "Could not upload document. Please try again."
+      },
+      "preview": {
+        "editProfile": "Edit Profile",
+        "viewMyJobs": "View Your Jobs",
+        "postJob": "Post a job",
+        "verified": "Verified profile",
+        "verifyKyc": "Verify KYC badge",
+        "availableForHire": "Available for Hire",
+        "verificationTooltip": "Identification document verified by Joballa",
+        "summaryLabel": "Professional summary",
+        "skillsLabel": "Skills",
+        "workLabel": "Work history",
+        "educationLabel": "Education",
+        "certificationsLabel": "Certifications",
+        "documentsLabel": "Supporting documents",
+        "emptyWork": "No work history added yet.",
+        "emptySkills": "No skills added yet.",
+        "emptyEducation": "No education added yet.",
+        "emptyCertifications": "No certifications added yet.",
+        "emptyDocuments": "No documents uploaded yet.",
+        "documentTitle": "HubSpot Marketing Manager_Ako_James.pdf",
+        "documentMeta": "PDF"
+      },
+      "editSectionTitle": "Edit profile details",
+      "editSectionLead": "These fields map to PATCH /worker-profiles/me. Updates apply to your live profile.",
+      "sections": {
+        "identity": {
+          "title": "Identity and availability",
+          "description": "Full name, city, region, languages spoken, and availability status."
+        },
+        "experience": {
+          "title": "Skills and work history",
+          "description": "Structured experience blocks designed for employer review and profile completeness scoring."
+        },
+        "documents": {
+          "title": "Verification and supporting files",
+          "description": "National ID, certificates, and optional supporting attachments."
+        },
+        "payments": {
+          "title": "Mobile money setup",
+          "description": "Worker payment details for future disbursement and earnings visibility."
+        }
+      },
+      "formIntro": {
+        "title": "Profile details synced with the backend",
+        "description": "These fields correspond to PATCH /worker-profiles/me. More sections can follow."
+      },
+      "profileForm": {
+        "loading": "Loading profile…",
+        "loadError": "Could not load your profile.",
+        "saveError": "Could not save changes.",
+        "saved": "Profile updated.",
+        "saving": "Saving…",
+        "submit": "Save profile",
+        "completeness": "Profile completeness: {value}%",
+        "fields": {
+          "fullName": "Full name",
+          "city": "City",
+          "region": "Region",
+          "bio": "Bio"
+        }
+      }
+    },
+    "applications": {
+      "title": "My Applications",
+      "resultsTitle": "Application search results",
+      "tabsAria": "Filter applications by status",
+      "match": "{pct}% match",
+      "mode": {
+        "outgoing": "Applications I made to jobs",
+        "incoming": "Applications to my jobs"
+      },
+      "searchPlaceholder": "Search your applications by job title or employer",
+      "incomingSearchPlaceholder": "Search applications to your jobs by applicant or job title",
+      "submitSearch": "Search applications",
+      "filtersButton": "Filters",
+      "summary": "{count} applications",
+      "resultsFor": "Results for \"{query}\"",
+      "tabs": {
+        "all": "All({count})",
+        "shortlisted": "Shortlisted({count})",
+        "pending": "Pending({count})",
+        "rejected": "Rejected({count})"
+      },
+      "viewGrid": "Grid view",
+      "viewList": "List view",
+      "applied": "You applied {time} ago",
+      "incomingApplied": "Applied {time} ago",
+      "status": {
+        "shortlisted": "Shortlisted",
+        "pending": "Pending",
+        "rejected": "Rejected"
+      },
+      "timeline": {
+        "interview": "Interview on Mon, 10 AM.",
+        "offerDue": "Offer valid until next Fri."
+      },
+      "table": {
+        "applied": "Applied",
+        "appliedShort": "{time} ago",
+        "employer": "Employer",
+        "applicant": "Applicant",
+        "jobTitle": "Job title",
+        "pay": "Pay rate",
+        "jobType": "Job type",
+        "location": "Location",
+        "match": "Match %",
+        "status": "Status"
+      },
+      "rowMenu": {
+        "label": "Row actions",
+        "open": "Open",
+        "save": "Save",
+        "share": "Share",
+        "flag": "Flag",
+        "delete": "Delete"
+      },
+      "empty": "No applications match your filters.",
+      "incomingEmpty": "No one has applied to your jobs yet.",
+      "loadError": "Could not load applications. Please try again.",
+      "detail": {
+        "back": "Back",
+        "jobMenu": "Job actions",
+        "aboutTitle": "About the role",
+        "aboutIntro": "{company} is hiring for this {role}. Below is a snapshot of what they are looking for and how your submitted profile will be reviewed.",
+        "requirementsTitle": "Requirements",
+        "requirements": [
+          "University degree or equivalent experience",
+          "At least 1 year in a similar role",
+          "Bilingual English and French",
+          "Reliable transport for onsite days",
+          "Availability for agreed weekly hours"
+        ],
+        "whatYouDoTitle": "What you will do",
+        "whatYouWillDo": [
+          "Deliver structured sessions aligned with the employer brief",
+          "Track progress and communicate clearly with the hiring team",
+          "Maintain professionalism and punctuality throughout the engagement"
+        ],
+        "jobMeta": {
+          "jobType": "Job type",
+          "location": "Location",
+          "start": "Start date",
+          "duration": "Duration",
+          "applicants": "Applications"
+        },
+        "emptyDescription": "No description provided for this role."
+      }
+    },
+    "earnings": {
+      "title": "Earnings",
+      "historyTitle": "Transaction history",
+      "printStatement": "Print statement",
+      "loadError": "Could not load earnings. Please try again.",
+      "empty": "No transactions yet.",
+      "stats": {
+        "total": { "label": "Total earnings", "value": "1.2M", "hint": "All time" },
+        "month": { "label": "This month", "value": "195K", "hint": "+20% this month" },
+        "pending": { "label": "Pending", "value": "320K", "hint": "1 pending" },
+        "jobs": { "label": "Your jobs", "value": "03", "hint": "2 active" }
+      },
+      "tabs": {
+        "all": "All({count})",
+        "paid": "Paid({count})",
+        "pending": "Pending({count})",
+        "overdue": "Overdue({count})"
+      },
+      "table": {
+        "date": "Date",
+        "employer": "Employer",
+        "jobTitle": "Job title",
+        "amount": "Amount",
+        "status": "Status"
+      },
+      "status": {
+        "paid": "Paid",
+        "pending": "Pending",
+        "overdue": "Overdue"
+      },
+      "rowMenu": {
+        "label": "Row actions",
+        "open": "Open",
+        "save": "Save",
+        "share": "Share",
+        "flag": "Flag",
+        "delete": "Delete"
+      }
+    },
+    "engagements": {
+      "title": "My engagements",
+      "description": "Jobs you have been hired for — track contract status here.",
+      "loadError": "Could not load engagements. Please try again.",
+      "empty": "No engagements yet. When an employer hires you, contracts appear here.",
+      "untitledJob": "Job",
+      "viewJob": "View job posting",
+      "tabs": {
+        "all": "All",
+        "ACTIVE": "Active",
+        "COMPLETED": "Completed",
+        "TERMINATED": "Terminated"
+      },
+      "detail": {
+        "view": "View details",
+        "started": "Started"
+      }
+    },
+    "settings": {
+      "eyebrow": "Preferences",
+      "title": "Manage language and notification settings",
+      "description": "Language, in-app notification preferences, and account controls will live here.",
+      "pageTitle": "Settings",
+      "pageDescription": "Manage your preferences and account settings.",
+      "documents": {
+        "title": "Profile documents",
+        "description": "Upload your CV or certificates so employers can review your experience.",
+        "dropTitle": "Drag and drop relevant certificates or documents",
+        "dropHint": "PDF, PNG or JPG (max. 10 MB)",
+        "browse": "Browse files"
+      },
+      "language": {
+        "title": "Language",
+        "description": "Select your preferred language.",
+        "controlLabel": "Display language"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Select the theme you want to use in the worker app.",
+        "controlLabel": "Theme",
+        "options": {
+          "system": "System default",
+          "light": "Light",
+          "dark": "Dark"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choose how you want to stay updated.",
+        "push": {
+          "title": "Push Notifications",
+          "description": "Receive push notifications on your device."
+        },
+        "email": {
+          "title": "Email Notifications",
+          "description": "Receive important updates via email."
+        },
+        "jobs": {
+          "title": "Job Alerts",
+          "description": "Get notified about new job matches."
+        },
+        "messages": {
+          "title": "Messages",
+          "description": "Get notified when you receive a new message."
+        }
+      },
+      "account": {
+        "title": "Account",
+        "description": "Manage your profile and session on this device.",
+        "profile": {
+          "title": "Edit profile",
+          "description": "Update your public worker profile, documents, and payment details."
+        },
+        "engagements": {
+          "title": "My engagements",
+          "description": "View active and completed contracts after you are hired."
+        },
+        "signOut": {
+          "title": "Sign out",
+          "description": "End your current Joballa session on this device.",
+          "button": "Sign out",
+          "busy": "Signing out..."
+        }
+      }
+    }
+  },
+  "employer": {
+    "brand": "Employer portal",
+    "shell": {
+      "title": "Employer workspace",
+      "subtitle": "Job posting, applicant review, workforce tracking, and payroll are grouped into one dedicated frontend surface.",
+      "utility": "This layout now mirrors the employer flow in the scope document instead of reusing a generic user page.",
+      "mainNav": "Employer sections",
+      "bottomNav": "Primary navigation",
+      "notifications": "Notifications",
+      "companyFallback": "Your company",
+      "tabDashboard": "Dashboard",
+      "tabJobs": "My Jobs",
+      "tabApplicants": "Applicants",
+      "tabWorkforce": "Workforce",
+      "tabPayroll": "Payroll"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "jobs": "My Jobs",
+      "applicants": "Applicants",
+      "workforce": "Workforce",
+      "payroll": "Payments",
+      "profile": "Profile",
+      "settings": "Settings"
+    },
+    "dashboard": {
+      "eyebrow": "Employer dashboard",
+      "title": "Manage the full hiring cycle from one surface",
+      "description": "The employer dashboard is now shaped around the real product tasks instead of a placeholder stat board.",
+      "stats": {
+        "jobs": { "label": "Active jobs", "value": "0" },
+        "applicants": { "label": "Applicants", "value": "0" },
+        "workers": { "label": "Hired workers", "value": "0" },
+        "payroll": { "label": "Payroll due", "value": "XAF 0" }
+      },
+      "queue": {
+        "title": "Operational queue",
+        "description": "This area is ready for recent applicants, live job performance, and payroll reminders.",
+        "items": {
+          "review": {
+            "title": "Review new applicants",
+            "description": "Use profile snapshots and matching signals to move candidates quickly."
+          },
+          "payroll": {
+            "title": "Prepare disbursement",
+            "description": "Move active workers from shift logs to payroll and payment execution."
+          }
+        }
+      },
+      "jobs": {
+        "title": "Job publication flow",
+        "description": "Employer jobs will pass through moderation before going live, which is why the frontend now keeps this flow explicit.",
+        "highlight": {
+          "title": "Draft -> under review -> active",
+          "description": "This state model matches the scope document and keeps the employer informed."
+        }
+      }
+    },
+    "dashboardPage": {
+      "title": "Dashboard",
+      "actions": {
+        "postJob": "Post a Job",
+        "viewApplicants": "View Applicants"
+      },
+      "stats": {
+        "activeJobs": {
+          "label": "Active jobs",
+          "value": "02",
+          "hint": "created this month"
+        },
+        "totalApplicants": {
+          "label": "Total applicants",
+          "value": "517",
+          "hint": "+89 this month"
+        },
+        "hiredWorkers": {
+          "label": "Hired workers",
+          "value": "24",
+          "hint": "-4 this year"
+        },
+        "totalPayroll": {
+          "label": "Total payroll",
+          "value": "2.2M",
+          "hint": "+10% this month"
+        }
+      },
+      "applicants": {
+        "title": "Applicants",
+        "seeAll": "See all",
+        "viewGrid": "Grid view",
+        "viewList": "List view",
+        "applied": "Applied {time}",
+        "appliedAgo": "Applied {time} ago",
+        "appliedAgo": "Applied {time} ago",
+        "match": "Match",
+        "moreActions": "More applicant actions",
+        "table": {
+          "applied": "Applied",
+          "appliedAgo": "{time} ago",
+          "applicant": "Applicant",
+          "applyingFor": "Applying for",
+          "topSkills": "Top Skills",
+          "jobType": "Job Type",
+          "location": "Location",
+          "match": "Match %",
+          "status": "Status"
+        },
+        "status": {
+          "shortlisted": "Shortlisted",
+          "rejected": "Rejected",
+          "pending": "Pending",
+          "hired": "Hired"
+        },
+        "menu": {
+          "open": "Open",
+          "shortlist": "Shortlist",
+          "reject": "Reject",
+          "flag": "Flag",
+          "hide": "Hide"
+        },
+        "empty": "No applicants yet."
+      },
+      "jobStatus": {
+        "title": "Job Status",
+        "applicants": "Applicants",
+        "shortlisted": "Shortlisted",
+        "pay": "Pay",
+        "live": "Live",
+        "empty": "No live jobs yet.",
+        "posted": "Posted {time} ago",
+        "moreActions": "More job actions",
+        "applicantsCount": "{count} applicants",
+        "shortlistedCount": "{count} shortlisted"
+      }
+    },
+    "jobs": {
+      "eyebrow": "Job posting",
+      "title": "Create and monitor job postings",
+      "description": "The page is ready for structured fields such as category, duration, pay structure, openings, and requested documents.",
+      "cards": {
+        "post": {
+          "title": "Post a new job",
+          "description": "A dedicated flow for previewing and submitting roles into the admin review queue."
+        },
+        "review": {
+          "title": "Track moderation status",
+          "description": "See whether a job is in draft, under review, active, paused, or closed."
+        }
+      },
+      "previewTitle": "Posted roles preview",
+      "previewDescription": "Uses the same job card component as the worker experience.",
+      "cardPosted": "{time} ago",
+      "cardManage": "Manage posting",
+      "cardMenu": "Job listing actions",
+      "cardApplicants": "View applicants",
+      "cardDuplicate": "Duplicate draft",
+      "cardClose": "Close posting"
+    },
+    "postJobFlow": {
+      "title": "Post a Job",
+      "description": "Create the role, add the details that candidates need, then review the final employer-facing preview before you submit it.",
+      "backToJobs": "Back to jobs",
+      "stepsLabel": "Post job steps",
+      "steps": {
+        "basics": "Basics",
+        "details": "Details",
+        "preview": "Preview"
+      },
+      "helpers": {
+        "scheduleDescription": "Set the timing, duration, and rhythm of the role so candidates know exactly how the work is structured.",
+        "descriptionDescription": "This is the main story of the role. Keep it clear, specific, and easy to scan.",
+        "requirementsDescription": "Break the requirements into individual points instead of one long paragraph.",
+        "responsibilitiesDescription": "List the day-to-day expectations as separate items so the preview stays structured."
+      },
+      "placeholders": {
+        "description": "Describe the role, who it supports, and what a strong candidate should expect.",
+        "requirement": "Add one requirement",
+        "responsibility": "Add one responsibility"
+      },
+      "fields": {
+        "title": "Job title",
+        "department": "Department / employer",
+        "category": "Category",
+        "jobType": "Job type",
+        "workMode": "Work mode",
+        "location": "Location",
+        "pay": "Pay",
+        "openings": "Openings",
+        "startDate": "Start date",
+        "duration": "Duration",
+        "schedule": "Schedule",
+        "description": "Role description",
+        "requirements": "Requirements",
+        "responsibilities": "What the worker will do"
+      },
+      "summary": {
+        "title": "Quick summary",
+        "readyTitle": "Ready for preview",
+        "readyDescription": "Review the final copy and role structure before you move into the public-facing preview state."
+      },
+      "preview": {
+        "status": "Preview",
+        "aboutTitle": "About this role",
+        "requirementsTitle": "Requirements",
+        "doTitle": "What you will do",
+        "panelTitle": "Submission panel",
+        "panelDescription": "When you submit, the role moves into the moderation flow before it becomes visible to workers.",
+        "moderationTitle": "Moderation note",
+        "moderationDescription": "Joballa reviews structure, safety, and clarity before publication."
+      },
+      "actions": {
+        "continue": "Continue",
+        "back": "Back",
+        "preview": "Open preview",
+        "submit": "Submit for review",
+        "submitting": "Submitting…",
+        "saveDraft": "Save as draft",
+        "edit": "Edit details",
+        "addRequirement": "Add requirement",
+        "addResponsibility": "Add responsibility",
+        "returnDashboard": "Return to dashboard",
+        "returnJobs": "Back to jobs"
+      }
+    },
+    "jobDetail": {
+      "closePanel": "Close job details",
+      "viewApplicants": "View applicants",
+      "delete": "Delete",
+      "crumbPrefix": "Dashboard >",
+      "back": "Back",
+      "more": "More actions",
+      "summary": {
+        "status": "Status",
+        "jobType": "Job type",
+        "location": "Location",
+        "startDate": "Start Date",
+        "duration": "Duration",
+        "applications": "Applications"
+      },
+      "aboutTitle": "About this role",
+      "requirementsTitle": "Requirements",
+      "doTitle": "What you will do",
+      "listedBy": "Listed by {employer}\nfor {person}"
+    },
+    "applicants": {
+      "title": "Applicants",
+      "description": "Search, filter, and review candidate applications in one place.",
+      "searchPlaceholder": "Search applicants by name, skill or location",
+      "submitSearch": "Search applicants",
+      "filtersButton": "Filters",
+      "jobFilter": "Filter by job",
+      "allJobs": "All jobs",
+      "showingForJob": "Showing results for {job}",
+      "applied": "Applied {time} ago",
+      "moreActions": "More applicant actions",
+      "viewGrid": "Card view",
+      "viewList": "Table view",
+      "empty": "No applicants match your filters.",
+      "panelEmptyTitle": "Select an applicant",
+      "panelEmptyDescription": "Choose someone from the list to view their full application and profile snapshot.",
+      "tabs": {
+        "all": "All({count})",
+        "shortlisted": "Shortlisted({count})",
+        "pending": "Pending({count})",
+        "rejected": "Rejected({count})"
+      },
+      "status": {
+        "shortlisted": "Shortlisted",
+        "rejected": "Rejected",
+        "pending": "Pending",
+        "hired": "Hired"
+      },
+      "actions": {
+        "shortlisted": "Shortlist",
+        "rejected": "Reject",
+        "hired": "Hire"
+      },
+      "table": {
+        "applied": "Applied",
+        "appliedAgo": "{time} ago",
+        "applicant": "Applicant",
+        "applyingFor": "Applying for",
+        "topSkills": "Top skills",
+        "jobType": "Job type",
+        "location": "Location",
+        "match": "Match %",
+        "status": "Status"
+      }
+    },
+    "applicantDetail": {
+      "closePanel": "Close application details",
+      "openFull": "Open full page",
+      "seeMore": "see more",
+      "seeLess": "see less",
+      "share": "Copy share link",
+      "profileTitle": "Submitted profile",
+      "crumbPrefix": "Dashboard >",
+      "back": "Back",
+      "more": "More actions",
+      "summary": {
+        "jobType": "Job type",
+        "location": "Location",
+        "startDate": "Start Date",
+        "duration": "Duration",
+        "applications": "Applications"
+      },
+      "jobInfo": {
+        "aboutTitle": "About this role",
+        "requirementsTitle": "Requirements",
+        "doTitle": "What you will do"
+      },
+      "profile": {
+        "summaryTitle": "PROFESSIONAL SUMMARY",
+        "skillsTitle": "SKILLS",
+        "workTitle": "WORK HISTORY",
+        "documentsTitle": "SUPPORTING DOCUMENTS"
+      }
+    },
+    "jobsPage": {
+      "title": "Your jobs",
+      "description": "Browse postings, open details, and manage applicants.",
+      "postJob": "Post a job",
+      "companyFallback": "Your company",
+      "searchPlaceholder": "Search jobs by title, type, or pay",
+      "submitSearch": "Search jobs",
+      "filtersButton": "Filters",
+      "viewGrid": "Grid view",
+      "viewList": "List view",
+      "emptySearch": "No jobs match your search or filters.",
+      "listColPosted": "Posted",
+      "listColTitle": "Title",
+      "listColStatus": "Status",
+      "listColApplicants": "Applicants",
+      "listColPay": "Pay",
+      "filters": {
+        "all": "All",
+        "live": "Live",
+        "draft": "Draft",
+        "paused": "Paused"
+      },
+      "posted": "Posted {time} ago",
+      "applicantsShort": "{count} applicants · {shortlisted} shortlisted",
+      "viewApplicants": "View applicants",
+      "empty": "No jobs yet. Post your first role to start receiving applicants."
+    },
+    "workforce": {
+      "title": "Workforce",
+      "description": "Active workers, shift logs, and engagement status.",
+      "filters": {
+        "all": "All",
+        "active": "Active",
+        "terminated": "Terminated"
+      },
+      "stats": {
+        "activeWorkers": "Active workers",
+        "totalShifts": "Total shifts this month",
+        "engagementsEnded": "Engagements ended"
+      },
+      "status": {
+        "active": "Active",
+        "terminated": "Terminated",
+        "rejected": "Rejected"
+      },
+      "table": {
+        "dateJoined": "Date joined",
+        "worker": "Worker",
+        "role": "Role",
+        "shiftLogged": "Shift logged",
+        "jobType": "Job type",
+        "status": "Status",
+        "shiftsValue": "{count} shifts",
+        "shiftDate": "Date",
+        "shiftHours": "Hours",
+        "shiftNotes": "Notes",
+        "loggedBy": "Logged by",
+        "hoursValue": "{count} hours"
+      },
+      "empty": "No workers in this view.",
+      "shiftsTitle": "Shift log",
+      "shiftsEmpty": "No shifts logged yet.",
+      "logShift": "Log a shift",
+      "shiftNotes": "Notes (optional)",
+      "logging": "Logging…",
+      "logShiftSubmit": "Log shift",
+      "cancelLogShift": "Cancel",
+      "actions": {
+        "terminate": "Terminate",
+        "reinstate": "Reinstate"
+      }
+    },
+    "workforceDetail": {
+      "back": "Back",
+      "actions": "Actions",
+      "more": "More actions",
+      "summary": {
+        "dateJoined": "Date joined",
+        "jobType": "Job type",
+        "shiftsLogged": "Shifts logged",
+        "shiftsLoggedValue": "{count} shifts",
+        "status": "Status"
+      },
+      "jobInfo": {
+        "aboutTitle": "About this role",
+        "requirementsTitle": "Requirements",
+        "doTitle": "What you will do"
+      },
+      "profile": {
+        "summaryTitle": "PROFESSIONAL SUMMARY",
+        "skillsTitle": "SKILLS",
+        "workTitle": "WORK HISTORY"
+      }
+    },
+    "payroll": {
+      "title": "Payments",
+      "description": "Review amounts due, pay workers via mobile money, and track history.",
+      "month": "Month",
+      "year": "Year",
+      "workersTitle": "Workers to pay",
+      "workersEmpty": "No workers due for this period.",
+      "historySearch": "Search payments…",
+      "pay": "Pay",
+      "paying": "Paying…",
+      "paid": "Paid",
+      "phoneLabel": "MoMo phone number",
+      "table": {
+        "worker": "Worker",
+        "role": "Role",
+        "amount": "Amount due",
+        "action": "Action"
+      },
+      "summary": {
+        "totalPayroll": "Total payroll",
+        "pending": "Pending",
+        "paidThisMonth": "Paid this month",
+        "outstanding": "Outstanding",
+        "totalDue": "Total due"
+      },
+      "history": {
+        "title": "Payment history",
+        "empty": "No payments match your search.",
+        "amount": "Amount"
+      }
+    },
+    "requests": {
+      "title": "Informal requests",
+      "description": "Department-routed hiring requests outside standard job posts.",
+      "new": "New request",
+      "newTitle": "Submit informal request",
+      "newDescription": "Route a need to the right department for review.",
+      "empty": "No informal requests yet.",
+      "departmentId": "Department ID",
+      "titleLabel": "Request title",
+      "category": "Department category",
+      "paymentManaged": "Payment managed by Joballa",
+      "notes": "Additional details",
+      "validation": "Department ID and title are required.",
+      "submitError": "Could not submit the request. Try again.",
+      "submitting": "Submitting…",
+      "submit": "Submit request"
+    },
+    "profile": {
+      "eyebrow": "Employer profile",
+      "title": "Company profile and verification",
+      "description": "Use this page for company details, verification documents, logo, and payment settings.",
+      "preview": {
+        "editProfile": "Edit profile",
+        "backToProfile": "Back to profile",
+        "aboutLabel": "About the company",
+        "applicantsLabel": "Applicants",
+        "employeesLabel": "Total employees",
+        "websiteLabel": "Website"
+      },
+      "editSectionTitle": "Edit company profile",
+      "editSectionLead": "Update your organisation details. Changes sync with your live company profile.",
+      "cards": {
+        "company": {
+          "title": "Company identity",
+          "description": "Company name, sector, location, website, and about section."
+        },
+        "verification": {
+          "title": "Business verification",
+          "description": "Business registration documents and trust status."
+        }
+      },
+      "formIntro": {
+        "title": "Company profile synced with the backend",
+        "description": "These fields correspond to PATCH /employer-profiles/me."
+      },
+      "profileForm": {
+        "loading": "Loading profile…",
+        "loadError": "Could not load your organisation profile.",
+        "saveError": "Could not save changes.",
+        "saved": "Profile updated.",
+        "saving": "Saving…",
+        "submit": "Save profile",
+        "fields": {
+          "companyName": "Company name",
+          "industry": "Industry",
+          "location": "Location",
+          "about": "About",
+          "website": "Website",
+          "logo": "Company logo"
+        }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Updates about applicants, payments, and your job postings.",
+      "empty": "No notifications yet.",
+      "filters": {
+        "all": "All",
+        "applicants": "Applicants",
+        "payments": "Payments"
+      }
+    },
+    "settings": {
+      "pageTitle": "Settings",
+      "pageDescription": "Manage your preferences and account settings.",
+      "language": {
+        "title": "Language",
+        "description": "Select your preferred language.",
+        "controlLabel": "Display language"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Select the theme you want to use in the employer app.",
+        "controlLabel": "Theme",
+        "options": {
+          "system": "System default",
+          "light": "Light",
+          "dark": "Dark"
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choose how you want to stay updated.",
+        "push": {
+          "title": "Push Notifications",
+          "description": "Receive push notifications on your device."
+        },
+        "email": {
+          "title": "Email Notifications",
+          "description": "Receive important updates via email."
+        },
+        "applicants": {
+          "title": "Applicant alerts",
+          "description": "Get notified when someone applies to your jobs."
+        },
+        "messages": {
+          "title": "Messages",
+          "description": "Get notified when you receive a new message."
+        }
+      },
+      "account": {
+        "title": "Account",
+        "description": "Manage your company profile and session on this device.",
+        "profile": {
+          "title": "Company profile",
+          "description": "Update your organisation details and verification documents."
+        },
+        "signOut": {
+          "title": "Sign out",
+          "description": "End your current Joballa session on this device.",
+          "button": "Sign out",
+          "busy": "Signing out..."
+        }
+      }
+    }
+  },
+  "admin": {
+    "brand": "Admin panel",
+    "shell": {
+      "title": "Admin operations",
+      "subtitle": "Verification, job review, disputes, departments, and reporting now have a dedicated operational shell.",
+      "utility": "The admin frontend is now organised around trust and operations instead of generic dashboard filler."
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "jobs": "Jobs",
+      "disputes": "Disputes",
+      "departments": "Departments",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "dashboard": {
+      "eyebrow": "Admin dashboard",
+      "title": "Operational command center",
+      "description": "The admin home now reflects moderation, trust, and platform oversight responsibilities.",
+      "stats": {
+        "pendingUsers": { "label": "Pending users", "value": "0" },
+        "pendingJobs": { "label": "Jobs in review", "value": "0" },
+        "disputes": { "label": "Open disputes", "value": "0" },
+        "payments": { "label": "Payments tracked", "value": "0" }
+      },
+      "queue": {
+        "title": "Action queue",
+        "description": "The queue is where moderators can focus first on the items that affect marketplace trust.",
+        "items": {
+          "users": {
+            "title": "User verification queue",
+            "description": "Review worker and employer verification submissions with notes and outcomes."
+          },
+          "jobs": {
+            "title": "Job review queue",
+            "description": "Approve, reject, or request edits on roles before they reach workers."
+          }
+        }
+      },
+      "operations": {
+        "title": "Admin operations",
+        "description": "This space prepares for department management, dispute flows, and health metrics.",
+        "highlight": {
+          "title": "Joballa-managed departments remain first-class",
+          "description": "The admin surface now has a dedicated place for internal department activity."
+        }
+      }
+    },
+    "users": {
+      "eyebrow": "Verification queue",
+      "title": "Review worker and employer accounts",
+      "description": "This page is ready for document review, status notes, and verification actions.",
+      "cards": {
+        "workers": {
+          "title": "Workers awaiting review",
+          "description": "Inspect ID photos, worker profile details, and follow-up notes."
+        },
+        "employers": {
+          "title": "Employers awaiting review",
+          "description": "Review company records, contact information, and submitted registration documents."
+        }
+      }
+    },
+    "jobs": {
+      "eyebrow": "Job moderation",
+      "title": "Moderate published opportunities",
+      "description": "Use this route for jobs awaiting approval, rejection, or edit requests.",
+      "cards": {
+        "review": {
+          "title": "Moderation queue",
+          "description": "Job moderation is now a dedicated route instead of a dead navigation item."
+        }
+      }
+    },
+    "disputes": {
+      "eyebrow": "Disputes",
+      "title": "Handle issues with context",
+      "description": "Dispute resolution gets its own page so evidence, timelines, and actions have room to expand.",
+      "cards": {
+        "timeline": {
+          "title": "Dispute timeline",
+          "description": "Track both parties, evidence, and the final resolution steps."
+        }
+      }
+    },
+    "departments": {
+      "eyebrow": "Departments",
+      "title": "Manage Joballa-owned departments",
+      "description": "This route supports the informal job categories described in the scope document.",
+      "cards": {
+        "departments": {
+          "title": "Department catalogue",
+          "description": "Create and manage categories like education, domestic work, logistics, and events."
+        },
+        "listings": {
+          "title": "Department listings",
+          "description": "Post and maintain informal job opportunities directly from the admin surface."
+        }
+      }
+    },
+    "reports": {
+      "eyebrow": "Reporting",
+      "title": "Platform metrics and exports",
+      "description": "The reports route is now available for growth, job market, payment, and department performance analytics.",
+      "cards": {
+        "metrics": {
+          "title": "Operational metrics",
+          "description": "Export-ready reports and dashboard summaries will live here."
+        }
+      }
+    },
+    "settings": {
+      "eyebrow": "Admin settings",
+      "title": "Admin permissions and controls",
+      "description": "A place for role-sensitive admin settings and future system-level controls.",
+      "cards": {
+        "roles": {
+          "title": "Role and access controls",
+          "description": "Prepare the interface for admin-only capabilities and secure configuration."
+        }
+      }
+    }
+  }
+}
