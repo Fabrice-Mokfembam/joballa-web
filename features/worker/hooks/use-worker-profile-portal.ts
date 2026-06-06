@@ -7,6 +7,8 @@ import {
   deleteWorkerEducation,
   deleteWorkerWorkHistory,
   getWorkerDocuments,
+  getWorkerCvExport,
+  getWorkerCvExportStatus,
   getWorkerFullProfile,
   getWorkerKyc,
   getWorkerPublicProfile,
@@ -18,6 +20,7 @@ import {
   patchWorkerSkills,
   patchWorkerWorkHistory,
   postWorkerAvatar,
+  postWorkerCvExport,
   postWorkerCertification,
   postWorkerDocument,
   postWorkerEducation,
@@ -36,6 +39,7 @@ import type {
   PatchSkillsBody,
   SubmitKycBody,
   WorkerDocument,
+  WorkerCvDownload,
   WorkerFullProfile,
   WorkerWorkHistory,
 } from "@/features/worker/types/worker-portal";
@@ -117,6 +121,47 @@ export function useWorkerKyc() {
     queryKey: workerKeys.kyc(),
     queryFn: getWorkerKyc,
     enabled: sessionReady,
+  });
+}
+
+function downloadWorkerCv({ blob, fileName }: WorkerCvDownload) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+export function useWorkerCvExportStatus() {
+  const sessionReady = useAuthSessionReady();
+  return useQuery({
+    queryKey: workerKeys.cvExportStatus(),
+    queryFn: getWorkerCvExportStatus,
+    enabled: sessionReady,
+  });
+}
+
+export function useGenerateWorkerCvExport() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: postWorkerCvExport,
+    onSuccess: (download) => {
+      downloadWorkerCv(download);
+      toastSuccess("CV exported.");
+      void qc.invalidateQueries({ queryKey: workerKeys.cvExportStatus() });
+    },
+    onError: (error) => toastApiError(error, "Could not export your CV."),
+  });
+}
+
+export function useDownloadWorkerCvExport() {
+  return useMutation({
+    mutationFn: getWorkerCvExport,
+    onSuccess: downloadWorkerCv,
+    onError: (error) => toastApiError(error, "Could not download your CV."),
   });
 }
 

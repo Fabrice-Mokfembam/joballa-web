@@ -3,7 +3,13 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
-import { useWorkerDocuments, useWorkerFullProfile } from "@/features/worker/hooks";
+import {
+  useDownloadWorkerCvExport,
+  useGenerateWorkerCvExport,
+  useWorkerCvExportStatus,
+  useWorkerDocuments,
+  useWorkerFullProfile,
+} from "@/features/worker/hooks";
 import {
   documentFileLabel,
   formatCertificationMeta,
@@ -18,7 +24,7 @@ import {
   profileSkillsLine,
 } from "@/features/worker/lib/profile-display";
 import { portalCardClass, portalOutlineButtonClass } from "@/components/portal/portal-ui";
-import { IconGlobe, IconPencil, IconPhone, IconPin, IconPlus, IconShieldCheck, IconVerified } from "@/components/worker/icons";
+import { IconDownload, IconFileDown, IconGlobe, IconPencil, IconPhone, IconPin, IconPlus, IconShieldCheck, IconVerified } from "@/components/worker/icons";
 import { isVerifiedStatus } from "@/features/worker/lib/verification";
 import { WorkerProfilePageSkeleton } from "@/components/worker/worker-loading-skeletons";
 import { JoballaApiError } from "@/lib/joballa/request";
@@ -35,6 +41,9 @@ export function WorkerProfilePublic({
   const tNav = useTranslations("worker.nav");
   const profileQuery = useWorkerFullProfile();
   const documentsQuery = useWorkerDocuments();
+  const cvStatusQuery = useWorkerCvExportStatus();
+  const generateCv = useGenerateWorkerCvExport();
+  const downloadCv = useDownloadWorkerCvExport();
 
   if (profileQuery.isLoading) {
     return (
@@ -63,6 +72,8 @@ export function WorkerProfilePublic({
     profile.kycSubmissions?.some((k) => isVerifiedStatus(String(k.status))) || isVerifiedStatus(profile.verificationStatus);
   const available = String(profile.availabilityStatus ?? "").toUpperCase() === "AVAILABLE";
   const avatarUrl = profile.avatarUrl;
+  const cvStatus = cvStatusQuery.data;
+  const cvBusy = generateCv.isPending || downloadCv.isPending;
 
   return (
     <div className={cn("relative flex flex-col items-center gap-4 pb-20 sm:gap-5", className)}>
@@ -74,9 +85,41 @@ export function WorkerProfilePublic({
           >
             {tProfile("preview.editProfile")}
           </Link>
-          <Link href="/worker/my-jobs" className={portalOutlineButtonClass}>
-            {tProfile("preview.viewMyJobs")}
-          </Link>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {cvStatus?.available && cvStatus.isOutdated ? (
+              <button
+                type="button"
+                disabled={cvBusy}
+                onClick={() => downloadCv.mutate()}
+                className={cn(portalOutlineButtonClass, "gap-2 disabled:cursor-wait disabled:opacity-60")}
+              >
+                <IconDownload className="size-4" />
+                {tProfile("preview.downloadPreviousCv")}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              disabled={cvBusy || cvStatusQuery.isLoading}
+              onClick={() => (cvStatus?.available && !cvStatus.isOutdated ? downloadCv.mutate() : generateCv.mutate())}
+              className={cn(portalOutlineButtonClass, "gap-2 disabled:cursor-wait disabled:opacity-60")}
+            >
+              {cvStatus?.available && !cvStatus.isOutdated ? (
+                <IconDownload className="size-4" />
+              ) : (
+                <IconFileDown className="size-4" />
+              )}
+              {cvBusy
+                ? tProfile("preview.cvWorking")
+                : cvStatus?.available && !cvStatus.isOutdated
+                  ? tProfile("preview.downloadCv")
+                  : cvStatus?.available
+                    ? tProfile("preview.regenerateCv")
+                    : tProfile("preview.exportCv")}
+            </button>
+            <Link href="/worker/my-jobs" className={portalOutlineButtonClass}>
+              {tProfile("preview.viewMyJobs")}
+            </Link>
+          </div>
         </div>
       ) : null}
 

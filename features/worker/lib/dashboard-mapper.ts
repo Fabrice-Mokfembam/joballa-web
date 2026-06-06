@@ -4,6 +4,8 @@ import type {
   WorkerDashboardStat,
   WorkerJobListItem,
 } from "@/features/worker/types/worker-portal";
+import { normalizeWorkerJobListItem } from "@/features/worker/lib/normalize-worker-job";
+import { normalizeWorkerApplication } from "@/features/worker/lib/worker-response-mappers";
 
 /** v2 `GET /worker/dashboard` — `routedocs/FRONTEND_WORKER_ROUTES.md` */
 export type WorkerDashboardApiV2 = {
@@ -45,31 +47,31 @@ function asJobListItem(job: unknown): WorkerJobListItem | null {
   const id = String(j.id ?? j.jobId ?? j.slug ?? "");
   const title = String(j.title ?? "");
   if (!id || !title) return null;
-  return { ...(j as WorkerJobListItem), id, title };
+  return normalizeWorkerJobListItem({ ...(j as WorkerJobListItem), id, title });
 }
 
 function asApplicationListItem(app: unknown): WorkerApplicationListItem | null {
   if (!app || typeof app !== "object") return null;
-  const a = app as WorkerApplicationListItem;
+  const a = normalizeWorkerApplication(app);
   const id = String(a.id ?? "");
   if (!id) return null;
   return a;
 }
 
 function mapV2Dashboard(raw: WorkerDashboardApiV2): WorkerDashboard {
-  const applications = (raw.recentApplications ?? [])
+  const applications = (Array.isArray(raw.recentApplications) ? raw.recentApplications : [])
     .map(asApplicationListItem)
     .filter((a): a is WorkerApplicationListItem => a != null);
   const shortlistedCount = applications.filter(
     (a) => String(a.status ?? "").toLowerCase() === "shortlisted",
   ).length;
-  const suggestedJobs = (raw.suggestedJobs ?? [])
+  const suggestedJobs = (Array.isArray(raw.suggestedJobs) ? raw.suggestedJobs : [])
     .map(asJobListItem)
     .filter((j): j is WorkerJobListItem => j != null);
 
   return {
     greeting: {
-      name: raw.welcomeName?.trim() || "there",
+      name: typeof raw.welcomeName === "string" && raw.welcomeName.trim() ? raw.welcomeName.trim() : "there",
     },
     stats: {
       activeApplications: statCount(raw.stats?.activeApplications),
@@ -86,14 +88,20 @@ function mapV2Dashboard(raw: WorkerDashboardApiV2): WorkerDashboard {
 /** Normalize live API or demo-shaped dashboard for the worker dashboard UI. */
 export function normalizeWorkerDashboard(raw: unknown): WorkerDashboard {
   if (isUiDashboard(raw)) {
+    const greeting = raw.greeting && typeof raw.greeting === "object" ? raw.greeting : { name: "there" };
     return {
       ...raw,
       greeting: {
-        name: raw.greeting.name?.trim() || "there",
-        profileSetupMessage: raw.greeting.profileSetupMessage,
+        name: typeof greeting.name === "string" && greeting.name.trim() ? greeting.name.trim() : "there",
+        profileSetupMessage:
+          typeof greeting.profileSetupMessage === "string" ? greeting.profileSetupMessage : undefined,
       },
-      recommendedJobs: raw.recommendedJobs ?? [],
-      applications: raw.applications ?? [],
+      recommendedJobs: (Array.isArray(raw.recommendedJobs) ? raw.recommendedJobs : [])
+        .map(asJobListItem)
+        .filter((item): item is WorkerJobListItem => item != null),
+      applications: (Array.isArray(raw.applications) ? raw.applications : [])
+        .map(asApplicationListItem)
+        .filter((item): item is WorkerApplicationListItem => item != null),
     };
   }
   return mapV2Dashboard((raw ?? {}) as WorkerDashboardApiV2);

@@ -140,9 +140,13 @@ export function WorkerJobDetailView({
   const isPanel = variant === "panel";
   const scheduleLine = schedule.trim();
 
-  const requirements = detail?.requirements?.filter((line) => line.trim()) ?? [];
-  const responsibilities = detail?.responsibilities?.filter((line) => line.trim()) ?? [];
-  const description = detail?.description?.trim() ?? "";
+  const requirements = Array.isArray(detail?.requirements)
+    ? detail.requirements.filter((line): line is string => typeof line === "string" && !!line.trim())
+    : [];
+  const responsibilities = Array.isArray(detail?.responsibilities)
+    ? detail.responsibilities.filter((line): line is string => typeof line === "string" && !!line.trim())
+    : [];
+  const description = typeof detail?.description === "string" ? detail.description.trim() : "";
   const latestKycStatus = kycQuery.data?.status ? String(kycQuery.data.status).toUpperCase() : null;
   const verificationStatus = latestKycStatus ?? getVerificationStatus(meQuery.data?.workerProfile);
   const gateStatus = latestKycStatus === "PENDING" ? "PENDING" : isVerifiedStatus(verificationStatus) ? "VERIFIED" : "UNVERIFIED";

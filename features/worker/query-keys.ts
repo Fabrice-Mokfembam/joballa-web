@@ -9,6 +9,7 @@ export const workerKeys = {
   profile: () => [...root, "profile"] as const,
   profilePublic: (workerId: string) => [...root, "profile", "public", workerId] as const,
   documents: () => [...root, "profile", "documents"] as const,
+  cvExportStatus: () => [...root, "profile", "cv-export", "status"] as const,
   kyc: () => [...root, "profile", "kyc"] as const,
   jobs: (params?: JobSearchParams) => [...root, "jobs", params ?? {}] as const,
   job: (jobId: string) => [...root, "jobs", jobId] as const,

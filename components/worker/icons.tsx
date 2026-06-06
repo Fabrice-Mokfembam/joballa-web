@@ -10,6 +10,8 @@ import {
   ChevronLeft,
   CircleDollarSign,
   Ellipsis,
+  Download,
+  FileDown,
   Globe2,
   Grid3X3,
   LayoutDashboard,
@@ -123,6 +125,14 @@ export function IconPhone(props: IconProps) {
 
 export function IconPlus(props: IconProps) {
   return <Plus aria-hidden strokeWidth={2} {...props} />;
+}
+
+export function IconDownload(props: IconProps) {
+  return <Download aria-hidden strokeWidth={1.8} {...props} />;
+}
+
+export function IconFileDown(props: IconProps) {
+  return <FileDown aria-hidden strokeWidth={1.8} {...props} />;
 }
 
 export function IconPencil(props: IconProps) {

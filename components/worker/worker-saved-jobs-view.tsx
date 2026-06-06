@@ -108,7 +108,7 @@ export function WorkerSavedJobsView() {
       items = items.filter((item) => item.job?.city && regionCities.has(item.job.city));
     }
     const appliedJobIds = new Set(workerApplicationRowsFromApi(appsQuery.data?.items ?? []).map((app) => app.linkedJobSlug).filter(Boolean));
-    return items.map((item) => {
+    return items.filter((item) => item.job).map((item) => {
       const job = workerJobCardFromApi(item.job);
       const savedAt = item.savedAt ? new Date(item.savedAt).getTime() : NaN;
       let time = "";

@@ -1,6 +1,7 @@
 import { portalPageShellClass, portalSegmentGroupClass, portalStatGridClass } from "@/components/portal/portal-ui";
 import { PortalPageHeaderSkeleton, PortalSettingsPageSkeleton } from "@/components/loading/portal-page-skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 function JobCardSkeleton() {
   return (
@@ -204,29 +205,44 @@ export function WorkerApplicationsPageSkeleton() {
   return (
     <div className={portalPageShellClass} aria-busy>
       <div className="flex flex-wrap gap-2">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-9 w-24 rounded-full" />
-        ))}
+        <Skeleton className="h-9 w-44 rounded-full" />
+        <Skeleton className="h-9 w-44 rounded-full" />
       </div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Skeleton className="h-11 w-full max-w-md rounded-[14px]" />
-        <Skeleton className="h-9 w-[4.5rem] rounded-[10px]" />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="size-6 rounded-md" />
+      <div className="flex flex-col gap-[26px]">
+        <Skeleton className="h-14 w-full rounded-[14px]" />
+        <div className="flex flex-col gap-3.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2.5">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-8 w-24 rounded-xl" />
+              ))}
             </div>
-            <Skeleton className="mt-3 h-3 w-1/2" />
-            <Skeleton className="mt-4 h-6 w-full rounded-lg" />
-            <Skeleton className="mt-2 h-3 w-2/3" />
+            <div className={portalSegmentGroupClass}>
+              <Skeleton className="size-8 rounded-[8px]" />
+              <Skeleton className="size-8 rounded-[8px]" />
+            </div>
           </div>
-        ))}
+          <div className="grid gap-3.5 lg:grid-cols-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-[14px] shadow-[var(--joballa-shadow-card)]"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <Skeleton className="h-5 w-3/5" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="size-6 rounded-full" />
+                    <Skeleton className="h-4 w-28" />
+                  </div>
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -278,35 +294,47 @@ export function WorkerApplicationDetailPageSkeleton() {
 /** Earnings: stat row + tabs + table. */
 export function WorkerEarningsPageSkeleton() {
   return (
-    <div className={portalPageShellClass} aria-busy>
-      <div className={portalStatGridClass}>
+    <div className={cn(portalPageShellClass, "gap-[26px]")} aria-busy>
+      <div className={cn(portalStatGridClass, "gap-[22px]")}>
         {Array.from({ length: 4 }).map((_, i) => (
-          <WorkerStatCardSkeleton key={i} />
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-2 border-b border-[var(--joballa-border)] pb-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-20 rounded-lg" />
-        ))}
-      </div>
-      <div className="overflow-hidden rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
-        <div className="border-b border-[var(--joballa-border)] px-4 py-3">
-          <div className="flex gap-4">
-            <Skeleton className="h-3 flex-1" />
-            <Skeleton className="h-3 flex-1" />
-            <Skeleton className="h-3 w-24" />
-          </div>
-        </div>
-        {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-center gap-4 border-b border-[var(--joballa-border)] px-4 py-3 last:border-0"
+            className="flex flex-col gap-[13px] rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-[14px]"
           >
-            <Skeleton className="h-3 w-28" />
-            <Skeleton className="h-3 flex-1" />
-            <Skeleton className="h-6 w-16 rounded-full" />
+            <Skeleton className="h-3 w-24" />
+            <div className="flex items-end justify-between gap-2">
+              <Skeleton className="h-12 w-20" />
+              <Skeleton className="h-3 w-16" />
+            </div>
           </div>
         ))}
+      </div>
+      <Skeleton className="h-4 w-36" />
+      <div className="flex flex-col gap-3.5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2.5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-24 rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-8 w-32 rounded-xl" />
+        </div>
+        <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-3">
+          <div className="mb-2 flex gap-4 px-2.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-3 flex-1" />
+            ))}
+          </div>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className={cn("flex items-center gap-4 rounded-lg px-2.5 py-2.5", i % 2 === 0 && "bg-[var(--joballa-row-selected)]")}>
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-3 flex-1" />
+              <Skeleton className="h-3 flex-1" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import type { WorkerJobListItem } from "@/features/worker/types/worker-portal";
 import type { WorkerJobCard } from "@/lib/worker-job-data";
+import { normalizeWorkerJobListItem } from "@/features/worker/lib/normalize-worker-job";
 
 const COMPANY_COLORS = [
   "bg-teal-600",
@@ -17,7 +18,7 @@ function hashColor(seed: string): string {
 }
 
 function formatPosted(createdAt?: string): string {
-  if (!createdAt) return "";
+  if (!createdAt) return "—";
   const then = new Date(createdAt).getTime();
   if (Number.isNaN(then)) return "";
   const days = Math.floor((Date.now() - then) / 86400000);
@@ -37,16 +38,19 @@ function formatJobType(jobType?: string): string {
 }
 
 function formatPay(job: WorkerJobListItem): string {
-  const rate = job.payRate;
-  const currency = job.currency ?? "XAF";
-  const structure = formatPayStructure(job.payStructure);
+  const raw = job as Record<string, unknown>;
+  const rate =
+    job.payRate ??
+    (typeof raw.payAmount === "number" || typeof raw.payAmount === "string" ? raw.payAmount : null);
+  const currency = job.currency ?? (typeof raw.payCurrency === "string" ? raw.payCurrency : "XAF");
+  const structure = formatPayStructure(String(job.payStructure ?? ""));
   if (rate == null || rate === "") return tbdPay(currency);
   const num = formatPayAmount(rate);
   return `${num} ${currency}${structure}`;
 }
 
-function tbdPay(_currency: string) {
-  return "";
+function tbdPay(currency: string) {
+  return currency ? `— ${currency}` : "—";
 }
 
 function formatPayAmount(rate: number | string): string {
@@ -67,23 +71,28 @@ function formatPayStructure(payStructure?: string): string {
 }
 
 function formatSubtitle(job: WorkerJobListItem): string {
-  const type = formatJobType(String(job.jobType ?? ""));
+  const raw = job as Record<string, unknown>;
+  const type = formatJobType(String(job.jobType ?? raw.employmentType ?? ""));
   const city = job.city?.trim();
   const mode = job.workMode ? String(job.workMode).replace(/_/g, " ") : "";
   const parts = [type, city, mode].filter(Boolean);
   return parts.join(" • ");
 }
 
-function employerName(job: WorkerJobListItem): string {
+function employerName(job?: WorkerJobListItem | null): string {
+  if (!job) return "";
+  const raw = job as Record<string, unknown>;
   return (
     job.employer?.companyName ??
     job.employer?.name ??
     job.companyName ??
+    (typeof raw.ownerName === "string" ? raw.ownerName : "") ??
     ""
   );
 }
 
-function employerLogo(job: WorkerJobListItem): string | null {
+function employerLogo(job?: WorkerJobListItem | null): string | null {
+  if (!job) return null;
   return job.employer?.logoUrl ?? job.companyLogo ?? null;
 }
 
@@ -99,7 +108,13 @@ export function dedupeWorkerJobListItems(items: WorkerJobListItem[]): WorkerJobL
 }
 
 /** Map API job card → UI `WorkerJobCard` (slug = job id for routing). */
-export function workerJobCardFromApi(job: WorkerJobListItem, options?: { match?: number }): WorkerJobCard {
+export function workerJobCardFromApi(
+  input: WorkerJobListItem | null | undefined,
+  options?: { match?: number },
+): WorkerJobCard {
+  const job = normalizeWorkerJobListItem(
+    (input ?? { id: "", title: "" }) as Parameters<typeof normalizeWorkerJobListItem>[0],
+  );
   const company = employerName(job);
   const initial = company.trim() ? company.trim().charAt(0).toUpperCase() : "";
   return {
@@ -109,7 +124,7 @@ export function workerJobCardFromApi(job: WorkerJobListItem, options?: { match?:
     subtitle: formatSubtitle(job),
     seniority: formatJobType(String(job.category ?? job.jobType ?? "")),
     pay: formatPay(job),
-    posted: formatPosted(job.createdAt),
+    posted: formatPosted(job.createdAt ?? job.postedAt),
     match: options?.match,
     company,
     companyInitial: initial,
@@ -122,5 +137,5 @@ export function workerJobCardsFromApi(
   items: WorkerJobListItem[],
   options?: { match?: number },
 ): WorkerJobCard[] {
-  return dedupeWorkerJobListItems(items).map((j) => workerJobCardFromApi(j, options));
+  return dedupeWorkerJobListItems(Array.isArray(items) ? items : []).map((j) => workerJobCardFromApi(j, options));
 }

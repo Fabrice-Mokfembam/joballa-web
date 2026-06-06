@@ -26,6 +26,8 @@ import type {
   UpdateWorkerJobBody,
   VerificationDocUploadResponse,
   WorkerCertification,
+  WorkerCvDownload,
+  WorkerCvExportStatus,
   WorkerDocument,
   WorkerEducation,
   WorkerKycSubmission,
@@ -243,9 +245,36 @@ export async function postWorkerCv(file: File): Promise<{ cvUrl?: string; messag
   return { cvUrl, message: "CV uploaded (demo)." };
 }
 
-export async function getWorkerCvExport(): Promise<WorkerFullProfile> {
+let demoCvGeneratedAt: string | null = null;
+
+function demoCvDownload(): WorkerCvDownload {
+  return {
+    blob: new Blob(["Demo Joballa generated CV"], { type: "application/pdf" }),
+    fileName: "joballa-cv-demo-worker.pdf",
+  };
+}
+
+export async function getWorkerCvExportStatus(): Promise<WorkerCvExportStatus> {
   await demoDelay(80);
-  return structuredClone(state.profile);
+  return {
+    available: demoCvGeneratedAt != null,
+    documentId: demoCvGeneratedAt ? "demo-generated-cv" : null,
+    fileName: demoCvGeneratedAt ? "joballa-cv-demo-worker.pdf" : null,
+    generatedAt: demoCvGeneratedAt,
+    sourceProfileUpdatedAt: demoCvGeneratedAt,
+    isOutdated: false,
+  };
+}
+
+export async function getWorkerCvExport(): Promise<WorkerCvDownload> {
+  await demoDelay(80);
+  return demoCvDownload();
+}
+
+export async function postWorkerCvExport(): Promise<WorkerCvDownload> {
+  await demoDelay(120);
+  demoCvGeneratedAt = new Date().toISOString();
+  return demoCvDownload();
 }
 
 export async function postWorkerWorkHistory(body: CreateWorkHistoryBody): Promise<WorkerWorkHistory> {

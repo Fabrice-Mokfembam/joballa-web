@@ -256,6 +256,13 @@ export function normalizeWorkerMe(raw: unknown): WorkerMe {
     workerProfile: {
       ...workerProfile,
       id: String(workerProfile.id ?? ""),
+      fullName: workerProfile.fullName != null ? String(workerProfile.fullName) : null,
+      professionalTitle:
+        workerProfile.professionalTitle != null ? String(workerProfile.professionalTitle) : null,
+      profileCompleteness:
+        typeof workerProfile.profileCompleteness === "number"
+          ? workerProfile.profileCompleteness
+          : Number(workerProfile.profileCompleteness ?? 0) || 0,
       avatarUrl:
         workerProfile.photoUrl != null
           ? String(workerProfile.photoUrl)

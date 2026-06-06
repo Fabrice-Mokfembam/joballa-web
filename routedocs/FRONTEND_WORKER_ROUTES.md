@@ -603,11 +603,13 @@ Main APIs:
 - `PATCH /worker/profile/skills`
 - `POST /worker/profile/avatar`
 - `POST /worker/profile/cv`
+- `GET /worker/profile/cv-export/status`
+- `POST /worker/profile/cv-export`
 - `GET /worker/profile/cv-export`
 
 `POST /worker/profile/cv`: `multipart/form-data`, field name `file`, **PDF only** (`application/pdf`, max 5 MB). Returns `{ cvUrl, message }`.
 
-> Backend change requested: `GET /worker/profile/cv-export` currently returns profile JSON and does not provide a real persistent PDF export. See `routedocs/BACKEND_WORKER_CV_EXPORT_REQUEST.md` for the required generate, store, and repeat-download contract.
+Generated CV export is implemented according to `routedocs/BACKEND_RESPONSE_WORKER_CV_EXPORT.md`: the status route returns JSON, while `POST` generates/stores/downloads a PDF and `GET` downloads the previously generated PDF.
 
 Profile sends:
 

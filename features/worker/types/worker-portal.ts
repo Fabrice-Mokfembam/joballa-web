@@ -62,6 +62,20 @@ export type WorkerMe = {
   [key: string]: unknown;
 };
 
+export type WorkerCvExportStatus = {
+  available: boolean;
+  documentId: string | null;
+  fileName: string | null;
+  generatedAt: string | null;
+  sourceProfileUpdatedAt: string | null;
+  isOutdated: boolean;
+};
+
+export type WorkerCvDownload = {
+  blob: Blob;
+  fileName: string;
+};
+
 export type WorkerWorkHistory = {
   id: string;
   jobTitle?: string;

@@ -20,7 +20,10 @@ export const patchWorkerSkills = (body: Parameters<typeof live.patchWorkerSkills
   withDemo(() => live.patchWorkerSkills(body), () => demo.patchWorkerSkills(body));
 export const postWorkerAvatar = (file: File) => withDemo(() => live.postWorkerAvatar(file), () => demo.postWorkerAvatar(file));
 export const postWorkerCv = (file: File) => withDemo(() => live.postWorkerCv(file), () => demo.postWorkerCv(file));
+export const getWorkerCvExportStatus = () =>
+  withDemo(() => live.getWorkerCvExportStatus(), () => demo.getWorkerCvExportStatus());
 export const getWorkerCvExport = () => withDemo(() => live.getWorkerCvExport(), () => demo.getWorkerCvExport());
+export const postWorkerCvExport = () => withDemo(() => live.postWorkerCvExport(), () => demo.postWorkerCvExport());
 export const postWorkerWorkHistory = (body: Parameters<typeof live.postWorkerWorkHistory>[0]) =>
   withDemo(() => live.postWorkerWorkHistory(body), () => demo.postWorkerWorkHistory(body));
 export const patchWorkerWorkHistory = (

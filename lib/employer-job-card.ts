@@ -1,4 +1,5 @@
 import type { EmployerJobListItem } from "@/features/employer/types/employer-portal";
+import { employerJobId } from "@/features/employer/lib/normalize-employer-job";
 
 /** Card shape shared with {@link JobPostingCard} for employer job lists. */
 export type EmployerJobCardModel = {
@@ -17,7 +18,7 @@ export type EmployerJobCardModel = {
 };
 
 export function employerJobToCard(job: EmployerJobListItem, companyName = "Your company"): EmployerJobCardModel {
-  const jobId = String(job.jobId ?? "");
+  const jobId = employerJobId(job);
   const location = job.location ?? "";
   const jobType = job.jobType ?? "";
   const subtitle = [jobType, location].filter(Boolean).join(" • ") || "—";
@@ -51,5 +52,5 @@ function formatPostedAgo(iso: string): string {
 }
 
 export function employerJobById(jobs: EmployerJobListItem[], jobId: string): EmployerJobListItem | null {
-  return jobs.find((j) => String(j.jobId) === jobId) ?? null;
+  return jobs.find((j) => employerJobId(j) === jobId) ?? null;
 }

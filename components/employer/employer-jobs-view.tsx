@@ -10,6 +10,7 @@ import { EmployerJobGridCard } from "@/components/employer/employer-job-grid-car
 import { useEmployerJobs, useEmployerMe } from "@/features/employer/hooks";
 import type { EmployerJobListItem } from "@/features/employer/types/employer-portal";
 import { employerJobById, employerJobToCard, type EmployerJobCardModel } from "@/lib/employer-job-card";
+import { employerJobId } from "@/features/employer/lib/normalize-employer-job";
 import { IconFilter, IconGrid, IconList, IconSearch } from "@/components/worker/icons";
 import {
   portalCardClass,
@@ -309,7 +310,7 @@ function EmployerJobsListTable({
         </thead>
         <tbody>
           {jobs.map((job) => {
-            const raw = items.find((j) => String(j.jobId) === job.jobId);
+            const raw = items.find((j) => employerJobId(j) === job.jobId);
             const isActive = useSplit && job.jobId === activeJobId;
             return (
               <tr

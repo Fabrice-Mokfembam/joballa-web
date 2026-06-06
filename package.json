@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "eslint",
     "seed:demo": "node scripts/seed-demo.mjs",
-    "seed:accounts": "node scripts/seed-accounts.mjs"
+    "seed:accounts": "node scripts/seed-accounts.mjs",
+    "seed:fabrice-jobs": "node scripts/post-fabrice-jobs.mjs",
+    "seed:kongnyuy-jobs": "node scripts/post-kongnyuy-jobs.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.6",

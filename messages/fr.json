@@ -1166,6 +1166,11 @@
       "preview": {
         "editProfile": "Modifier le profil",
         "viewMyJobs": "Voir vos offres",
+        "downloadPreviousCv": "Telecharger le CV precedent",
+        "cvWorking": "Preparation du CV…",
+        "downloadCv": "Telecharger le CV",
+        "regenerateCv": "Regenerer le CV",
+        "exportCv": "Exporter le CV",
         "postJob": "Publier une offre",
         "verified": "Profil verifie",
         "verifyKyc": "Verifier le badge KYC",

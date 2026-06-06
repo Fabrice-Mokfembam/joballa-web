@@ -58,12 +58,8 @@ export function WorkerApplicationDetailPage({ applicationId }: { applicationId: 
   const subtitle = subtitleParts[0] ?? "";
   const apiJob = query.data?.job;
   const description = (typeof apiJob?.description === "string" ? apiJob.description : "").trim();
-  const requirements = Array.isArray(apiJob?.requirements)
-    ? apiJob.requirements.filter((line: string) => line.trim())
-    : [];
-  const whatYouWillDo = Array.isArray(apiJob?.responsibilities)
-    ? apiJob.responsibilities.filter((line: string) => line.trim())
-    : [];
+  const requirements = fallbackList(apiJob?.requirements);
+  const whatYouWillDo = fallbackList(apiJob?.responsibilities);
   const displayRequirements = requirements.length ? requirements : fallbackList(t.raw("detail.requirements"));
   const displayWhatYouWillDo = whatYouWillDo.length ? whatYouWillDo : fallbackList(t.raw("detail.whatYouWillDo"));
 

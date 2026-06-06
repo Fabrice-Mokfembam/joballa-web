@@ -144,7 +144,7 @@ export function EmployerDashboard() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold tracking-[-0.03em] text-[var(--joballa-fg)] sm:text-xl">
+        <h2 className="text-base font-semibold tracking-[-0.03em] text-[var(--joballa-fg)] sm:text-lg">
           {t("jobStatus.title")}
         </h2>
         <EmployerAsyncState
@@ -163,20 +163,20 @@ export function EmployerDashboard() {
                   <PortalCardLink
                     key={job.jobId}
                     href={`/employer/jobs?job=${encodeURIComponent(String(job.jobId))}`}
-                    className="p-4 sm:p-5"
+                    className="p-3.5 sm:p-4"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="min-w-0 truncate text-[1.35rem] font-semibold leading-tight tracking-[-0.04em] text-[var(--joballa-fg)] sm:text-[1.4rem]">
+                    <div className="flex items-start justify-between gap-2.5">
+                      <h3 className="min-w-0 truncate text-sm font-semibold leading-snug tracking-[-0.02em] text-[var(--joballa-fg)] sm:text-[15px]">
                         {job.title}
                       </h3>
-                      <span className="inline-flex shrink-0 items-center rounded-full bg-[var(--joballa-jade-3)] px-2.5 py-1 text-xs font-semibold text-[var(--joballa-primary)]">
+                      <span className="inline-flex shrink-0 items-center rounded-full bg-[var(--joballa-jade-3)] px-2 py-0.5 text-[11px] font-semibold text-[var(--joballa-primary)]">
                         {t("jobStatus.live")}
                       </span>
                     </div>
-                    <p className="mt-1.5 text-sm font-medium text-[var(--joballa-muted)]">
+                    <p className="mt-1 text-xs font-medium text-[var(--joballa-muted)]">
                       {[job.location, job.jobType, job.salary].filter(Boolean).join(" · ")}
                     </p>
-                    <div className="mt-5 flex flex-col gap-2 text-sm text-[var(--joballa-muted)] sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mt-3 flex flex-col gap-1.5 text-xs text-[var(--joballa-muted)] sm:flex-row sm:items-center sm:justify-between">
                       <span>
                         {t("jobStatus.applicantsCount", { count: job.applicantsCount ?? 0 })} ·{" "}
                         {t("jobStatus.shortlistedCount", { count: job.shortlistedCount ?? 0 })}

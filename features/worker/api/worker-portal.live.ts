@@ -5,6 +5,18 @@ import { joballaAxios } from "@/lib/http/axios-instance";
 import { clampListParams } from "@/lib/http/api-pagination";
 import { normalizePaginated } from "@/lib/http/normalize-paginated";
 import { normalizeWorkerDashboard } from "@/features/worker/lib/dashboard-mapper";
+import { normalizeWorkerJobListItem } from "@/features/worker/lib/normalize-worker-job";
+import {
+  normalizeEarningTransaction,
+  normalizeEarningsSummary,
+  normalizeWorkerApplication,
+  normalizeWorkerApplicationDetail,
+  normalizeWorkerEngagement,
+  normalizeWorkerEngagementDetail,
+  normalizeWorkerIncomingApplication,
+  normalizeWorkerIncomingApplicationDetail,
+  normalizeWorkerNotification,
+} from "@/features/worker/lib/worker-response-mappers";
 import {
   encodeKycBody,
   encodePaymentAccountBody,
@@ -44,6 +56,8 @@ import type {
   WorkerApplicationDetail,
   WorkerApplicationListItem,
   WorkerCertification,
+  WorkerCvDownload,
+  WorkerCvExportStatus,
   WorkerDashboard,
   WorkerDocument,
   WorkerEducation,
@@ -151,9 +165,37 @@ export async function postWorkerCv(file: File): Promise<{ cvUrl?: string; messag
   return data;
 }
 
-export async function getWorkerCvExport(): Promise<WorkerFullProfile> {
-  const { data } = await joballaAxios.get(`${WORKER}/profile/cv-export`);
-  return normalizeWorkerProfile(data);
+function cvFileName(contentDisposition?: string): string {
+  const encoded = contentDisposition?.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+  if (encoded) return decodeURIComponent(encoded);
+  return contentDisposition?.match(/filename="?([^";]+)"?/i)?.[1] ?? "joballa-cv.pdf";
+}
+
+export async function getWorkerCvExportStatus(): Promise<WorkerCvExportStatus> {
+  const { data } = await joballaAxios.get<WorkerCvExportStatus>(`${WORKER}/profile/cv-export/status`);
+  return data;
+}
+
+export async function getWorkerCvExport(): Promise<WorkerCvDownload> {
+  const response = await joballaAxios.get<Blob>(`${WORKER}/profile/cv-export`, {
+    responseType: "blob",
+    headers: { Accept: "application/pdf" },
+  });
+  return {
+    blob: response.data,
+    fileName: cvFileName(response.headers["content-disposition"]),
+  };
+}
+
+export async function postWorkerCvExport(): Promise<WorkerCvDownload> {
+  const response = await joballaAxios.post<Blob>(`${WORKER}/profile/cv-export`, undefined, {
+    responseType: "blob",
+    headers: { Accept: "application/pdf" },
+  });
+  return {
+    blob: response.data,
+    fileName: cvFileName(response.headers["content-disposition"]),
+  };
 }
 
 export async function postWorkerWorkHistory(body: CreateWorkHistoryBody): Promise<WorkerWorkHistory> {
@@ -362,23 +404,33 @@ export async function getWorkerIncomingApplications(params?: {
   const { data } = await joballaAxios.get(`${WORKER}/jobs/applications`, {
     params: clampListParams(params),
   });
-  return normalizePaginated<WorkerIncomingApplicationListItem>(data);
+  const page = normalizePaginated<unknown>(data);
+  return {
+    ...page,
+    items: page.items
+      .map(normalizeWorkerIncomingApplication)
+      .filter((item) => item.applicationId || item.id),
+  };
 }
 
 export async function getWorkerIncomingApplication(
   applicationId: string,
 ): Promise<WorkerIncomingApplicationDetail> {
-  const { data } = await joballaAxios.get<WorkerIncomingApplicationDetail>(
-    `${WORKER}/jobs/applications/${applicationId}`,
-  );
-  return data;
+  const { data } = await joballaAxios.get(`${WORKER}/jobs/applications/${applicationId}`);
+  return normalizeWorkerIncomingApplicationDetail(data);
 }
 
 // —— Jobs feed ——
 
 export async function searchWorkerJobs(params?: JobSearchParams): Promise<Paginated<WorkerJobListItem>> {
   const { data } = await joballaAxios.get(JOBS, { params: clampListParams(encodeJobSearchParams(params)) });
-  return normalizePaginated<WorkerJobListItem>(data);
+  const paginated = normalizePaginated<WorkerJobListItem>(data);
+  return {
+    ...paginated,
+    items: paginated.items.map((item) =>
+      normalizeWorkerJobListItem(item as Parameters<typeof normalizeWorkerJobListItem>[0]),
+    ),
+  };
 }
 
 function encodeJobSearchParams(params?: JobSearchParams): Record<string, unknown> | undefined {
@@ -405,7 +457,7 @@ function normalizeEmploymentType(raw: string): string {
 
 export async function getWorkerJob(jobId: string): Promise<WorkerJobDetail> {
   const { data } = await joballaAxios.get<WorkerJobDetail>(`${JOBS}/${jobId}`);
-  return data;
+  return normalizeWorkerJobListItem(data as Parameters<typeof normalizeWorkerJobListItem>[0]) as WorkerJobDetail;
 }
 
 export async function saveWorkerJob(jobId: string): Promise<unknown> {
@@ -447,11 +499,11 @@ export async function customizeJobApplicationProfile(
 }
 
 export async function applyToWorkerJob(jobId: string, body?: ApplyToJobBody): Promise<WorkerApplicationDetail> {
-  const { data } = await joballaAxios.post<WorkerApplicationDetail>(`${JOBS}/${jobId}/apply`, {
+  const { data } = await joballaAxios.post(`${JOBS}/${jobId}/apply`, {
     coverNote: body?.coverNote ?? body?.jobSpecificNote,
     attachedDocuments: body?.attachedDocuments,
   });
-  return data;
+  return normalizeWorkerApplicationDetail(data);
 }
 
 export async function getWorkerApplications(params?: {
@@ -460,12 +512,13 @@ export async function getWorkerApplications(params?: {
   limit?: number;
 }): Promise<Paginated<WorkerApplicationListItem>> {
   const { data } = await joballaAxios.get(APPLICATIONS, { params: clampListParams(params) });
-  return normalizePaginated<WorkerApplicationListItem>(data);
+  const page = normalizePaginated<unknown>(data);
+  return { ...page, items: page.items.map(normalizeWorkerApplication).filter((item) => item.id) };
 }
 
 export async function getWorkerApplication(applicationId: string): Promise<WorkerApplicationDetail> {
-  const { data } = await joballaAxios.get<WorkerApplicationDetail>(`${APPLICATIONS}/${applicationId}`);
-  return data;
+  const { data } = await joballaAxios.get(`${APPLICATIONS}/${applicationId}`);
+  return normalizeWorkerApplicationDetail(data);
 }
 
 export async function archiveWorkerApplication(applicationId: string): Promise<void> {
@@ -476,7 +529,30 @@ export async function archiveWorkerApplication(applicationId: string): Promise<v
 
 export async function getSavedJobs(params?: JobSearchParams): Promise<Paginated<SavedJobItem>> {
   const { data } = await joballaAxios.get(SAVED, { params: clampListParams(params) });
-  return normalizePaginated<SavedJobItem>(data);
+  const paginated = normalizePaginated<unknown>(data);
+  const items = paginated.items
+    .map((item): SavedJobItem | null => {
+      if (!item || typeof item !== "object") return null;
+      const raw = item as Record<string, unknown>;
+      const nestedJob =
+        raw.job && typeof raw.job === "object"
+          ? (raw.job as Parameters<typeof normalizeWorkerJobListItem>[0])
+          : (raw as Parameters<typeof normalizeWorkerJobListItem>[0]);
+      const job = normalizeWorkerJobListItem(nestedJob);
+      if (!job.id || !job.title) return null;
+      return {
+        ...raw,
+        id: raw.id != null ? String(raw.id) : undefined,
+        jobId: String(raw.jobId ?? job.id),
+        savedAt: raw.savedAt != null ? String(raw.savedAt) : undefined,
+        job,
+      };
+    })
+    .filter((item): item is SavedJobItem => item != null);
+  return {
+    ...paginated,
+    items,
+  };
 }
 
 export async function deleteSavedJob(jobId: string): Promise<void> {
@@ -490,28 +566,31 @@ export async function bulkDeleteSavedJobs(body: BulkUnsaveJobsBody): Promise<voi
 // —— Earnings ——
 
 export async function getEarningsSummary(): Promise<EarningsSummary> {
-  const { data } = await joballaAxios.get<EarningsSummary>(`${EARNINGS}/summary`);
-  return data;
+  const { data } = await joballaAxios.get(`${EARNINGS}/summary`);
+  return normalizeEarningsSummary(data);
 }
 
 export async function getEarningsTransactions(
   params?: EarningsTransactionsParams,
 ): Promise<Paginated<EarningTransaction>> {
   const { data } = await joballaAxios.get(`${EARNINGS}/transactions`, { params: clampListParams(params) });
-  return normalizePaginated<EarningTransaction>(data);
+  const page = normalizePaginated<unknown>(data);
+  return { ...page, items: page.items.map(normalizeEarningTransaction).filter((item) => item.id) };
 }
 
 export async function getEarningsTransaction(transactionId: string): Promise<EarningTransaction> {
-  const { data } = await joballaAxios.get<EarningTransaction>(`${EARNINGS}/transactions/${transactionId}`);
-  return data;
+  const { data } = await joballaAxios.get(`${EARNINGS}/transactions/${transactionId}`);
+  return normalizeEarningTransaction(data);
 }
 
 export async function getEarningsStatement(params: {
   from: string;
   to: string;
 }): Promise<EarningTransaction[]> {
-  const { data } = await joballaAxios.get<EarningTransaction[]>(`${EARNINGS}/statement`, { params });
-  return data;
+  const { data } = await joballaAxios.get(`${EARNINGS}/statement`, { params });
+  const page = normalizePaginated<unknown>(data);
+  const items = Array.isArray(data) ? data : page.items;
+  return items.map(normalizeEarningTransaction).filter((item) => item.id);
 }
 
 // —— Engagements ——
@@ -522,12 +601,13 @@ export async function getWorkerEngagements(params?: {
   status?: string;
 }): Promise<Paginated<WorkerEngagementListItem>> {
   const { data } = await joballaAxios.get(`${WORKER}/engagements`, { params: clampListParams(params) });
-  return normalizePaginated<WorkerEngagementListItem>(data);
+  const page = normalizePaginated<unknown>(data);
+  return { ...page, items: page.items.map(normalizeWorkerEngagement).filter((item) => item.id) };
 }
 
 export async function getWorkerEngagement(engagementId: string): Promise<WorkerEngagementDetail> {
-  const { data } = await joballaAxios.get<WorkerEngagementDetail>(`${WORKER}/engagements/${engagementId}`);
-  return data;
+  const { data } = await joballaAxios.get(`${WORKER}/engagements/${engagementId}`);
+  return normalizeWorkerEngagementDetail(data);
 }
 
 export async function getWorkerNotifications(params?: {
@@ -540,7 +620,8 @@ export async function getWorkerNotifications(params?: {
   const { data } = await joballaAxios.get(`${WORKER}/notifications`, {
     params: clampListParams(encodeNotificationParams(params)),
   });
-  return normalizePaginated<WorkerNotificationItem>(data);
+  const page = normalizePaginated<unknown>(data);
+  return { ...page, items: page.items.map(normalizeWorkerNotification).filter((item) => item.id) };
 }
 
 function encodeNotificationParams(params?: {

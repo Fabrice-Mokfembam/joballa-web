@@ -23,6 +23,8 @@ export function EmployerJobDetailPanel({
   const patchStatus = usePatchEmployerJobStatus(jobId);
   const deleteJob = useDeleteEmployerJob();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const requirements = Array.isArray(job.data?.requirements) ? job.data.requirements : [];
+  const responsibilities = Array.isArray(job.data?.responsibilities) ? job.data.responsibilities : [];
 
   return (
     <EmployerAsyncState
@@ -118,21 +120,21 @@ export function EmployerJobDetailPanel({
           <section className={cn(portalCardClass(), "p-4")}>
             <h3 className="text-sm font-bold text-[var(--joballa-fg)]">{t("aboutTitle")}</h3>
             <p className="mt-2 text-sm leading-6 text-[var(--joballa-muted)]">{job.data.description}</p>
-            {job.data.requirements?.length ? (
+            {requirements.length ? (
               <>
                 <h4 className="mt-4 text-sm font-bold text-[var(--joballa-fg)]">{t("requirementsTitle")}</h4>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--joballa-muted)]">
-                  {job.data.requirements.map((line) => (
+                  {requirements.map((line) => (
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
               </>
             ) : null}
-            {job.data.responsibilities?.length ? (
+            {responsibilities.length ? (
               <>
                 <h4 className="mt-4 text-sm font-bold text-[var(--joballa-fg)]">{t("doTitle")}</h4>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--joballa-muted)]">
-                  {job.data.responsibilities.map((line) => (
+                  {responsibilities.map((line) => (
                     <li key={line}>{line}</li>
                   ))}
                 </ul>

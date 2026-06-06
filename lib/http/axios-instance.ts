@@ -12,6 +12,16 @@ type RetryConfig = InternalAxiosRequestConfig & { _joballaRetry?: boolean };
 
 const AUTH_REFRESH_PATH = "/auth/refresh";
 
+async function parseBlobErrorData(data: unknown): Promise<unknown> {
+  if (typeof Blob === "undefined" || !(data instanceof Blob)) return data;
+  try {
+    const text = await data.text();
+    return text ? JSON.parse(text) : data;
+  } catch {
+    return data;
+  }
+}
+
 function requestHadBearer(config: InternalAxiosRequestConfig): boolean {
   const h = config.headers;
   if (!h) return false;
@@ -70,7 +80,7 @@ joballaAxios.interceptors.response.use(
   (res) => res,
   async (err: AxiosError) => {
     const status = err.response?.status ?? 0;
-    const data = err.response?.data;
+    const data = await parseBlobErrorData(err.response?.data);
     const original = err.config as RetryConfig | undefined;
 
     if (status === 401 && original && !original._joballaRetry && shouldAttemptRefresh(original)) {

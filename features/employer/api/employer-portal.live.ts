@@ -6,6 +6,11 @@ import {
   encodeUpdateEmployerCompany,
   normalizeEmployerCompany,
 } from "@/features/employer/lib/company-mapper";
+import { normalizeEmployerMe } from "@/features/employer/lib/normalize-employer-me";
+import {
+  normalizeEmployerDashboard,
+  normalizeEmployerJobListItem,
+} from "@/features/employer/lib/normalize-employer-job";
 import { normalizePaginated } from "@/lib/http/normalize-paginated";
 import type {
   ApplicantShareResponse,
@@ -42,13 +47,13 @@ import type {
 const BASE = "/employer";
 
 export async function getEmployerMe(): Promise<EmployerMe> {
-  const { data } = await joballaAxios.get<EmployerMe>(`${BASE}/me`);
-  return data;
+  const { data } = await joballaAxios.get(`${BASE}/me`);
+  return normalizeEmployerMe(data);
 }
 
 export async function getEmployerDashboard(): Promise<EmployerDashboard> {
-  const { data } = await joballaAxios.get<EmployerDashboard>(`${BASE}/dashboard`);
-  return data;
+  const { data } = await joballaAxios.get(`${BASE}/dashboard`);
+  return normalizeEmployerDashboard(data as Record<string, unknown>);
 }
 
 export async function createEmployerJob(body: CreateEmployerJobBody): Promise<CreateEmployerJobResponse> {
@@ -63,17 +68,23 @@ export async function getEmployerJobs(params?: {
   limit?: number;
 }): Promise<Paginated<EmployerJobListItem>> {
   const { data } = await joballaAxios.get(`${BASE}/jobs`, { params });
-  return normalizePaginated<EmployerJobListItem>(data);
+  const paginated = normalizePaginated<EmployerJobListItem>(data);
+  return {
+    ...paginated,
+    items: paginated.items.map((item) =>
+      normalizeEmployerJobListItem(item as Parameters<typeof normalizeEmployerJobListItem>[0]),
+    ),
+  };
 }
 
 export async function getEmployerJob(jobId: string): Promise<EmployerJobDetail> {
   const { data } = await joballaAxios.get<EmployerJobDetail>(`${BASE}/jobs/${jobId}`);
-  return data;
+  return normalizeEmployerJobListItem(data as Parameters<typeof normalizeEmployerJobListItem>[0]) as EmployerJobDetail;
 }
 
 export async function patchEmployerJob(jobId: string, body: UpdateEmployerJobBody): Promise<EmployerJobDetail> {
   const { data } = await joballaAxios.patch<EmployerJobDetail>(`${BASE}/jobs/${jobId}`, body);
-  return data;
+  return normalizeEmployerJobListItem(data as Parameters<typeof normalizeEmployerJobListItem>[0]) as EmployerJobDetail;
 }
 
 export async function patchEmployerJobStatus(
@@ -81,7 +92,7 @@ export async function patchEmployerJobStatus(
   status: string,
 ): Promise<EmployerJobDetail> {
   const { data } = await joballaAxios.patch<EmployerJobDetail>(`${BASE}/jobs/${jobId}/status`, { status });
-  return data;
+  return normalizeEmployerJobListItem(data as Parameters<typeof normalizeEmployerJobListItem>[0]) as EmployerJobDetail;
 }
 
 export async function saveEmployerJobDraft(
@@ -89,7 +100,7 @@ export async function saveEmployerJobDraft(
   body: UpdateEmployerJobBody,
 ): Promise<EmployerJobDetail> {
   const { data } = await joballaAxios.post<EmployerJobDetail>(`${BASE}/jobs/${jobId}/draft`, body);
-  return data;
+  return normalizeEmployerJobListItem(data as Parameters<typeof normalizeEmployerJobListItem>[0]) as EmployerJobDetail;
 }
 
 export async function deleteEmployerJob(jobId: string): Promise<void> {

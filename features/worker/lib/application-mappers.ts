@@ -30,7 +30,7 @@ function formatAppliedTime(iso?: string): string {
 }
 
 function cleanJobTitle(title: string, location?: string): string {
-  const trimmed = title.trim();
+  const trimmed = String(title ?? "").trim();
   if (!trimmed) return "";
   const locationName = location?.trim();
   if (!locationName) return trimmed;
@@ -41,16 +41,17 @@ export function workerApplicationRowFromApi(
   app: WorkerApplicationListItem | WorkerApplicationDetail,
 ): WorkerApplicationRow {
   const job = app.job;
-  const company =
+  const company = String(
     app.companyName ??
     job?.employer?.companyName ??
     job?.employer?.name ??
     job?.companyName ??
-    "";
+    "",
+  );
   const companyInitial = company.trim() ? company.trim().charAt(0).toUpperCase() : "";
   const card = job ? workerJobCardFromApi(job) : undefined;
 
-  const location = job?.city ?? "";
+  const location = String(job?.city ?? "");
   return {
     slug: app.id,
     jobTitle: cleanJobTitle(app.jobTitle ?? job?.title ?? "", location),
