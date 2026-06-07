@@ -24,6 +24,8 @@ export const employerKeys = {
   paymentStatement: (params: { from: string; to: string }) =>
     [...root, "payments", "statement", params] as const,
   company: () => [...root, "company"] as const,
+  departments: (params?: { isActive?: boolean; category?: string }) =>
+    [...root, "departments", params ?? {}] as const,
   notifications: (params?: { filter?: string; page?: number; limit?: number }) =>
     [...root, "notifications", params ?? {}] as const,
   notificationSettings: () => [...root, "settings", "notifications"] as const,

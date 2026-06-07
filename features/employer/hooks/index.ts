@@ -1,6 +1,7 @@
 export * from "@/features/employer/hooks/use-employer-me";
 export * from "@/features/employer/hooks/use-employer-dashboard";
 export * from "@/features/employer/hooks/use-employer-jobs";
+export * from "@/features/employer/hooks/use-employer-departments";
 export * from "@/features/employer/hooks/use-employer-applicants";
 export * from "@/features/employer/hooks/use-employer-workforce";
 export * from "@/features/employer/hooks/use-employer-payments";

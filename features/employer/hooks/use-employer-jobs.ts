@@ -52,10 +52,11 @@ export function usePatchEmployerJob(jobId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: UpdateEmployerJobBody) => patchEmployerJob(jobId, body),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toastSuccess("Job updated.");
-      void qc.invalidateQueries({ queryKey: employerKeys.job(jobId) });
+      qc.setQueryData(employerKeys.job(jobId), data);
       void qc.invalidateQueries({ queryKey: employerKeys.jobs() });
+      void qc.invalidateQueries({ queryKey: employerKeys.dashboard() });
     },
     onError: (e) => toastApiError(e, "Could not update job."),
   });
@@ -65,9 +66,9 @@ export function usePatchEmployerJobStatus(jobId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (status: string) => patchEmployerJobStatus(jobId, status),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toastSuccess("Job status updated.");
-      void qc.invalidateQueries({ queryKey: employerKeys.job(jobId) });
+      qc.setQueryData(employerKeys.job(jobId), data);
       void qc.invalidateQueries({ queryKey: employerKeys.jobs() });
       void qc.invalidateQueries({ queryKey: employerKeys.dashboard() });
     },

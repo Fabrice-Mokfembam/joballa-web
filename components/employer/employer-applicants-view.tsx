@@ -29,6 +29,11 @@ import { useEmployerPortalStore } from "@/lib/stores/employer-portal-store";
 import { IconFilter, IconGrid, IconList, IconSearch } from "@/components/worker/icons";
 import {
   portalCardClass,
+  portalListTableBodyRowClass,
+  portalListTableClass,
+  portalListTableHeadRowClass,
+  portalListTableTdClass,
+  portalListTableThClass,
   portalInputClass,
   portalPageShellClass,
   portalSearchFormClass,
@@ -41,9 +46,9 @@ import {
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
-type StatusTab = "" | "shortlisted" | "pending" | "rejected";
+type StatusTab = "" | "shortlisted" | "pending" | "hired" | "rejected";
 
-const STATUS_TABS: StatusTab[] = ["", "shortlisted", "pending", "rejected"];
+const STATUS_TABS: StatusTab[] = ["", "shortlisted", "pending", "hired", "rejected"];
 
 function ApplicantsViewInner() {
   const t = useTranslations("employer.applicants");
@@ -89,12 +94,14 @@ function ApplicantsViewInner() {
   const countAll = useEmployerApplicants({ ...baseCountParams, status: "" });
   const countShortlisted = useEmployerApplicants({ ...baseCountParams, status: "shortlisted" });
   const countPending = useEmployerApplicants({ ...baseCountParams, status: "pending" });
+  const countHired = useEmployerApplicants({ ...baseCountParams, status: "hired" });
   const countRejected = useEmployerApplicants({ ...baseCountParams, status: "rejected" });
 
   const tabCounts: Record<StatusTab, number> = {
     "": countAll.data?.total ?? 0,
     shortlisted: countShortlisted.data?.total ?? 0,
     pending: countPending.data?.total ?? 0,
+    hired: countHired.data?.total ?? 0,
     rejected: countRejected.data?.total ?? 0,
   };
 
@@ -120,7 +127,7 @@ function ApplicantsViewInner() {
 
   const selectedJobTitle = useMemo(() => {
     if (!filters.jobId) return null;
-    return filterOptions.data?.jobTitles.find((j) => j.jobId === filters.jobId)?.title ?? null;
+    return (filterOptions.data?.jobTitles ?? []).find((j) => j.jobId === filters.jobId)?.title ?? null;
   }, [filterOptions.data?.jobTitles, filters.jobId]);
 
   const selectApplicant = useCallback(
@@ -372,7 +379,7 @@ function ApplicantsViewInner() {
           </div>
 
           {showPanel && applicantParam ? (
-            <aside className="hidden min-h-0 w-full bg-[var(--joballa-page-tint)] lg:flex lg:max-h-[min(88vh,calc(100dvh-6.5rem))] lg:flex-col lg:overflow-y-auto lg:rounded-[14px]">
+            <aside className="hidden min-h-0 w-full lg:flex lg:max-h-[min(88vh,calc(100dvh-6.5rem))] lg:flex-col lg:overflow-hidden">
               <EmployerApplicantDetailPanel
                 applicationId={applicantParam}
                 variant="panel"
@@ -403,17 +410,17 @@ function ApplicantsTable({
 }) {
   return (
     <div className={cn(portalCardClass(), "overflow-x-auto")}>
-      <table className="w-full min-w-[960px] text-left text-sm">
+      <table className={cn(portalListTableClass, "min-w-[960px]")}>
         <thead>
-          <tr className="border-b border-[var(--joballa-border)] text-xs font-semibold uppercase tracking-wide text-[var(--joballa-muted)]">
-            <th className="px-4 py-3">{t("table.applied")}</th>
-            <th className="px-4 py-3">{t("table.applicant")}</th>
-            <th className="px-4 py-3">{t("table.applyingFor")}</th>
-            <th className="px-4 py-3">{t("table.topSkills")}</th>
-            <th className="px-4 py-3">{t("table.jobType")}</th>
-            <th className="px-4 py-3">{t("table.location")}</th>
-            <th className="px-4 py-3">{t("table.match")}</th>
-            <th className="px-4 py-3">{t("table.status")}</th>
+          <tr className={portalListTableHeadRowClass}>
+            <th className={portalListTableThClass}>{t("table.applied")}</th>
+            <th className={portalListTableThClass}>{t("table.applicant")}</th>
+            <th className={portalListTableThClass}>{t("table.applyingFor")}</th>
+            <th className={portalListTableThClass}>{t("table.topSkills")}</th>
+            <th className={portalListTableThClass}>{t("table.jobType")}</th>
+            <th className={portalListTableThClass}>{t("table.location")}</th>
+            <th className={portalListTableThClass}>{t("table.match")}</th>
+            <th className={portalListTableThClass}>{t("table.status")}</th>
           </tr>
         </thead>
         <tbody>
@@ -430,26 +437,35 @@ function ApplicantsTable({
               <tr
                 key={id}
                 className={cn(
-                  "cursor-pointer border-b border-[var(--joballa-border)] last:border-0 transition hover:bg-[var(--joballa-row-hover)]",
+                  portalListTableBodyRowClass,
+                  "cursor-pointer",
                   isActive && "bg-[var(--joballa-row-hover)]",
                 )}
                 onClick={() => onSelect(id)}
               >
-                <td className="px-4 py-3 text-[var(--joballa-muted)]">{t("table.appliedAgo", { time: applied })}</td>
-                <td className="px-4 py-3">
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>
+                  {t("table.appliedAgo", { time: applied })}
+                </td>
+                <td className={portalListTableTdClass}>
                   <span className="flex items-center gap-2 font-medium text-[var(--joballa-fg)]">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-primary)] text-[10px] font-bold text-[var(--joballa-on-primary)]">
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-primary)] text-[9px] font-bold text-[var(--joballa-on-primary)]">
                       {applicantName(applicant).charAt(0)}
                     </span>
                     {applicantName(applicant)}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-[var(--joballa-muted)]">{applicantRole(applicant)}</td>
-                <td className="max-w-[10rem] truncate px-4 py-3 text-[var(--joballa-muted)]">{skills || "—"}</td>
-                <td className="px-4 py-3 text-[var(--joballa-muted)]">{String(applicant.jobType ?? "—")}</td>
-                <td className="px-4 py-3 text-[var(--joballa-muted)]">{String(applicant.location ?? "—")}</td>
-                <td className="px-4 py-3 font-semibold text-[var(--joballa-fg)]">{matchValue}</td>
-                <td className="px-4 py-3">
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>{applicantRole(applicant)}</td>
+                <td className={cn(portalListTableTdClass, "max-w-[10rem] truncate text-[var(--joballa-muted)]")}>
+                  {skills || "—"}
+                </td>
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>
+                  {String(applicant.jobType ?? "—")}
+                </td>
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>
+                  {String(applicant.location ?? "—")}
+                </td>
+                <td className={cn(portalListTableTdClass, "font-medium text-[var(--joballa-fg)]")}>{matchValue}</td>
+                <td className={portalListTableTdClass}>
                   <EmployerApplicantStatusBadge status={status} label={statusLabels[status] ?? status} />
                 </td>
               </tr>

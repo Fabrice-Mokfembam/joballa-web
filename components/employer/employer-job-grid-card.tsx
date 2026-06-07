@@ -1,6 +1,7 @@
 "use client";
 
 import type { EmployerJobCardModel } from "@/lib/employer-job-card";
+import { displayEmployerJobStatus } from "@/features/employer/lib/employer-job-status";
 import { useRouter } from "@/lib/i18n/navigation";
 import { JobPostingCard } from "@/components/job-posting/job-posting-card";
 
@@ -36,7 +37,7 @@ export function EmployerJobGridCard({
       title={job.title}
       scheduleLabel={schedule}
       locationLabel={location}
-      pillTags={[job.status.replace("_", " "), job.pay]}
+      pillTags={[displayEmployerJobStatus(job.status), job.pay]}
       companyName={job.company}
       companyLogoUrl={job.companyLogoUrl}
       companyInitial={job.companyInitial}

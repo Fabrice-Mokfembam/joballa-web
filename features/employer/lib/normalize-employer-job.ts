@@ -2,16 +2,30 @@ import type { EmployerDashboard, EmployerJobDetail, EmployerJobListItem } from "
 
 type RawEmployerJob = EmployerJobListItem & {
   id?: string;
+  departmentId?: string;
+  department?: { id?: string; name?: string; slug?: string; category?: string };
   payAmount?: number;
   payCurrency?: string;
   payStructure?: string;
   employmentType?: string;
+  workMode?: string;
+  experienceLevel?: string | null;
+  duration?: string;
+  startNow?: boolean;
+  startAsap?: boolean;
   city?: string;
   region?: string;
-  neighbourhood?: string;
+  country?: string;
+  neighbourhood?: string | null;
   createdAt?: string;
+  company?: string;
+  description?: string;
+  startDate?: string | null;
   requirements?: unknown[];
   responsibilities?: unknown[];
+  requiredSkills?: unknown[];
+  numberOfOpenings?: number;
+  paymentManagedByJoballa?: boolean;
 };
 
 export function employerJobId(job: Pick<RawEmployerJob, "jobId" | "id">): string {
@@ -41,7 +55,57 @@ function formatPay(raw: RawEmployerJob): string | undefined {
 function formatLocation(raw: RawEmployerJob): string | undefined {
   if (raw.location) return raw.location;
   const parts = [raw.neighbourhood, raw.city, raw.region].filter(Boolean);
-  return parts.length > 0 ? parts.join(", ") : undefined;
+  return parts.length > 0 ? parts.map(String).join(", ") : undefined;
+}
+
+function normalizeDepartment(raw: RawEmployerJob["department"]) {
+  if (!raw || typeof raw !== "object") return undefined;
+  const id = raw.id != null ? String(raw.id) : "";
+  if (!id) return undefined;
+  return {
+    id,
+    name: String(raw.name ?? ""),
+    slug: raw.slug != null ? String(raw.slug) : undefined,
+    category: raw.category != null ? String(raw.category) : undefined,
+  };
+}
+
+export function normalizeEmployerJobDetail(raw: RawEmployerJob): EmployerJobDetail {
+  const base = normalizeEmployerJobListItem(raw);
+  const input = raw && typeof raw === "object" ? raw : ({} as RawEmployerJob);
+  const department = normalizeDepartment(input.department);
+  const departmentId =
+    input.departmentId != null
+      ? String(input.departmentId)
+      : department?.id;
+
+  return {
+    ...base,
+    departmentId,
+    department,
+    company: department?.name ?? (input.company != null ? String(input.company) : undefined),
+    description: input.description != null ? String(input.description) : undefined,
+    employmentType: input.employmentType != null ? String(input.employmentType) : undefined,
+    workMode: input.workMode != null ? String(input.workMode) : undefined,
+    experienceLevel:
+      input.experienceLevel != null ? String(input.experienceLevel) : input.experienceLevel ?? undefined,
+    country: input.country != null ? String(input.country) : undefined,
+    region: input.region != null ? String(input.region) : undefined,
+    city: input.city != null ? String(input.city) : undefined,
+    neighbourhood: input.neighbourhood != null ? String(input.neighbourhood) : input.neighbourhood ?? null,
+    payAmount: input.payAmount != null ? Number(input.payAmount) : undefined,
+    payCurrency: input.payCurrency != null ? String(input.payCurrency) : undefined,
+    payStructure: input.payStructure != null ? String(input.payStructure) : undefined,
+    duration: input.duration != null ? String(input.duration) : undefined,
+    startDate: input.startDate != null ? String(input.startDate) : input.startDate ?? null,
+    startNow: Boolean(input.startNow ?? input.startAsap),
+    numberOfOpenings: input.numberOfOpenings != null ? Number(input.numberOfOpenings) : undefined,
+    paymentManagedByJoballa:
+      input.paymentManagedByJoballa != null ? Boolean(input.paymentManagedByJoballa) : undefined,
+    requiredSkills: Array.isArray(input.requiredSkills)
+      ? input.requiredSkills.filter((skill): skill is string => typeof skill === "string")
+      : undefined,
+  };
 }
 
 type NormalizedEmployerJob = EmployerJobListItem &

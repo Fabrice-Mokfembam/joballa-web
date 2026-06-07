@@ -7,6 +7,7 @@ import {
   Building2,
   CheckCircle2,
   ChevronDown,
+  Expand,
   ChevronLeft,
   CircleDollarSign,
   Ellipsis,
@@ -145,6 +146,10 @@ export function IconShieldCheck(props: IconProps) {
 
 export function IconChevronDown(props: IconProps) {
   return <ChevronDown aria-hidden strokeWidth={1.8} {...props} />;
+}
+
+export function IconExpand(props: IconProps) {
+  return <Expand aria-hidden strokeWidth={1.8} {...props} />;
 }
 
 export function IconCollapseSidebar(props: IconProps) {

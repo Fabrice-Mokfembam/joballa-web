@@ -10,7 +10,7 @@ const defaultApplicants: ApplicantsListParams = {
   sort: "recent",
   page: 1,
   limit: 12,
-  view: "grid",
+  view: "list",
 };
 
 type EmployerPortalStore = {

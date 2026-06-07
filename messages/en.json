@@ -1550,8 +1550,8 @@
         "applicants": "Applicants",
         "shortlisted": "Shortlisted",
         "pay": "Pay",
-        "live": "Live",
-        "empty": "No live jobs yet.",
+        "live": "Active",
+        "empty": "No active jobs yet.",
         "posted": "Posted {time} ago",
         "moreActions": "More job actions",
         "applicantsCount": "{count} applicants",
@@ -1583,8 +1583,11 @@
     },
     "postJobFlow": {
       "title": "Post a Job",
+      "editTitle": "Edit job",
+      "editDescription": "Update role details for candidates. Active jobs stay active — changes apply once saved.",
       "description": "Create the role, add the details that candidates need, then review the final employer-facing preview before you submit it.",
       "backToJobs": "Back to jobs",
+      "backToJob": "Back to job",
       "stepsLabel": "Post job steps",
       "steps": {
         "basics": "Basics",
@@ -1598,25 +1601,96 @@
         "responsibilitiesDescription": "List the day-to-day expectations as separate items so the preview stays structured."
       },
       "placeholders": {
+        "title": "e.g. Sales Engineer",
+        "department": "Select department",
+        "category": "Select a category",
+        "categoryOther": "Describe your category",
+        "jobType": "Select employment type",
+        "workMode": "Select work mode",
+        "location": "Neighbourhood, City, Region — e.g. Bonanjo, Douala, Littoral",
+        "pay": "e.g. 60000",
+        "payPer": "Select pay structure",
+        "openings": "e.g. 1",
+        "startDate": "YYYY-MM-DD",
+        "duration": "e.g. 1 month, 6 months, Permanent",
+        "schedule": "e.g. 5 days per week",
+        "requiredLevel": "Select experience level",
+        "requiredSkills": "e.g. React, Sales, Communication (comma-separated)",
         "description": "Describe the role, who it supports, and what a strong candidate should expect.",
         "requirement": "Add one requirement",
         "responsibility": "Add one responsibility"
+      },
+      "options": {
+        "employmentType": {
+          "full_time": "Full-time",
+          "part_time": "Part-time",
+          "contract": "Contract",
+          "casual": "Casual",
+          "seasonal": "Seasonal",
+          "internship": "Internship"
+        },
+        "workMode": {
+          "onsite": "On-site",
+          "remote": "Remote",
+          "hybrid": "Hybrid"
+        },
+        "payStructure": {
+          "hourly": "Hourly",
+          "daily": "Daily",
+          "weekly": "Weekly",
+          "monthly": "Monthly",
+          "fixed": "Fixed"
+        },
+        "experienceLevel": {
+          "entry": "Entry",
+          "junior": "Junior",
+          "mid": "Mid",
+          "senior": "Senior",
+          "lead": "Lead",
+          "tutor": "Tutor",
+          "not_required": "Not required"
+        },
+        "category": {
+          "education": "Education",
+          "domestic": "Domestic work",
+          "logistics": "Logistics & delivery",
+          "events": "Events & hospitality",
+          "agriculture": "Agriculture",
+          "construction": "Construction",
+          "software_tech": "Software & technology",
+          "other": "Other"
+        }
+      },
+      "startNow": {
+        "label": "Start immediately",
+        "hint": "When checked, no start date is sent to the API."
+      },
+      "errors": {
+        "category": "Select a category for this job.",
+        "categoryOther": "Describe your category when you choose Other.",
+        "categoryNotConfigured": "This category is not available right now. Please try again or contact support.",
+        "departmentsLoading": "Loading job categories. Please wait a moment and try again.",
+        "startDate": "Use a valid start date (YYYY-MM-DD) or check “Start immediately”."
       },
       "fields": {
         "title": "Job title",
         "department": "Department / employer",
         "category": "Category",
+        "categoryOther": "Other category",
         "jobType": "Job type",
         "workMode": "Work mode",
         "location": "Location",
         "pay": "Pay",
+        "payPer": "Pay structure",
         "openings": "Openings",
         "startDate": "Start date",
         "duration": "Duration",
         "schedule": "Schedule",
         "description": "Role description",
         "requirements": "Requirements",
-        "responsibilities": "What the worker will do"
+        "responsibilities": "What the worker will do",
+        "requiredLevel": "Experience level",
+        "requiredSkills": "Required skills"
       },
       "summary": {
         "title": "Quick summary",
@@ -1639,6 +1713,7 @@
         "preview": "Open preview",
         "submit": "Submit for review",
         "submitting": "Submitting…",
+        "saveChanges": "Save changes",
         "saveDraft": "Save as draft",
         "edit": "Edit details",
         "addRequirement": "Add requirement",
@@ -1651,9 +1726,18 @@
       "closePanel": "Close job details",
       "viewApplicants": "View applicants",
       "delete": "Delete",
+      "editJob": "Edit job",
+      "openFull": "Open full page",
+      "seeMore": "see more",
+      "seeLess": "see less",
       "crumbPrefix": "Dashboard >",
       "back": "Back",
       "more": "More actions",
+      "actions": {
+        "active": "Set active",
+        "paused": "Pause job",
+        "closed": "Close job"
+      },
       "summary": {
         "status": "Status",
         "jobType": "Job type",
@@ -1664,6 +1748,7 @@
       },
       "aboutTitle": "About this role",
       "requirementsTitle": "Requirements",
+      "requiredSkillsTitle": "Required skills",
       "doTitle": "What you will do",
       "listedBy": "Listed by {employer}\nfor {person}"
     },
@@ -1687,6 +1772,7 @@
         "all": "All({count})",
         "shortlisted": "Shortlisted({count})",
         "pending": "Pending({count})",
+        "hired": "Hired({count})",
         "rejected": "Rejected({count})"
       },
       "status": {
@@ -1717,8 +1803,14 @@
       "openFull": "Open full page",
       "seeMore": "see more",
       "seeLess": "see less",
-      "share": "Copy share link",
       "profileTitle": "Submitted profile",
+      "rejectDialog": {
+        "title": "Reject applicant?",
+        "description": "Optionally add a note for your records. The worker may see this reason depending on backend settings.",
+        "noteLabel": "Rejection note (optional)",
+        "notePlaceholder": "Explain why this application was not selected…",
+        "confirm": "Reject applicant"
+      },
       "crumbPrefix": "Dashboard >",
       "back": "Back",
       "more": "More actions",
@@ -1732,13 +1824,25 @@
       "jobInfo": {
         "aboutTitle": "About this role",
         "requirementsTitle": "Requirements",
-        "doTitle": "What you will do"
+        "requiredSkillsTitle": "Required skills",
+        "doTitle": "What you will do",
+        "listedBy": "Listed by {company}",
+        "listedFor": "for {name}"
       },
       "profile": {
         "summaryTitle": "PROFESSIONAL SUMMARY",
         "skillsTitle": "SKILLS",
         "workTitle": "WORK HISTORY",
-        "documentsTitle": "SUPPORTING DOCUMENTS"
+        "documentsTitle": "SUPPORTING DOCUMENTS",
+        "educationTitle": "EDUCATION",
+        "coverNoteTitle": "APPLICATION NOTE",
+        "notProvided": "Not provided",
+        "emptySummary": "No professional summary on file.",
+        "emptySkills": "No skills listed.",
+        "emptyWorkHistory": "No work history listed.",
+        "emptyDocuments": "No supporting documents uploaded.",
+        "emptyEducation": "No education listed.",
+        "emptyCoverNote": "No note included with this application."
       }
     },
     "jobsPage": {
@@ -1759,8 +1863,10 @@
       "listColPay": "Pay",
       "filters": {
         "all": "All",
-        "live": "Live",
+        "active": "Active",
+        "live": "Active",
         "draft": "Draft",
+        "under_review": "Under review",
         "paused": "Paused"
       },
       "posted": "Posted {time} ago",
@@ -1784,7 +1890,16 @@
       "status": {
         "active": "Active",
         "terminated": "Terminated",
+        "completed": "Completed",
         "rejected": "Rejected"
+      },
+      "jobTypes": {
+        "full_time": "Full-time",
+        "part_time": "Part-time",
+        "contract": "Contract",
+        "casual": "Casual",
+        "seasonal": "Seasonal",
+        "internship": "Internship"
       },
       "table": {
         "dateJoined": "Date joined",
@@ -1793,6 +1908,7 @@
         "shiftLogged": "Shift logged",
         "jobType": "Job type",
         "status": "Status",
+        "statusFor": "Status for {name}",
         "shiftsValue": "{count} shifts",
         "shiftDate": "Date",
         "shiftHours": "Hours",
@@ -1808,9 +1924,16 @@
       "logging": "Logging…",
       "logShiftSubmit": "Log shift",
       "cancelLogShift": "Cancel",
+      "closePanel": "Close worker details",
       "actions": {
         "terminate": "Terminate",
         "reinstate": "Reinstate"
+      },
+      "terminateConfirm": {
+        "title": "Terminate this worker?",
+        "description": "This will end {name}'s engagement for {role}. You can reinstate them later if needed.",
+        "confirm": "Terminate worker",
+        "cancel": "Cancel"
       }
     },
     "workforceDetail": {

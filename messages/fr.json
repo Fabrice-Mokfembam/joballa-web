@@ -1581,8 +1581,11 @@
     },
     "postJobFlow": {
       "title": "Publier une offre",
+      "editTitle": "Modifier l'offre",
+      "editDescription": "Mettez a jour les details visibles par les candidats. Les offres actives restent actives une fois enregistrees.",
       "description": "Creez le role, ajoutez les details utiles aux candidats, puis relisez l'apercu final avant soumission.",
       "backToJobs": "Retour aux offres",
+      "backToJob": "Retour a l'offre",
       "stepsLabel": "Etapes de publication",
       "steps": {
         "basics": "Base",
@@ -1596,25 +1599,96 @@
         "responsibilitiesDescription": "Listez les attentes du quotidien sous forme d'elements separes pour garder un apercu bien structure."
       },
       "placeholders": {
+        "title": "ex. Ingenieur commercial",
+        "department": "Choisir un departement",
+        "category": "Choisir une categorie",
+        "categoryOther": "Decrivez votre categorie",
+        "jobType": "Choisir le type d'emploi",
+        "workMode": "Choisir le mode de travail",
+        "location": "Quartier, Ville, Region — ex. Bonanjo, Douala, Littoral",
+        "pay": "ex. 60000",
+        "payPer": "Choisir la structure de paie",
+        "openings": "ex. 1",
+        "startDate": "AAAA-MM-JJ",
+        "duration": "ex. 1 mois, 6 mois, Permanent",
+        "schedule": "ex. 5 jours par semaine",
+        "requiredLevel": "Choisir le niveau d'experience",
+        "requiredSkills": "ex. React, Vente, Communication (separes par des virgules)",
         "description": "Decrivez le role, le contexte et ce qu'un bon candidat doit attendre.",
         "requirement": "Ajouter une exigence",
         "responsibility": "Ajouter une responsabilite"
+      },
+      "options": {
+        "employmentType": {
+          "full_time": "Temps plein",
+          "part_time": "Temps partiel",
+          "contract": "Contrat",
+          "casual": "Occasionnel",
+          "seasonal": "Saisonnier",
+          "internship": "Stage"
+        },
+        "workMode": {
+          "onsite": "Sur site",
+          "remote": "Teletravail",
+          "hybrid": "Hybride"
+        },
+        "payStructure": {
+          "hourly": "Horaire",
+          "daily": "Journalier",
+          "weekly": "Hebdomadaire",
+          "monthly": "Mensuel",
+          "fixed": "Forfait"
+        },
+        "experienceLevel": {
+          "entry": "Debutant",
+          "junior": "Junior",
+          "mid": "Intermediaire",
+          "senior": "Senior",
+          "lead": "Lead",
+          "tutor": "Tuteur",
+          "not_required": "Non requis"
+        },
+        "category": {
+          "education": "Education",
+          "domestic": "Travail domestique",
+          "logistics": "Logistique et livraison",
+          "events": "Evenements et hotellerie",
+          "agriculture": "Agriculture",
+          "construction": "Construction",
+          "software_tech": "Logiciel et technologie",
+          "other": "Autre"
+        }
+      },
+      "startNow": {
+        "label": "Demarrer immediatement",
+        "hint": "Si coche, aucune date de debut n'est envoyee a l'API."
+      },
+      "errors": {
+        "category": "Choisissez une categorie pour cette offre.",
+        "categoryOther": "Decrivez votre categorie lorsque vous choisissez Autre.",
+        "categoryNotConfigured": "Cette categorie n'est pas disponible pour le moment. Reessayez ou contactez le support.",
+        "departmentsLoading": "Chargement des categories. Patientez un instant et reessayez.",
+        "startDate": "Indiquez une date valide (AAAA-MM-JJ) ou cochez « Demarrer immediatement »."
       },
       "fields": {
         "title": "Intitule du poste",
         "department": "Departement / employeur",
         "category": "Categorie",
+        "categoryOther": "Autre categorie",
         "jobType": "Type de poste",
         "workMode": "Mode de travail",
         "location": "Lieu",
         "pay": "Paie",
+        "payPer": "Structure de paie",
         "openings": "Postes ouverts",
         "startDate": "Date de debut",
         "duration": "Duree",
         "schedule": "Rythme",
         "description": "Description du role",
         "requirements": "Exigences",
-        "responsibilities": "Ce que le travailleur fera"
+        "responsibilities": "Ce que le travailleur fera",
+        "requiredLevel": "Niveau d'experience",
+        "requiredSkills": "Competences requises"
       },
       "summary": {
         "title": "Resume rapide",
@@ -1637,6 +1711,7 @@
         "preview": "Ouvrir l'apercu",
         "submit": "Soumettre pour revue",
         "submitting": "Envoi en cours…",
+        "saveChanges": "Enregistrer les modifications",
         "saveDraft": "Enregistrer comme brouillon",
         "edit": "Modifier les details",
         "addRequirement": "Ajouter une exigence",
@@ -1649,9 +1724,18 @@
       "closePanel": "Fermer les details",
       "viewApplicants": "Voir les candidats",
       "delete": "Supprimer",
+      "editJob": "Modifier l'offre",
+      "openFull": "Ouvrir la page complete",
+      "seeMore": "voir plus",
+      "seeLess": "voir moins",
       "crumbPrefix": "Tableau de bord >",
       "back": "Retour",
       "more": "Plus d'actions",
+      "actions": {
+        "active": "Activer",
+        "paused": "Mettre en pause",
+        "closed": "Fermer l'offre"
+      },
       "summary": {
         "status": "Statut",
         "jobType": "Type de poste",
@@ -1662,6 +1746,7 @@
       },
       "aboutTitle": "A propos du role",
       "requirementsTitle": "Exigences",
+      "requiredSkillsTitle": "Competences requises",
       "doTitle": "Ce que vous ferez",
       "listedBy": "Publie par {employer}\npour {person}"
     },
@@ -1685,6 +1770,7 @@
         "all": "Tous({count})",
         "shortlisted": "Preselectionnes({count})",
         "pending": "En attente({count})",
+        "hired": "Embauches({count})",
         "rejected": "Rejetes({count})"
       },
       "status": {
@@ -1715,8 +1801,14 @@
       "openFull": "Ouvrir en pleine page",
       "seeMore": "voir plus",
       "seeLess": "voir moins",
-      "share": "Copier le lien de partage",
       "profileTitle": "Profil soumis",
+      "rejectDialog": {
+        "title": "Refuser ce candidat ?",
+        "description": "Ajoutez une note pour vos archives. Le travailleur pourra la voir selon la configuration backend.",
+        "noteLabel": "Motif du refus (optionnel)",
+        "notePlaceholder": "Expliquez pourquoi cette candidature n'a pas ete retenue…",
+        "confirm": "Refuser le candidat"
+      },
       "crumbPrefix": "Tableau de bord >",
       "back": "Retour",
       "more": "Plus d'actions",
@@ -1730,13 +1822,25 @@
       "jobInfo": {
         "aboutTitle": "A propos du role",
         "requirementsTitle": "Exigences",
-        "doTitle": "Ce que vous ferez"
+        "requiredSkillsTitle": "Competences requises",
+        "doTitle": "Ce que vous ferez",
+        "listedBy": "Publie par {company}",
+        "listedFor": "pour {name}"
       },
       "profile": {
         "summaryTitle": "RESUME PROFESSIONNEL",
         "skillsTitle": "COMPETENCES",
         "workTitle": "EXPERIENCE",
-        "documentsTitle": "DOCUMENTS JUSTIFICATIFS"
+        "documentsTitle": "DOCUMENTS JUSTIFICATIFS",
+        "educationTitle": "FORMATION",
+        "coverNoteTitle": "NOTE DE CANDIDATURE",
+        "notProvided": "Non renseigne",
+        "emptySummary": "Aucun resume professionnel disponible.",
+        "emptySkills": "Aucune competence listee.",
+        "emptyWorkHistory": "Aucune experience listee.",
+        "emptyDocuments": "Aucun document justificatif.",
+        "emptyEducation": "Aucune formation listee.",
+        "emptyCoverNote": "Aucune note jointe a cette candidature."
       }
     },
     "jobsPage": {
@@ -1757,8 +1861,10 @@
       "listColPay": "Salaire",
       "filters": {
         "all": "Toutes",
+        "active": "Actives",
         "live": "Actives",
         "draft": "Brouillon",
+        "under_review": "En revision",
         "paused": "En pause"
       },
       "posted": "Publie il y a {time}",
@@ -1782,7 +1888,16 @@
       "status": {
         "active": "Actif",
         "terminated": "Termine",
+        "completed": "Complete",
         "rejected": "Rejete"
+      },
+      "jobTypes": {
+        "full_time": "Temps plein",
+        "part_time": "Temps partiel",
+        "contract": "Contrat",
+        "casual": "Occasionnel",
+        "seasonal": "Saisonnier",
+        "internship": "Stage"
       },
       "table": {
         "dateJoined": "Date d'embauche",
@@ -1791,6 +1906,7 @@
         "shiftLogged": "Quarts enregistres",
         "jobType": "Type de poste",
         "status": "Statut",
+        "statusFor": "Statut de {name}",
         "shiftsValue": "{count} quarts",
         "shiftDate": "Date",
         "shiftHours": "Heures",
@@ -1806,9 +1922,16 @@
       "logging": "Enregistrement…",
       "logShiftSubmit": "Enregistrer",
       "cancelLogShift": "Annuler",
+      "closePanel": "Fermer le detail du travailleur",
       "actions": {
         "terminate": "Mettre fin",
         "reinstate": "Reactiver"
+      },
+      "terminateConfirm": {
+        "title": "Mettre fin a cet engagement ?",
+        "description": "Cela mettra fin a l'engagement de {name} pour {role}. Vous pourrez le reactiver plus tard si necessaire.",
+        "confirm": "Confirmer la fin",
+        "cancel": "Annuler"
       }
     },
     "workforceDetail": {

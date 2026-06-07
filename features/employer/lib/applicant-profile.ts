@@ -1,4 +1,259 @@
-import type { EmployerApplicantListItem } from "@/features/employer/types/employer-portal";
+import type {
+  EmployerApplicantListItem,
+  EmployerApplicantDetail,
+  EmployerJobDetail,
+} from "@/features/employer/types/employer-portal";
+import {
+  resolveApplicantDisplayName,
+  resolveApplicantHeadline,
+  type RawApplicantIdentity,
+} from "@/features/employer/lib/resolve-applicant-display";
+
+function asStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+  if (typeof value === "string" && value.trim()) {
+    return value
+      .split(/[,•|]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function joinLocationParts(...parts: unknown[]): string {
+  return parts.map((part) => String(part ?? "").trim()).filter(Boolean).join(", ");
+}
+
+function formatPreferredJobTypes(value: unknown): string {
+  const labels: Record<string, string> = {
+    FULL_TIME: "Full-time",
+    PART_TIME: "Part-time",
+    CONTRACT: "Contract",
+    INTERNSHIP: "Internship",
+    TEMPORARY: "Temporary",
+  };
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => labels[String(item).trim().toUpperCase().replace(/-/g, "_")] ?? String(item))
+      .join(", ");
+  }
+  return String(value ?? "").trim();
+}
+
+function formatIndustryItem(item: string): string {
+  const key = item.trim().toUpperCase().replace(/-/g, "_");
+  const labels: Record<string, string> = {
+    SOFTWARE_TECH: "Software & Tech",
+    DESIGN: "Design & Creative",
+    DESIGN_CREATIVE: "Design & Creative",
+    MARKETING: "Marketing",
+    FINANCE: "Finance",
+    EDUCATION: "Education",
+    HEALTH: "Health",
+    HEALTHCARE: "Health",
+  };
+  if (labels[key]) return labels[key];
+  if (key.includes("_")) {
+    return item
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+  return item.trim();
+}
+
+function formatIndustries(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.map((item) => formatIndustryItem(String(item))).filter(Boolean).join(", ");
+  }
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  if (raw.includes(",")) {
+    return raw.split(",").map((part) => formatIndustryItem(part)).filter(Boolean).join(", ");
+  }
+  return formatIndustryItem(raw);
+}
+
+function formatAvailabilityStatus(value: unknown): string {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  const upper = raw.toUpperCase();
+  if (upper === "AVAILABLE") return "Available";
+  if (upper === "NOT_AVAILABLE") return "Not available";
+  return raw;
+}
+
+function resolveAvailability(p: Record<string, unknown>): string {
+  const preformatted = String(p.availability ?? "").trim();
+  if (preformatted && (preformatted.includes("·") || (preformatted.includes(",") && preformatted.includes("-")))) {
+    return preformatted;
+  }
+
+  const preferred = formatPreferredJobTypes(p.preferredJobTypes);
+  const status = formatAvailabilityStatus(p.availabilityStatus ?? (preformatted || undefined));
+  if (preferred && status) return `${status} · ${preferred}`;
+  return preferred || status || preformatted;
+}
+
+function formatFileSize(value: unknown): string | undefined {
+  if (value == null || value === "") return undefined;
+  if (typeof value === "string") return value.trim() || undefined;
+  const bytes = Number(value);
+  if (!Number.isFinite(bytes) || bytes <= 0) return String(value);
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(bytes < 10240 ? 1 : 0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function formatWorkPeriod(row: Record<string, unknown>): string {
+  const existing = String(row.period ?? row.dates ?? "").trim();
+  if (existing) return existing;
+
+  const start = [row.startMonth, row.startYear].map((part) => String(part ?? "").trim()).filter(Boolean).join(" ");
+  const end = row.isCurrent
+    ? "Present"
+    : [row.endMonth, row.endYear].map((part) => String(part ?? "").trim()).filter(Boolean).join(" ");
+
+  if (start || end) {
+    return [start, end].filter(Boolean).join(" - ");
+  }
+
+  return [row.startDate, row.endDate].map((part) => String(part ?? "").trim()).filter(Boolean).join(" – ");
+}
+
+function formatLanguages(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean).join(", ");
+  }
+  return String(value ?? "").trim();
+}
+
+function mapDocumentRow(item: unknown): ParsedApplicantProfile["documents"][number] {
+  if (typeof item === "string") {
+    const name = item.split("/").pop() ?? "Document";
+    const ext = name.split(".").pop()?.toUpperCase() ?? "FILE";
+    return { name, type: ext };
+  }
+
+  const row = item as Record<string, unknown>;
+  const name = String(row.name ?? row.fileName ?? "Document");
+  const ext = name.split(".").pop()?.toUpperCase() ?? "FILE";
+  const size = formatFileSize(row.size ?? row.fileSize);
+  const url = typeof row.url === "string" ? row.url : typeof row.fileUrl === "string" ? row.fileUrl : undefined;
+
+  return { name, type: String(row.type ?? ext), size, url };
+}
+
+function mergeDocumentRows(...groups: unknown[][]): ParsedApplicantProfile["documents"] {
+  const seen = new Set<string>();
+  const documents: ParsedApplicantProfile["documents"] = [];
+
+  for (const group of groups) {
+    if (!Array.isArray(group)) continue;
+    for (const item of group) {
+      const doc = mapDocumentRow(item);
+      const key = `${doc.url ?? ""}:${doc.name}`.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      documents.push(doc);
+    }
+  }
+
+  return documents;
+}
+
+function resolveSnapshotHeadline(p: Record<string, unknown>): string {
+  const summary = String(p.professionalSummary ?? p.summary ?? p.bio ?? p.shortBio ?? "").trim();
+  const professionalTitle = String(p.professionalTitle ?? "").trim();
+  if (professionalTitle) return professionalTitle;
+  const legacyHeadline = String(p.headline ?? p.title ?? "").trim();
+  if (legacyHeadline && legacyHeadline !== summary) return legacyHeadline;
+  return "";
+}
+
+function resolveWorkHistoryRaw(p: Record<string, unknown>): unknown[] | undefined {
+  const raw =
+    p.workHistory ??
+    p.workHistories ??
+    p.workExperiences ??
+    p.experience ??
+    p.workExperience;
+  return Array.isArray(raw) ? raw : undefined;
+}
+
+function resolveEducationRaw(p: Record<string, unknown>): unknown[] | undefined {
+  const raw = p.educations ?? p.education;
+  return Array.isArray(raw) ? raw : undefined;
+}
+
+function mapEducationRow(item: unknown): ParsedApplicantProfile["education"][number] {
+  const row = item as Record<string, unknown>;
+  const institution = String(row.institution ?? row.school ?? row.university ?? "");
+  const degree = String(row.degree ?? row.qualification ?? "");
+  const field = String(row.fieldOfStudy ?? row.field ?? row.major ?? "");
+  const period = formatWorkPeriod(row);
+  const description = String(row.description ?? "");
+  return { institution, degree, field, period, description };
+}
+
+function resolveDocumentsRaw(p: Record<string, unknown>): unknown[] | undefined {
+  const raw = p.documents ?? p.supportingDocuments ?? p.workerDocuments;
+  return Array.isArray(raw) ? raw : undefined;
+}
+
+/** Normalize worker DB snapshot fields into the UI profile shape. */
+export function coerceProfileSnapshot(profile: Record<string, unknown> | undefined): Record<string, unknown> {
+  const p = profile ?? {};
+  const workRaw = resolveWorkHistoryRaw(p);
+  const workHistory = workRaw
+    ? workRaw.map((item) => {
+        const row = item as Record<string, unknown>;
+        const location = String(row.location ?? joinLocationParts(row.city, row.region, row.country));
+        const period = formatWorkPeriod(row);
+        return {
+          company: String(row.company ?? row.companyName ?? row.employer ?? ""),
+          role: String(row.role ?? row.jobTitle ?? row.title ?? ""),
+          description: String(row.description ?? row.summary ?? ""),
+          period,
+          location,
+        };
+      })
+    : undefined;
+
+  const docsRaw = resolveDocumentsRaw(p);
+  const documents = docsRaw ? docsRaw.map(mapDocumentRow) : undefined;
+
+  const eduRaw = resolveEducationRaw(p);
+  const education = eduRaw ? eduRaw.map(mapEducationRow) : undefined;
+
+  const skills = asStringArray(p.skills);
+  const highlightedSkills = asStringArray(p.highlightedSkills ?? p.topSkills);
+
+  return {
+    ...p,
+    fullName: String(
+      p.fullName ??
+        ([p.firstName, p.lastName].map((part) => String(part ?? "").trim()).filter(Boolean).join(" ") ||
+          p.name ||
+          ""),
+    ),
+    headline: resolveSnapshotHeadline(p),
+    location: String(p.location ?? joinLocationParts(p.city, p.region, p.country)),
+    phone: String(p.phone ?? p.phoneNumber ?? p.mobileMoneyNumber ?? ""),
+    languages: formatLanguages(p.languages ?? p.languagesSpoken ?? p.language),
+    availability: resolveAvailability(p),
+    summary: String(p.professionalSummary ?? p.summary ?? p.bio ?? p.shortBio ?? ""),
+    industries: formatIndustries(p.industries ?? p.industry ?? p.preferredJobCategories),
+    skills: skills.length > 0 ? skills : p.skills,
+    highlightedSkills: highlightedSkills.length > 0 ? highlightedSkills : p.highlightedSkills,
+    workHistory,
+    education,
+    documents,
+    avatarUrl: p.avatarUrl ?? p.photoUrl ?? p.profilePhotoUrl ?? p.photo,
+    verificationStatus: p.verificationStatus ?? p.kycStatus,
+  };
+}
 
 export function formatAppliedAgo(iso?: string): string {
   if (!iso) return "—";
@@ -26,8 +281,12 @@ export function applicantSkillsList(applicant: EmployerApplicantListItem): strin
   if (Array.isArray(applicant.skills)) {
     return applicant.skills.map((s) => String(s).trim()).filter(Boolean);
   }
-  if (typeof applicant.topSkills === "string" && applicant.topSkills.trim()) {
-    return applicant.topSkills
+  const top = applicant.topSkills;
+  if (Array.isArray(top)) {
+    return top.map((s) => String(s).trim()).filter(Boolean);
+  }
+  if (typeof top === "string" && top.trim()) {
+    return top
       .split(/[,•|]/)
       .map((s) => s.trim())
       .filter(Boolean);
@@ -36,12 +295,7 @@ export function applicantSkillsList(applicant: EmployerApplicantListItem): strin
 }
 
 export function applicantHeadline(applicant: EmployerApplicantListItem): string {
-  const profile = applicant.submittedProfile as Record<string, unknown> | undefined;
-  if (typeof profile?.headline === "string" && profile.headline.trim()) {
-    return profile.headline;
-  }
-  const role = String(applicant.jobTitle ?? applicant.role ?? "—");
-  return role;
+  return resolveApplicantHeadline(applicant as RawApplicantIdentity) ?? "";
 }
 
 export function applicantIsVerified(applicant: EmployerApplicantListItem): boolean {
@@ -64,70 +318,49 @@ export type ParsedApplicantProfile = {
   industries: string;
   skills: string[];
   highlightedSkills: string[];
-  workHistory: { company: string; role: string; description: string; period: string }[];
-  documents: { name: string; type: string }[];
+  workHistory: { company: string; role: string; description: string; period: string; location: string }[];
+  education: { institution: string; degree: string; field: string; period: string; description: string }[];
+  documents: { name: string; type: string; size?: string; url?: string }[];
   avatarUrl: string | null;
   verified: boolean;
 };
 
 export function parseSubmittedProfile(profile: Record<string, unknown> | undefined): ParsedApplicantProfile {
-  const p = profile ?? {};
+  const p = coerceProfileSnapshot(profile);
   const fullName = String(p.fullName ?? p.name ?? "Applicant");
-  const headline = String(p.headline ?? p.title ?? p.role ?? "");
-  const location = String(p.location ?? p.city ?? "");
-  const phone = String(p.phone ?? p.phoneNumber ?? "");
-  const languages = String(p.languages ?? p.language ?? "");
-  const availability = String(p.availability ?? p.workAvailability ?? "");
+  const headline = resolveSnapshotHeadline(p);
+  const location = String(p.location ?? joinLocationParts(p.city, p.region, p.country));
+  const phone = String(p.phone ?? p.phoneNumber ?? p.mobileMoneyNumber ?? "");
+  const languages = formatLanguages(p.languages ?? p.languagesSpoken ?? p.language);
+  const availability = resolveAvailability(p);
 
-  const summary = String(p.professionalSummary ?? p.summary ?? p.bio ?? "");
-  const industries = String(p.industries ?? p.industry ?? "");
+  const summary = String(p.professionalSummary ?? p.summary ?? p.bio ?? p.shortBio ?? "");
+  const industries = formatIndustries(p.industries ?? p.industry ?? p.preferredJobCategories);
 
-  const skillsRaw = p.skills;
-  let skills: string[] = [];
-  if (Array.isArray(skillsRaw)) {
-    skills = skillsRaw.map((s) => String(s).trim()).filter(Boolean);
-  } else if (typeof skillsRaw === "string") {
-    skills = skillsRaw
-      .split(/[,•|]/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
+  const skills = asStringArray(p.skills);
+  const highlightedSkills = asStringArray(p.highlightedSkills ?? p.topSkills);
 
-  const highlightedRaw = p.highlightedSkills ?? p.topSkills;
-  let highlightedSkills: string[] = [];
-  if (Array.isArray(highlightedRaw)) {
-    highlightedSkills = highlightedRaw.map((s) => String(s).trim()).filter(Boolean);
-  } else if (typeof highlightedRaw === "string") {
-    highlightedSkills = highlightedRaw
-      .split(/[,•|]/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-
-  const workRaw = p.workHistory ?? p.experience ?? p.workExperience;
+  const workRaw = resolveWorkHistoryRaw(p);
   let workHistory: ParsedApplicantProfile["workHistory"] = [];
-  if (Array.isArray(workRaw)) {
+  if (workRaw) {
     workHistory = workRaw.map((item) => {
       const row = item as Record<string, unknown>;
+      const locationValue = String(row.location ?? joinLocationParts(row.city, row.region, row.country));
       return {
-        company: String(row.company ?? row.employer ?? ""),
-        role: String(row.role ?? row.title ?? ""),
+        company: String(row.company ?? row.companyName ?? row.employer ?? ""),
+        role: String(row.role ?? row.jobTitle ?? row.title ?? ""),
         description: String(row.description ?? row.summary ?? ""),
-        period: String(row.period ?? row.dates ?? [row.startDate, row.endDate].filter(Boolean).join(" – ")),
+        period: formatWorkPeriod(row),
+        location: locationValue,
       };
     });
   }
 
-  const docsRaw = p.documents ?? p.supportingDocuments;
-  let documents: ParsedApplicantProfile["documents"] = [];
-  if (Array.isArray(docsRaw)) {
-    documents = docsRaw.map((item) => {
-      const row = item as Record<string, unknown>;
-      const name = String(row.name ?? row.fileName ?? "Document");
-      const ext = name.split(".").pop()?.toUpperCase() ?? "FILE";
-      return { name, type: String(row.type ?? ext) };
-    });
-  }
+  const docsRaw = resolveDocumentsRaw(p);
+  const documents = docsRaw ? docsRaw.map(mapDocumentRow) : [];
+
+  const eduRaw = resolveEducationRaw(p);
+  const education: ParsedApplicantProfile["education"] = eduRaw ? eduRaw.map(mapEducationRow) : [];
 
   const avatarUrl =
     typeof p.photoUrl === "string"
@@ -136,11 +369,11 @@ export function parseSubmittedProfile(profile: Record<string, unknown> | undefin
         ? p.avatarUrl
         : typeof p.profilePhotoUrl === "string"
           ? p.profilePhotoUrl
-      : typeof p.photo === "string"
-        ? p.photo
-        : typeof p.avatar === "string"
-          ? p.avatar
-          : null;
+          : typeof p.photo === "string"
+            ? p.photo
+            : typeof p.avatar === "string"
+              ? p.avatar
+              : null;
   const verified = String(p.verificationStatus ?? p.kycStatus ?? "").toUpperCase() === "VERIFIED";
 
   return {
@@ -155,8 +388,81 @@ export function parseSubmittedProfile(profile: Record<string, unknown> | undefin
     skills,
     highlightedSkills,
     workHistory,
+    education,
     documents,
     avatarUrl,
     verified,
   };
+}
+
+/** Merge API applicant fields with submitted/profile snapshot for detail views. */
+export function parseApplicantDetailProfile(data: EmployerApplicantDetail | undefined): ParsedApplicantProfile {
+  if (!data) {
+    return parseSubmittedProfile(undefined);
+  }
+
+  const raw = data as RawApplicantIdentity & {
+    workerPhotoUrl?: string | null;
+    workerLocation?: string | null;
+    workerHeadline?: string | null;
+    topSkills?: string[] | string | null;
+    verificationStatus?: string | null;
+    attachedDocuments?: unknown[];
+    profileSnapshot?: Record<string, unknown>;
+  };
+
+  const snapshot = raw.profileSnapshot;
+  const profileSource = coerceProfileSnapshot(
+    snapshot && typeof snapshot === "object" ? (snapshot as Record<string, unknown>) : undefined,
+  );
+
+  const parsed = parseSubmittedProfile(profileSource);
+
+  parsed.fullName = resolveApplicantDisplayName(raw);
+  parsed.headline = resolveApplicantHeadline(raw) ?? parsed.headline;
+
+  if (!parsed.avatarUrl && typeof raw.workerPhotoUrl === "string" && raw.workerPhotoUrl.trim()) {
+    parsed.avatarUrl = raw.workerPhotoUrl.trim();
+  }
+  if (!parsed.location && typeof raw.workerLocation === "string" && raw.workerLocation.trim()) {
+    parsed.location = raw.workerLocation.trim();
+  }
+
+  const topSkills = asStringArray(raw.topSkills);
+  if (parsed.skills.length === 0 && topSkills.length > 0) {
+    parsed.skills = topSkills;
+  } else if (topSkills.length > 0) {
+    const merged = [...parsed.skills];
+    for (const skill of topSkills) {
+      if (!merged.some((item) => item.toLowerCase() === skill.toLowerCase())) {
+        merged.push(skill);
+      }
+    }
+    parsed.skills = merged;
+  }
+
+  // Prefer snapshot highlightedSkills from backend; only fall back to list topSkills / job match.
+  if (parsed.highlightedSkills.length === 0 && topSkills.length > 0) {
+    parsed.highlightedSkills = topSkills;
+  }
+
+  const job = data.job as EmployerJobDetail | undefined;
+  const requiredSkills = asStringArray(job?.requiredSkills);
+  if (parsed.highlightedSkills.length === 0 && requiredSkills.length > 0 && parsed.skills.length > 0) {
+    parsed.highlightedSkills = parsed.skills.filter((skill) =>
+      requiredSkills.some((required) => required.toLowerCase() === skill.toLowerCase()),
+    );
+  }
+
+  if (!parsed.verified) {
+    parsed.verified = String(raw.verificationStatus ?? "").toUpperCase() === "VERIFIED";
+  }
+
+  // Backend keeps snapshot docs (worker CV) separate from apply-time attachedDocuments — merge for UI.
+  parsed.documents = mergeDocumentRows(
+    resolveDocumentsRaw(profileSource) ?? [],
+    Array.isArray(raw.attachedDocuments) ? raw.attachedDocuments : [],
+  );
+
+  return parsed;
 }

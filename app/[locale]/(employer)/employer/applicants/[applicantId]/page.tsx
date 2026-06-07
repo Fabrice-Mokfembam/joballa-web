@@ -7,7 +7,7 @@ export default async function EmployerApplicantDetailPage({
 }) {
   const { applicantId } = await params;
   return (
-    <div className="mx-auto w-full max-w-[76rem] px-0">
+    <div className="p-[26px]">
       <EmployerApplicantDetailPanel applicationId={applicantId} variant="page" />
     </div>
   );

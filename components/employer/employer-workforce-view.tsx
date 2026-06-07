@@ -1,14 +1,14 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname, useRouter } from "@/lib/i18n/navigation";
+import { Link } from "@/lib/i18n/navigation";
 import { EmployerAsyncState } from "@/components/employer/employer-async-state";
-import { EmployerWorkforceStatusBadge } from "@/components/employer/employer-workforce-status-badge";
+import { EmployerWorkforceStatusSelect } from "@/components/employer/employer-workforce-status-select";
 import { formatStatHint, formatStatValue } from "@/features/employer/lib/applicant-helpers";
+import { displayWorkforceJobType } from "@/features/employer/lib/workforce-display";
 import { useEmployerWorkforce } from "@/features/employer/hooks";
-import type { EmployerDashboardStat, EmployerWorkforceListItem, EmployerWorkforceStatus } from "@/features/employer/types/employer-portal";
+import type { EmployerDashboardStat, EmployerWorkforceListItem } from "@/features/employer/types/employer-portal";
 import { useEmployerPortalStore } from "@/lib/stores/employer-portal-store";
 import { portalCardClass, portalPageShellClass, PortalStatCard } from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
@@ -52,10 +52,7 @@ function formatStatCount(value: string | number | undefined): string {
 
 function WorkforceViewInner() {
   const t = useTranslations("employer.workforce");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const workerParam = searchParams.get("worker");
+  const tJobTypes = useTranslations("employer.workforce.jobTypes");
 
   const status = useEmployerPortalStore((s) => s.workforceStatus);
   const setWorkforceStatus = useEmployerPortalStore((s) => s.setWorkforceStatus);
@@ -72,36 +69,15 @@ function WorkforceViewInner() {
     }).length,
   };
 
-  const selectedWorker = useMemo(
-    () => items.find((w) => workerRowId(w) === workerParam) ?? null,
-    [items, workerParam],
-  );
+  const activeWorkersStat = statCard(stats, "activeWorkers");
+  const engagementsEndedStat = statCard(stats, "engagementsEnded");
 
-  const selectWorker = useCallback(
-    (id: string) => {
-      router.replace(`${pathname}?worker=${encodeURIComponent(id)}`);
-    },
-    [pathname, router],
-  );
-
-  const statusLabels: Record<EmployerWorkforceStatus | string, string> = {
+  const statusLabels: Record<string, string> = {
     active: t("status.active"),
     terminated: t("status.terminated"),
+    completed: t("status.completed"),
     rejected: t("status.rejected"),
   };
-
-  useEffect(() => {
-    if (!workerParam || workforce.isLoading) return;
-    if (workforce.isSuccess && !selectedWorker) {
-      router.replace(pathname);
-    }
-  }, [pathname, router, selectedWorker, workerParam, workforce.isLoading, workforce.isSuccess]);
-
-  useEffect(() => {
-    if (!workerParam && items.length > 0) {
-      selectWorker(workerRowId(items[0]!));
-    }
-  }, [items, selectWorker, workerParam]);
 
   return (
     <div className={cn(portalPageShellClass, "gap-[26px]")}>
@@ -120,14 +96,18 @@ function WorkforceViewInner() {
           <PortalStatCard
             variant="workforce"
             label={t("stats.activeWorkers")}
-            value={formatStatCount(formatStatValue(statCard(stats, "activeWorkers")))}
-            hint={formatStatHint(statCard(stats, "activeWorkers"))}
+            value={formatStatCount(
+              activeWorkersStat ? formatStatValue(activeWorkersStat) : String(tabCounts.active ?? 0),
+            )}
+            hint={formatStatHint(activeWorkersStat)}
           />
           <PortalStatCard
             variant="workforce"
             label={t("stats.engagementsEnded")}
-            value={formatStatCount(formatStatValue(statCard(stats, "engagementsEnded")))}
-            hint={formatStatHint(statCard(stats, "engagementsEnded"))}
+            value={formatStatCount(
+              engagementsEndedStat ? formatStatValue(engagementsEndedStat) : String(tabCounts.terminated ?? 0),
+            )}
+            hint={formatStatHint(engagementsEndedStat)}
             hintTone="negative"
           />
         </div>
@@ -168,25 +148,11 @@ function WorkforceViewInner() {
 
                 {items.map((worker) => {
                   const id = workerRowId(worker);
-                  const rowStatus = String(worker.status ?? "active") as EmployerWorkforceStatus;
-                  const isSelected = id === workerParam;
 
                   return (
                     <div
                       key={id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => selectWorker(id)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          selectWorker(id);
-                        }
-                      }}
-                      className={cn(
-                        "col-span-full grid cursor-pointer grid-cols-subgrid items-center rounded-[10px] py-1 transition hover:bg-[var(--joballa-row-hover)]",
-                        isSelected && "border-2 border-[var(--joballa-jade-8)] bg-[var(--joballa-row-selected)]",
-                      )}
+                      className="col-span-full grid grid-cols-subgrid items-center rounded-[10px] py-1 transition hover:bg-[var(--joballa-row-hover)]"
                     >
                       <div className="p-2.5 text-xs text-[var(--joballa-fg)]">
                         {formatJoinedDate(String(worker.dateJoined ?? ""))}
@@ -204,12 +170,11 @@ function WorkforceViewInner() {
                         </Link>
                       </div>
                       <div className="p-2.5 text-xs text-[var(--joballa-fg)]">{String(worker.role ?? "—")}</div>
-                      <div className="p-2.5 text-xs text-[var(--joballa-fg)]">{String(worker.jobType ?? "—")}</div>
+                      <div className="p-2.5 text-xs text-[var(--joballa-fg)]">
+                        {displayWorkforceJobType(worker, (slug) => tJobTypes(slug))}
+                      </div>
                       <div className="px-2.5 py-2">
-                        <EmployerWorkforceStatusBadge
-                          status={rowStatus}
-                          label={statusLabels[rowStatus] ?? rowStatus}
-                        />
+                        <EmployerWorkforceStatusSelect worker={worker} statusLabels={statusLabels} />
                       </div>
                     </div>
                   );

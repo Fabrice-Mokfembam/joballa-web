@@ -47,6 +47,13 @@ export type EmployerDashboard = {
   liveJobs: EmployerJobListItem[];
 };
 
+export type EmployerJobDepartment = {
+  id: string;
+  name: string;
+  slug?: string;
+  category?: string;
+};
+
 export type EmployerJobListItem = {
   jobId: string;
   title: string;
@@ -60,23 +67,38 @@ export type EmployerJobListItem = {
 };
 
 export type EmployerJobDetail = EmployerJobListItem & {
+  departmentId?: string;
+  department?: EmployerJobDepartment;
   company?: string;
-  pay?: number | string;
   description?: string;
   requirements?: string[];
   responsibilities?: string[];
-  city?: string;
-  neighbourhood?: string;
   requiredSkills?: string[];
-  requiredLevel?: string;
+  experienceLevel?: string | null;
   employmentType?: string;
+  workMode?: string;
+  country?: string;
+  region?: string;
+  city?: string;
+  neighbourhood?: string | null;
+  payAmount?: number;
+  payCurrency?: string;
+  payStructure?: string;
+  duration?: string;
+  numberOfOpenings?: number;
+  startDate?: string | null;
+  startNow?: boolean;
+  paymentManagedByJoballa?: boolean;
+  requestedDocuments?: unknown[];
+  schedule?: string;
+  /** Legacy demo / alias — prefer `startNow` */
+  startAsap?: boolean;
   durationValue?: number;
   durationUnit?: string;
+  pay?: number | string;
   currency?: string;
   per?: string;
-  numberOfOpenings?: number;
-  startDate?: string;
-  startAsap?: boolean;
+  requiredLevel?: string;
   [key: string]: unknown;
 };
 
@@ -119,9 +141,80 @@ export type EmployerApplicantFilters = {
   statuses: EmployerApplicantStatus[];
 };
 
+export type ApplicantDocumentEntry = {
+  name: string;
+  fileName?: string;
+  type?: string;
+  size?: string | number | null;
+  url?: string;
+};
+
+export type ApplicantWorkHistoryEntry = {
+  company?: string;
+  companyName?: string;
+  role?: string;
+  jobTitle?: string;
+  description?: string | null;
+  period?: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  location?: string | null;
+  city?: string | null;
+  region?: string | null;
+};
+
+export type ApplicantEducationEntry = {
+  institution: string;
+  degree?: string | null;
+  fieldOfStudy?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  period?: string;
+  description?: string | null;
+  city?: string | null;
+  region?: string | null;
+};
+
+/** Normalized apply-time profile on `GET /employer/applicants/:applicationId`. See BACKEND_RESPONSE_EMPLOYER_APPLICANT_DETAIL.md */
+export type ApplicantProfileSnapshot = {
+  fullName: string;
+  headline?: string | null;
+  professionalTitle?: string | null;
+  avatarUrl?: string | null;
+  verificationStatus?: string;
+  location?: string | null;
+  city?: string | null;
+  region?: string | null;
+  country?: string | null;
+  phone?: string | null;
+  languages?: string | null;
+  languagesSpoken?: string[];
+  summary?: string | null;
+  professionalSummary?: string | null;
+  bio?: string | null;
+  industries?: string | string[];
+  availability?: string | null;
+  preferredJobTypes?: string[];
+  availabilityStatus?: string | null;
+  skills: string[];
+  highlightedSkills?: string[];
+  workHistory?: ApplicantWorkHistoryEntry[];
+  workHistories?: ApplicantWorkHistoryEntry[];
+  educations?: ApplicantEducationEntry[];
+  documents?: ApplicantDocumentEntry[];
+  snapshotAt?: string;
+};
+
 export type EmployerApplicantListItem = {
   applicationId?: string;
   id?: string;
+  workerId?: string;
+  workerName?: string;
+  workerHeadline?: string | null;
+  workerEmail?: string | null;
+  workerPhotoUrl?: string | null;
+  workerLocation?: string | null;
+  submittedAt?: string;
   name?: string;
   applicantName?: string;
   jobTitle?: string;
@@ -130,32 +223,38 @@ export type EmployerApplicantListItem = {
   appliedAt?: string;
   location?: string;
   jobType?: string;
-  matchScore?: number;
+  matchScore?: number | null;
   match?: string | number;
-  topSkills?: string;
+  topSkills?: string | string[];
   skills?: string[];
   verificationStatus?: string;
   kycStatus?: string;
+  availabilityStatus?: string | null;
   avatarUrl?: string | null;
   photoUrl?: string | null;
   applicantAvatarUrl?: string | null;
   submittedProfile?: Record<string, unknown>;
+  profileSnapshot?: Record<string, unknown>;
   [key: string]: unknown;
 };
 
-export type EmployerApplicantDetail = {
-  applicationId?: string;
-  id?: string;
-  status?: EmployerApplicantStatus | string;
-  job?: EmployerJobListItem & { jobId?: string };
-  submittedProfile?: Record<string, unknown>;
+export type EmployerApplicantDetail = Omit<EmployerApplicantListItem, "profileSnapshot" | "submittedProfile"> & {
+  coverNote?: string | null;
   employerNotes?: string | null;
+  attachedDocuments?: ApplicantDocumentEntry[];
+  profileSnapshot?: ApplicantProfileSnapshot;
+  job?: EmployerJobDetail;
+  submittedProfile?: ApplicantProfileSnapshot | Record<string, unknown>;
   matchPercent?: number;
-  [key: string]: unknown;
 };
 
 export type PatchEmployerApplicantNotesBody = {
   employerNotes: string;
+};
+
+export type PatchEmployerApplicantStatusBody = {
+  status: EmployerApplicantStatus;
+  note?: string;
 };
 
 export type EmployerApplicantNotesResponse = {
@@ -176,6 +275,8 @@ export type EmployerWorkforceStats = {
 export type EmployerWorkforceListItem = {
   workerId?: string;
   id?: string;
+  engagementId?: string;
+  jobId?: string;
   name?: string;
   fullName?: string;
   role?: string;
@@ -183,7 +284,9 @@ export type EmployerWorkforceListItem = {
   dateJoined?: string;
   shiftsLogged?: number;
   jobType?: string;
+  employmentType?: string;
   avatarUrl?: string;
+  job?: Record<string, unknown>;
   [key: string]: unknown;
 };
 
@@ -217,6 +320,7 @@ export type LogShiftBody = {
 };
 
 export type UpdateWorkforceStatusBody = {
+  engagementId?: string;
   status: string;
   reason?: string;
 };

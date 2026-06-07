@@ -6,11 +6,25 @@ import {
   encodeUpdateEmployerCompany,
   normalizeEmployerCompany,
 } from "@/features/employer/lib/company-mapper";
+import { toApiEmployerJobStatus } from "@/features/employer/lib/employer-job-status";
 import { normalizeEmployerMe } from "@/features/employer/lib/normalize-employer-me";
 import {
   normalizeEmployerDashboard,
+  normalizeEmployerJobDetail,
   normalizeEmployerJobListItem,
 } from "@/features/employer/lib/normalize-employer-job";
+import { mapApplicantStatusForApi } from "@/features/employer/lib/employer-applicant-status";
+import {
+  normalizeEmployerApplicantDetail,
+  normalizeEmployerApplicantFilters,
+  normalizeEmployerApplicantListItem,
+  normalizeEmployerApplicantPage,
+} from "@/features/employer/lib/normalize-employer-applicant";
+import {
+  normalizeEmployerWorkforceList,
+  normalizeEmployerWorkforceWorker,
+} from "@/features/employer/lib/normalize-employer-workforce";
+import { normalizeEmployerJobDepartment } from "@/features/employer/lib/normalize-employer-department";
 import { normalizePaginated } from "@/lib/http/normalize-paginated";
 import type {
   ApplicantShareResponse,
@@ -25,6 +39,7 @@ import type {
   EmployerDashboard,
   EmployerJobDetail,
   EmployerJobListItem,
+  EmployerJobDepartment,
   EmployerMe,
   EmployerNotification,
   EmployerNotificationSettings,
@@ -79,20 +94,22 @@ export async function getEmployerJobs(params?: {
 
 export async function getEmployerJob(jobId: string): Promise<EmployerJobDetail> {
   const { data } = await joballaAxios.get<EmployerJobDetail>(`${BASE}/jobs/${jobId}`);
-  return normalizeEmployerJobListItem(data as Parameters<typeof normalizeEmployerJobListItem>[0]) as EmployerJobDetail;
+  return normalizeEmployerJobDetail(data as Parameters<typeof normalizeEmployerJobDetail>[0]);
 }
 
 export async function patchEmployerJob(jobId: string, body: UpdateEmployerJobBody): Promise<EmployerJobDetail> {
   const { data } = await joballaAxios.patch<EmployerJobDetail>(`${BASE}/jobs/${jobId}`, body);
-  return normalizeEmployerJobListItem(data as Parameters<typeof normalizeEmployerJobListItem>[0]) as EmployerJobDetail;
+  return normalizeEmployerJobDetail(data as Parameters<typeof normalizeEmployerJobDetail>[0]);
 }
 
 export async function patchEmployerJobStatus(
   jobId: string,
   status: string,
 ): Promise<EmployerJobDetail> {
-  const { data } = await joballaAxios.patch<EmployerJobDetail>(`${BASE}/jobs/${jobId}/status`, { status });
-  return normalizeEmployerJobListItem(data as Parameters<typeof normalizeEmployerJobListItem>[0]) as EmployerJobDetail;
+  const { data } = await joballaAxios.patch<EmployerJobDetail>(`${BASE}/jobs/${jobId}/status`, {
+    status: toApiEmployerJobStatus(status),
+  });
+  return normalizeEmployerJobDetail(data as Parameters<typeof normalizeEmployerJobDetail>[0]);
 }
 
 export async function saveEmployerJobDraft(
@@ -100,16 +117,30 @@ export async function saveEmployerJobDraft(
   body: UpdateEmployerJobBody,
 ): Promise<EmployerJobDetail> {
   const { data } = await joballaAxios.post<EmployerJobDetail>(`${BASE}/jobs/${jobId}/draft`, body);
-  return normalizeEmployerJobListItem(data as Parameters<typeof normalizeEmployerJobListItem>[0]) as EmployerJobDetail;
+  return normalizeEmployerJobDetail(data as Parameters<typeof normalizeEmployerJobDetail>[0]);
 }
 
 export async function deleteEmployerJob(jobId: string): Promise<void> {
   await joballaAxios.delete(`${BASE}/jobs/${jobId}`);
 }
 
+export async function getEmployerDepartments(params?: {
+  isActive?: boolean;
+  category?: string;
+}): Promise<Paginated<EmployerJobDepartment>> {
+  const { data } = await joballaAxios.get(`${BASE}/departments`, { params });
+  const paginated = normalizePaginated<EmployerJobDepartment>(data);
+  return {
+    ...paginated,
+    items: paginated.items
+      .map((item) => normalizeEmployerJobDepartment(item))
+      .filter((item): item is EmployerJobDepartment => item != null),
+  };
+}
+
 export async function getEmployerApplicantFilters(): Promise<EmployerApplicantFilters> {
-  const { data } = await joballaAxios.get<EmployerApplicantFilters>(`${BASE}/applicants/filters`);
-  return data;
+  const { data } = await joballaAxios.get(`${BASE}/applicants/filters`);
+  return normalizeEmployerApplicantFilters(data);
 }
 
 export async function getEmployerApplicants(params?: {
@@ -121,24 +152,28 @@ export async function getEmployerApplicants(params?: {
   limit?: number;
   view?: "list" | "grid";
 }): Promise<Paginated<EmployerApplicantListItem>> {
-  const { data } = await joballaAxios.get(`${BASE}/applicants`, { params });
-  return normalizePaginated<EmployerApplicantListItem>(data);
+  const apiParams = {
+    ...params,
+    status: mapApplicantStatusForApi(params?.status),
+  };
+  const { data } = await joballaAxios.get(`${BASE}/applicants`, { params: apiParams });
+  return normalizeEmployerApplicantPage(normalizePaginated<EmployerApplicantListItem>(data));
 }
 
 export async function getEmployerApplicant(applicationId: string): Promise<EmployerApplicantDetail> {
   const { data } = await joballaAxios.get<EmployerApplicantDetail>(`${BASE}/applicants/${applicationId}`);
-  return data;
+  return normalizeEmployerApplicantDetail(data);
 }
 
 export async function patchEmployerApplicantStatus(
   applicationId: string,
-  status: EmployerApplicantStatus,
+  body: { status: EmployerApplicantStatus; note?: string },
 ): Promise<EmployerApplicantListItem> {
   const { data } = await joballaAxios.patch<EmployerApplicantListItem>(
     `${BASE}/applicants/${applicationId}/status`,
-    { status },
+    body,
   );
-  return data;
+  return normalizeEmployerApplicantListItem(data);
 }
 
 export async function patchEmployerApplicantNotes(
@@ -164,13 +199,17 @@ export async function getEmployerWorkforce(params?: {
   page?: number;
   limit?: number;
 }): Promise<EmployerWorkforceList> {
-  const { data } = await joballaAxios.get<EmployerWorkforceList>(`${BASE}/workforce`, { params });
-  return data;
+  const apiParams =
+    params?.status && params.status !== "all"
+      ? { page: params.page, limit: params.limit, status: params.status }
+      : { page: params?.page, limit: params?.limit };
+  const { data } = await joballaAxios.get(`${BASE}/workforce`, { params: apiParams });
+  return normalizeEmployerWorkforceList(data);
 }
 
 export async function getEmployerWorkforceWorker(workerId: string): Promise<Record<string, unknown>> {
-  const { data } = await joballaAxios.get<Record<string, unknown>>(`${BASE}/workforce/${workerId}`);
-  return data;
+  const { data } = await joballaAxios.get(`${BASE}/workforce/${workerId}`);
+  return normalizeEmployerWorkforceWorker(data);
 }
 
 export async function patchEmployerWorkforceStatus(

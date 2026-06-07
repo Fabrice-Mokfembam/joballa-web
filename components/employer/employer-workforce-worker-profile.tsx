@@ -7,7 +7,8 @@ import { EmployerAsyncState } from "@/components/employer/employer-async-state";
 import { useEmployerWorkforceWorker, usePatchEmployerWorkforceStatus } from "@/features/employer/hooks";
 import { buttonClassName } from "@/components/ui/button";
 import { parseSubmittedProfile, type ParsedApplicantProfile } from "@/features/employer/lib/applicant-profile";
-import type { EmployerJobDetail, EmployerWorkforceStatus } from "@/features/employer/types/employer-portal";
+import { displayWorkforceJobType } from "@/features/employer/lib/workforce-display";
+import type { EmployerJobDetail, EmployerWorkforceListItem, EmployerWorkforceStatus } from "@/features/employer/types/employer-portal";
 import { IconMoreHorizontal, IconVerified } from "@/components/worker/icons";
 import {
   portalAvatarPlaceholderClass,
@@ -141,8 +142,13 @@ export function EmployerWorkforceWorkerProfile({ workerId }: { workerId: string 
   const statusLabels: Record<string, string> = {
     active: tw("status.active"),
     terminated: tw("status.terminated"),
+    completed: tw("status.completed"),
     rejected: tw("status.rejected"),
   };
+  const workerRecord = detail.data as EmployerWorkforceListItem | undefined;
+  const jobTypeLabel = workerRecord
+    ? displayWorkforceJobType(workerRecord, (slug) => tw(`jobTypes.${slug}`))
+    : "—";
 
   return (
     <EmployerAsyncState
@@ -203,7 +209,7 @@ export function EmployerWorkforceWorkerProfile({ workerId }: { workerId: string 
                   </div>
                   <div className="flex items-center justify-between gap-4 text-sm font-semibold">
                     <dt className="text-[var(--joballa-fg)]">{t("summary.jobType")}</dt>
-                    <dd className="text-[var(--joballa-muted)]">{String(detail.data.jobType ?? job?.jobType ?? "—")}</dd>
+                    <dd className="text-[var(--joballa-muted)]">{jobTypeLabel}</dd>
                   </div>
                   <div className="flex items-center justify-between gap-4 text-sm font-semibold">
                     <dt className="text-[var(--joballa-fg)]">{t("summary.status")}</dt>
@@ -224,8 +230,8 @@ export function EmployerWorkforceWorkerProfile({ workerId }: { workerId: string 
                     <div className={job?.description ? "mt-5" : undefined}>
                       <h4 className="text-sm font-bold text-[var(--joballa-fg)]">{t("jobInfo.requirementsTitle")}</h4>
                       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
-                        {requirements.map((item) => (
-                          <li key={item}>{item}</li>
+                        {requirements.map((item, index) => (
+                          <li key={`req-${index}`}>{item}</li>
                         ))}
                       </ul>
                     </div>
@@ -234,8 +240,8 @@ export function EmployerWorkforceWorkerProfile({ workerId }: { workerId: string 
                     <div className="mt-5">
                       <h4 className="text-sm font-bold text-[var(--joballa-fg)]">{t("jobInfo.doTitle")}</h4>
                       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
-                        {responsibilities.map((item) => (
-                          <li key={item}>{item}</li>
+                        {responsibilities.map((item, index) => (
+                          <li key={`resp-${index}`}>{item}</li>
                         ))}
                       </ul>
                     </div>

@@ -132,6 +132,15 @@ export const portalStatusActiveBadgeClass =
 export const portalStatusInactiveBadgeClass =
   "inline-flex rounded-full bg-[var(--joballa-tag-bg)] px-2.5 py-0.5 text-xs font-semibold capitalize text-[var(--joballa-muted)]";
 
+/** Compact employer list/table view (Jobs, Applicants, Dashboard). */
+export const portalListTableClass = "w-full text-left text-xs leading-5";
+export const portalListTableHeadRowClass =
+  "border-b border-[var(--joballa-border)] text-[10px] font-semibold uppercase tracking-wide text-[var(--joballa-muted)]";
+export const portalListTableThClass = "px-3 py-2 sm:px-4";
+export const portalListTableTdClass = "px-3 py-2 sm:px-4";
+export const portalListTableBodyRowClass =
+  "border-b border-[var(--joballa-border)] last:border-0 transition hover:bg-[var(--joballa-row-hover)]";
+
 export function PortalCard({
   children,
   className,

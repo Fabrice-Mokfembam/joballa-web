@@ -1,11 +1,12 @@
 import type { EmployerApplicantListItem } from "@/features/employer/types/employer-portal";
+import { resolveApplicantDisplayName, type RawApplicantIdentity } from "@/features/employer/lib/resolve-applicant-display";
 
 export function applicantId(item: EmployerApplicantListItem): string {
   return String(item.applicationId ?? item.id ?? "");
 }
 
 export function applicantName(item: EmployerApplicantListItem): string {
-  return String(item.applicantName ?? item.name ?? "Applicant");
+  return resolveApplicantDisplayName(item as RawApplicantIdentity);
 }
 
 export function applicantRole(item: EmployerApplicantListItem): string {

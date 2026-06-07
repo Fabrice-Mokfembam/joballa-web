@@ -1,10 +1,26 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
-import { useCreateEmployerJob, useEmployerCompany } from "@/features/employer/hooks";
-import { mapDraftToCreateJobBody } from "@/features/employer/lib/job-form-mapper";
+import { EmployerAsyncState } from "@/components/employer/employer-async-state";
+import { useCreateEmployerJob, useEmployerCompany, useEmployerDepartmentOptions, useEmployerJob, usePatchEmployerJob } from "@/features/employer/hooks";
+import {
+  EMPTY_POST_JOB_DRAFT,
+  formatPostJobStartPreview,
+  mapDraftToCreateJobBody,
+  mapJobDetailToDraft,
+  normalizePostJobDraft,
+  validatePostJobDraft,
+  type PostJobDraft,
+} from "@/features/employer/lib/job-form-mapper";
+import { mergeJobDepartments } from "@/features/employer/lib/job-departments";
+import {
+  displayCategoryLabel,
+  JOB_POST_CATEGORY_VALUES,
+  syncDepartmentForCategory,
+} from "@/features/employer/lib/job-categories";
+import { toast } from "@/lib/toast";
 import { VerificationGateDialog } from "@/components/verification/verification-gate-dialog";
 import { getVerificationStatus, isVerifiedStatus } from "@/features/worker/lib/verification";
 import {
@@ -20,39 +36,12 @@ import { buttonClassName } from "@/components/ui/button";
 
 type Step = "basics" | "details" | "preview";
 
-type JobDraft = {
-  title: string;
-  department: string;
-  category: string;
-  jobType: string;
-  workMode: string;
-  location: string;
-  pay: string;
-  openings: string;
-  startDate: string;
-  duration: string;
-  schedule: string;
-  description: string;
-  requirements: string[];
-  responsibilities: string[];
-};
+const INITIAL_DRAFT = EMPTY_POST_JOB_DRAFT;
 
-const INITIAL_DRAFT: JobDraft = {
-  title: "",
-  department: "",
-  category: "",
-  jobType: "",
-  workMode: "",
-  location: "",
-  pay: "",
-  openings: "1",
-  startDate: "",
-  duration: "",
-  schedule: "",
-  description: "",
-  requirements: [""],
-  responsibilities: [""],
-};
+const EMPLOYMENT_TYPES = ["full_time", "part_time", "contract", "casual", "seasonal", "internship"] as const;
+const WORK_MODES = ["onsite", "remote", "hybrid"] as const;
+const PAY_STRUCTURES = ["hourly", "daily", "weekly", "monthly", "fixed"] as const;
+const EXPERIENCE_LEVELS = ["entry", "junior", "mid", "senior", "lead", "tutor", "not_required"] as const;
 
 const STEPS: Step[] = ["basics", "details", "preview"];
 
@@ -62,6 +51,33 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-sm font-semibold text-[var(--joballa-fg)]">{label}</span>
       {children}
     </label>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <Field label={label}>
+      <select className={portalInputClass} value={value} onChange={(e) => onChange(e.target.value)}>
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </Field>
   );
 }
 
@@ -192,14 +208,77 @@ function StepTabs({ step, onStep }: { step: Step; onStep: (s: Step) => void }) {
   );
 }
 
-export function EmployerPostJobFlow() {
+export function EmployerPostJobFlow({ jobId }: { jobId?: string }) {
+  const isEdit = Boolean(jobId);
+  const jobQuery = useEmployerJob(jobId ?? "");
+
+  return (
+    <EmployerAsyncState
+      isLoading={isEdit && jobQuery.isLoading}
+      isError={isEdit && jobQuery.isError}
+      error={jobQuery.error}
+      onRetry={() => void jobQuery.refetch()}
+    >
+      {!isEdit || jobQuery.data ? (
+        <EmployerPostJobFlowEditor
+          key={jobId ?? "new"}
+          jobId={jobId}
+          initialDraft={
+            isEdit && jobQuery.data
+              ? normalizePostJobDraft(mapJobDetailToDraft(jobQuery.data))
+              : INITIAL_DRAFT
+          }
+        />
+      ) : null}
+    </EmployerAsyncState>
+  );
+}
+
+function EmployerPostJobFlowEditor({
+  jobId,
+  initialDraft,
+}: {
+  jobId?: string;
+  initialDraft: PostJobDraft;
+}) {
+  const isEdit = Boolean(jobId);
   const t = useTranslations("employer.postJobFlow");
   const router = useRouter();
   const createJob = useCreateEmployerJob();
+  const patchJob = usePatchEmployerJob(jobId ?? "");
   const companyQuery = useEmployerCompany();
+  const { departments: catalogDepartments, isLoading: departmentsLoading } = useEmployerDepartmentOptions();
   const [step, setStep] = useState<Step>("basics");
-  const [draft, setDraft] = useState<JobDraft>(INITIAL_DRAFT);
+  const [draft, setDraft] = useState(() => normalizePostJobDraft(initialDraft));
   const [verifyOpen, setVerifyOpen] = useState(false);
+
+  const departments = useMemo(
+    () =>
+      mergeJobDepartments(
+        catalogDepartments,
+        initialDraft.department
+          ? [
+              {
+                id: initialDraft.department,
+                name: initialDraft.categoryCustom || initialDraft.category,
+                category: initialDraft.category,
+              },
+            ]
+          : [],
+      ),
+    [catalogDepartments, initialDraft.category, initialDraft.categoryCustom, initialDraft.department],
+  );
+
+  useEffect(() => {
+    if (!draft.category) return;
+    const resolved = syncDepartmentForCategory(draft.category, departments);
+    if (resolved && resolved !== draft.department) {
+      setDraft((current) => ({ ...current, department: resolved }));
+    }
+  }, [departments, draft.category, draft.department]);
+
+  const categoryLabel = displayCategoryLabel(draft.category, draft.categoryCustom, (key) => t(key));
+  const startDatePreview = formatPostJobStartPreview(draft);
 
   const requirements = useMemo(() => draft.requirements.map((line) => line.trim()).filter(Boolean), [draft.requirements]);
   const responsibilities = useMemo(
@@ -213,32 +292,96 @@ export function EmployerPostJobFlow() {
       setVerifyOpen(true);
       return;
     }
-    createJob.mutate(mapDraftToCreateJobBody({ ...draft, requirements, responsibilities }, asDraft), {
+    const payload = { ...draft, requirements, responsibilities };
+    if (departmentsLoading) {
+      toast.error(t("errors.departmentsLoading"));
+      return;
+    }
+    const validationError = validatePostJobDraft(payload, departments);
+    if (validationError === "CATEGORY_REQUIRED") {
+      toast.error(t("errors.category"));
+      setStep("basics");
+      return;
+    }
+    if (validationError === "CATEGORY_OTHER_REQUIRED") {
+      toast.error(t("errors.categoryOther"));
+      setStep("basics");
+      return;
+    }
+    if (validationError === "INVALID_DEPARTMENT") {
+      toast.error(t("errors.categoryNotConfigured"));
+      setStep("basics");
+      return;
+    }
+    if (validationError === "INVALID_START_DATE") {
+      toast.error(t("errors.startDate"));
+      setStep("details");
+      return;
+    }
+    let body;
+    try {
+      body = mapDraftToCreateJobBody(
+        { ...payload, department: syncDepartmentForCategory(payload.category, departments) },
+        asDraft,
+        departments,
+      );
+    } catch {
+      toast.error(t("errors.categoryNotConfigured"));
+      setStep("basics");
+      return;
+    }
+    if (isEdit && jobId) {
+      patchJob.mutate(body, {
+        onSuccess: () => {
+          router.push(`/employer/jobs?job=${encodeURIComponent(jobId)}`);
+        },
+      });
+      return;
+    }
+    createJob.mutate(body, {
       onSuccess: (data) => {
-        router.push(`/employer/jobs?job=${encodeURIComponent(String(data.jobId))}`);
+        const params = new URLSearchParams();
+        params.set("job", String(data.jobId));
+        if (data.status === "under_review") {
+          params.set("status", "under_review");
+        }
+        router.push(`/employer/jobs?${params.toString()}`);
       },
     });
   }
 
-  function update<K extends keyof JobDraft>(key: K, value: JobDraft[K]) {
+  function update<K extends keyof PostJobDraft>(key: K, value: PostJobDraft[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
   }
+
+  function updateCategory(category: string) {
+    setDraft((current) => ({
+      ...current,
+      category,
+      categoryCustom: category === "other" ? current.categoryCustom : "",
+      department: syncDepartmentForCategory(category, departments),
+    }));
+  }
+
+  const isSaving = createJob.isPending || patchJob.isPending || departmentsLoading;
 
   return (
     <div className={portalPageShellClass}>
       <Link
-        href="/employer/jobs"
+        href={isEdit && jobId ? `/employer/jobs?job=${encodeURIComponent(jobId)}` : "/employer/jobs"}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
       >
-        <span aria-hidden>‹</span> {t("backToJobs")}
+        <span aria-hidden>‹</span> {isEdit ? t("backToJob") : t("backToJobs")}
       </Link>
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-[1.625rem] font-semibold tracking-[-0.05em] text-[var(--joballa-fg)] sm:text-[1.875rem]">
-            {t("title")}
+            {isEdit ? t("editTitle") : t("title")}
           </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--joballa-muted)]">{t("description")}</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--joballa-muted)]">
+            {isEdit ? t("editDescription") : t("description")}
+          </p>
         </div>
         <StepTabs step={step} onStep={setStep} />
       </div>
@@ -248,29 +391,99 @@ export function EmployerPostJobFlow() {
           <section className={cn(portalCardClass(), "p-5 sm:p-6")}>
             <div className="grid gap-5 md:grid-cols-2">
               <Field label={t("fields.title")}>
-                <input className={portalInputClass} value={draft.title} onChange={(e) => update("title", e.target.value)} />
+                <input
+                  className={portalInputClass}
+                  value={draft.title}
+                  onChange={(e) => update("title", e.target.value)}
+                  placeholder={t("placeholders.title")}
+                />
               </Field>
-              <Field label={t("fields.department")}>
-                <input className={portalInputClass} value={draft.department} onChange={(e) => update("department", e.target.value)} />
-              </Field>
-              <Field label={t("fields.category")}>
-                <input className={portalInputClass} value={draft.category} onChange={(e) => update("category", e.target.value)} />
-              </Field>
-              <Field label={t("fields.jobType")}>
-                <input className={portalInputClass} value={draft.jobType} onChange={(e) => update("jobType", e.target.value)} />
-              </Field>
-              <Field label={t("fields.workMode")}>
-                <input className={portalInputClass} value={draft.workMode} onChange={(e) => update("workMode", e.target.value)} />
-              </Field>
+              <SelectField
+                label={t("fields.category")}
+                value={draft.category}
+                onChange={updateCategory}
+                placeholder={t("placeholders.category")}
+                options={JOB_POST_CATEGORY_VALUES.map((value) => ({
+                  value,
+                  label: t(`options.category.${value}`),
+                }))}
+              />
+              {draft.category === "other" ? (
+                <Field label={t("fields.categoryOther")}>
+                  <input
+                    className={portalInputClass}
+                    value={draft.categoryCustom}
+                    onChange={(e) => update("categoryCustom", e.target.value)}
+                    placeholder={t("placeholders.categoryOther")}
+                  />
+                </Field>
+              ) : null}
+              <SelectField
+                label={t("fields.jobType")}
+                value={draft.jobType}
+                onChange={(value) => update("jobType", value)}
+                placeholder={t("placeholders.jobType")}
+                options={EMPLOYMENT_TYPES.map((value) => ({
+                  value,
+                  label: t(`options.employmentType.${value}`),
+                }))}
+              />
+              <SelectField
+                label={t("fields.workMode")}
+                value={draft.workMode}
+                onChange={(value) => update("workMode", value)}
+                placeholder={t("placeholders.workMode")}
+                options={WORK_MODES.map((value) => ({
+                  value,
+                  label: t(`options.workMode.${value}`),
+                }))}
+              />
               <Field label={t("fields.location")}>
-                <input className={portalInputClass} value={draft.location} onChange={(e) => update("location", e.target.value)} />
+                <input
+                  className={portalInputClass}
+                  value={draft.location}
+                  onChange={(e) => update("location", e.target.value)}
+                  placeholder={t("placeholders.location")}
+                />
               </Field>
               <Field label={t("fields.pay")}>
-                <input className={portalInputClass} value={draft.pay} onChange={(e) => update("pay", e.target.value)} />
+                <input
+                  className={portalInputClass}
+                  value={draft.pay}
+                  onChange={(e) => update("pay", e.target.value)}
+                  placeholder={t("placeholders.pay")}
+                  inputMode="numeric"
+                />
               </Field>
+              <SelectField
+                label={t("fields.payPer")}
+                value={draft.payPer}
+                onChange={(value) => update("payPer", value)}
+                placeholder={t("placeholders.payPer")}
+                options={PAY_STRUCTURES.map((value) => ({
+                  value,
+                  label: t(`options.payStructure.${value}`),
+                }))}
+              />
               <Field label={t("fields.openings")}>
-                <input className={portalInputClass} value={draft.openings} onChange={(e) => update("openings", e.target.value)} />
+                <input
+                  className={portalInputClass}
+                  value={draft.openings}
+                  onChange={(e) => update("openings", e.target.value)}
+                  placeholder={t("placeholders.openings")}
+                  inputMode="numeric"
+                />
               </Field>
+              <SelectField
+                label={t("fields.requiredLevel")}
+                value={draft.requiredLevel}
+                onChange={(value) => update("requiredLevel", value)}
+                placeholder={t("placeholders.requiredLevel")}
+                options={EXPERIENCE_LEVELS.map((value) => ({
+                  value,
+                  label: t(`options.experienceLevel.${value}`),
+                }))}
+              />
             </div>
           </section>
 
@@ -279,8 +492,8 @@ export function EmployerPostJobFlow() {
             <dl className="mt-5 space-y-3 text-sm">
               {[
                 [t("fields.title"), draft.title],
-                [t("fields.department"), draft.department],
-                [t("fields.jobType"), draft.jobType],
+                [t("fields.category"), categoryLabel],
+                [t("fields.jobType"), draft.jobType ? t(`options.employmentType.${draft.jobType as (typeof EMPLOYMENT_TYPES)[number]}`) : ""],
                 [t("fields.pay"), draft.pay],
               ].map(([label, value]) => (
                 <div key={String(label)} className="flex items-start justify-between gap-4">
@@ -304,27 +517,64 @@ export function EmployerPostJobFlow() {
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_360px]">
           <div className="space-y-5">
             <DetailCard title={t("fields.schedule")} description={t("helpers.scheduleDescription")}>
-              <div className="grid gap-4 md:grid-cols-3">
-                {(
-                  [
-                    ["startDate", t("fields.startDate")],
-                    ["duration", t("fields.duration")],
-                    ["schedule", t("fields.schedule")],
-                  ] as const
-                ).map(([key, label]) => (
-                  <div
-                    key={key}
-                    className="rounded-[20px] border border-[var(--joballa-border)] bg-[var(--joballa-page-tint)] p-4"
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-[0.02em] text-[var(--joballa-muted)]">{label}</p>
+              <div className="space-y-4">
+                <label className="flex items-start gap-3 rounded-[20px] border border-[var(--joballa-border)] bg-[var(--joballa-page-tint)] p-4">
+                  <input
+                    type="checkbox"
+                    className="mt-1 size-4 accent-[var(--joballa-primary)]"
+                    checked={draft.startNow}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setDraft((current) => ({
+                        ...current,
+                        startNow: checked,
+                        startDate: checked ? "" : current.startDate,
+                      }));
+                    }}
+                  />
+                  <span>
+                    <span className="block text-sm font-semibold text-[var(--joballa-fg)]">{t("startNow.label")}</span>
+                    <span className="mt-1 block text-xs leading-5 text-[var(--joballa-muted)]">{t("startNow.hint")}</span>
+                  </span>
+                </label>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <Field label={t("fields.startDate")}>
                     <input
-                      className={cn(portalInputClass, "mt-3")}
-                      value={draft[key]}
-                      onChange={(e) => update(key, e.target.value)}
+                      type="date"
+                      className={portalInputClass}
+                      value={draft.startDate}
+                      disabled={draft.startNow}
+                      onChange={(e) => update("startDate", e.target.value)}
+                      placeholder={t("placeholders.startDate")}
                     />
-                  </div>
-                ))}
+                  </Field>
+                  <Field label={t("fields.duration")}>
+                    <input
+                      className={portalInputClass}
+                      value={draft.duration}
+                      onChange={(e) => update("duration", e.target.value)}
+                      placeholder={t("placeholders.duration")}
+                    />
+                  </Field>
+                  <Field label={t("fields.schedule")}>
+                    <input
+                      className={portalInputClass}
+                      value={draft.schedule}
+                      onChange={(e) => update("schedule", e.target.value)}
+                      placeholder={t("placeholders.schedule")}
+                    />
+                  </Field>
+                </div>
               </div>
+            </DetailCard>
+
+            <DetailCard title={t("fields.requiredSkills")}>
+              <input
+                className={portalInputClass}
+                value={draft.requiredSkillsText}
+                onChange={(e) => update("requiredSkillsText", e.target.value)}
+                placeholder={t("placeholders.requiredSkills")}
+              />
             </DetailCard>
 
             <DetailCard title={t("fields.description")} description={t("helpers.descriptionDescription")}>
@@ -394,17 +644,17 @@ export function EmployerPostJobFlow() {
                 </h2>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="flex size-6 items-center justify-center rounded-full bg-[var(--joballa-primary)] text-xs font-bold text-[var(--joballa-on-primary)]">
-                    {(draft.department || "C").charAt(0).toUpperCase()}
+                    {(categoryLabel || "C").charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-xs font-semibold text-[var(--joballa-muted)]">{draft.department || "—"}</span>
+                  <span className="text-xs font-semibold text-[var(--joballa-muted)]">{categoryLabel}</span>
                 </div>
               </div>
 
               <dl className="mt-8 space-y-3">
                 {[
-                  [t("fields.jobType"), draft.jobType],
+                  [t("fields.jobType"), draft.jobType ? t(`options.employmentType.${draft.jobType as (typeof EMPLOYMENT_TYPES)[number]}`) : ""],
                   [t("fields.location"), draft.location],
-                  [t("fields.startDate"), draft.startDate],
+                  [t("fields.startDate"), startDatePreview],
                   [t("fields.duration"), draft.duration],
                   [t("fields.openings"), draft.openings],
                 ].map(([label, value]) => (
@@ -436,20 +686,22 @@ export function EmployerPostJobFlow() {
             <div className="mt-6 space-y-3">
               <button
                 type="button"
-                disabled={createJob.isPending}
+                disabled={isSaving}
                 onClick={() => submitJob(false)}
                 className={cn(buttonClassName("primary"), "h-11 w-full disabled:opacity-60")}
               >
-                {createJob.isPending ? t("actions.submitting") : t("actions.submit")}
+                {isSaving ? t("actions.submitting") : isEdit ? t("actions.saveChanges") : t("actions.submit")}
               </button>
-              <button
-                type="button"
-                disabled={createJob.isPending}
-                onClick={() => submitJob(true)}
-                className={cn(portalOutlineButtonClass, "h-11 w-full disabled:opacity-60")}
-              >
-                {t("actions.saveDraft")}
-              </button>
+              {!isEdit ? (
+                <button
+                  type="button"
+                  disabled={isSaving}
+                  onClick={() => submitJob(true)}
+                  className={cn(portalOutlineButtonClass, "h-11 w-full disabled:opacity-60")}
+                >
+                  {t("actions.saveDraft")}
+                </button>
+              ) : null}
               <button type="button" onClick={() => setStep("details")} className={cn(portalOutlineButtonClass, "h-11 w-full")}>
                 {t("actions.edit")}
               </button>

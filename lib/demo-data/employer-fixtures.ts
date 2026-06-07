@@ -192,7 +192,7 @@ const DEMO_WORKFORCE_CORE: Array<{
     status: "active",
     dateJoined: "2026-05-01",
     shiftsLogged: 12,
-    jobType: "Full-time",
+    jobType: "full_time",
   },
   {
     fullName: "Lina Osei",
@@ -200,7 +200,7 @@ const DEMO_WORKFORCE_CORE: Array<{
     status: "active",
     dateJoined: "2026-04-29",
     shiftsLogged: 14,
-    jobType: "Full-time",
+    jobType: "full_time",
   },
   {
     fullName: "Ako James",
@@ -208,7 +208,7 @@ const DEMO_WORKFORCE_CORE: Array<{
     status: "active",
     dateJoined: "2026-04-26",
     shiftsLogged: 17,
-    jobType: "Contract",
+    jobType: "contract",
   },
   {
     fullName: "Lina Osei",
@@ -216,7 +216,7 @@ const DEMO_WORKFORCE_CORE: Array<{
     status: "active",
     dateJoined: "2026-04-24",
     shiftsLogged: 19,
-    jobType: "Full-time",
+    jobType: "full_time",
   },
   {
     fullName: "Ako James",
@@ -224,7 +224,7 @@ const DEMO_WORKFORCE_CORE: Array<{
     status: "terminated",
     dateJoined: "2026-03-12",
     shiftsLogged: 33,
-    jobType: "Contract",
+    jobType: "contract",
   },
   {
     fullName: "Lina Osei",
@@ -232,7 +232,7 @@ const DEMO_WORKFORCE_CORE: Array<{
     status: "rejected",
     dateJoined: "2025-12-04",
     shiftsLogged: 126,
-    jobType: "Full-time",
+    jobType: "full_time",
   },
 ];
 
@@ -240,6 +240,7 @@ export function createDemoWorkforce(): EmployerWorkforceListItem[] {
   const core = DEMO_WORKFORCE_CORE.map((worker, i) => ({
     workerId: `demo-worker-hired-${i + 1}`,
     id: `demo-worker-hired-${i + 1}`,
+    engagementId: `demo-engagement-${i + 1}`,
     fullName: worker.fullName,
     name: worker.fullName,
     role: worker.role,
@@ -247,6 +248,7 @@ export function createDemoWorkforce(): EmployerWorkforceListItem[] {
     dateJoined: worker.dateJoined,
     shiftsLogged: worker.shiftsLogged,
     jobType: worker.jobType,
+    employmentType: worker.jobType,
   }));
 
   return core;
@@ -337,13 +339,18 @@ export function applicantFilters(jobs: EmployerJobListItem[]): EmployerApplicant
 export function jobToDetail(job: EmployerJobListItem): EmployerJobDetail {
   return {
     ...job,
+    departmentId: "demo-dept-1",
+    department: { id: "demo-dept-1", name: "joballa Education", category: "education" },
     company: "joballa Education",
-    pay: 45000,
-    currency: "XAF",
-    per: "mo",
+    payAmount: 45000,
+    payCurrency: "XAF",
+    payStructure: "monthly",
     schedule: "3d/week",
-    workMode: "Onsite",
+    workMode: "onsite",
     neighbourhood: "Akwa",
+    region: "Littoral",
+    city: job.location,
+    experienceLevel: "mid",
     description:
       "We are looking for a patient and engaging tutor to help two children (ages 8 and 11) with math and science homework. You will create a supportive learning environment and track progress weekly.",
     requirements: [
@@ -357,12 +364,10 @@ export function jobToDetail(job: EmployerJobListItem): EmployerJobDetail {
       "Review homework and explain concepts clearly",
       "Share weekly progress notes with parents",
     ],
-    city: job.location,
     requiredSkills: ["Communication", "Teamwork"],
     employmentType: job.jobType,
-    durationValue: 9,
-    durationUnit: "months",
-    startAsap: true,
+    duration: "9 months",
+    startNow: true,
     numberOfOpenings: 2,
   };
 }
@@ -372,49 +377,67 @@ export function applicantToDetail(
   job?: EmployerJobDetail,
 ): EmployerApplicantDetail {
   const resolvedJob = job ?? (app.jobId ? jobToDetail({ jobId: app.jobId, title: app.jobTitle ?? "", status: "live" }) : undefined);
+  const profileSnapshot = {
+    fullName: app.applicantName ?? app.name ?? "Ako James",
+    headline: "Frontend Developer, Marketer",
+    professionalTitle: "Frontend Developer, Marketer",
+    location: app.location ?? "Buea, Cameroon",
+    phone: "(+237) 652036786",
+    languages: "English, French",
+    languagesSpoken: ["English", "French"],
+    verificationStatus: "VERIFIED",
+    summary:
+      "Senior frontend developer with 5 years experience in Fintech and SaaS. I build accessible, high-performance interfaces and collaborate closely with product teams.",
+    industries: "Design & Creative, Software & Tech, Marketing & Advertising",
+    availability: "Available · Full-time, part-time",
+    skills: [
+      "React",
+      "Tailwind CSS",
+      "NextJs",
+      "Claude Code",
+      "Figma",
+      "Copywriting",
+      "Advertising",
+      "Leadership",
+    ],
+    highlightedSkills: ["Copywriting", "Advertising", "Leadership"],
+    workHistory: [
+      {
+        company: "TechoCameroun",
+        role: "Frontend Developer",
+        description:
+          "Developed high-performance SaaS frontends, improved Core Web Vitals, and led UI component standards across three product squads.",
+        period: "Jan. 2023 - Aug. 2025 • Buea, Cameroon",
+      },
+      {
+        company: "Bafta Technologies",
+        role: "Marketing Manager",
+        description:
+          "Planned and executed multi-channel campaigns that increased qualified leads by 28% in six months.",
+        period: "Jan 2022 - Dec 2022 • Limbe, Cameroon",
+      },
+    ],
+    educations: [
+      {
+        institution: "University of Buea",
+        degree: "Bachelor of Science",
+        fieldOfStudy: "Computer Science",
+        period: "Oct 2019 – Jun 2023",
+      },
+    ],
+    documents: [
+      { name: "HubSpot Marketing Manager_Ako_James.pdf", type: "PDF", size: "1 MB" },
+      { name: "ITN React Developer Cert_AkoJames.jpg", type: "JPG", size: "2.5 MB" },
+    ],
+  };
+
   return {
     ...app,
     applicationId: app.applicationId ?? app.id,
     job: resolvedJob,
-    submittedProfile: {
-      fullName: app.applicantName ?? app.name ?? "Ako James",
-      headline: "Frontend Developer, Marketer",
-      location: app.location ?? "Buea, Cameroon",
-      phone: "(+237) 652036786",
-      languages: "English, French",
-      verificationStatus: "VERIFIED",
-      summary:
-        "Senior frontend developer with 5 years experience in Fintech and SaaS. I build accessible, high-performance interfaces and collaborate closely with product teams.",
-      industries: "Design & Creative, Software & Tech, Marketing & Advertising · Full-time, part-time",
-      skills: [
-        "React",
-        "Tailwind CSS",
-        "NextJs",
-        "Claude Code",
-        "Figma",
-        "Copywriting",
-        "Advertising",
-        "Leadership",
-      ],
-      highlightedSkills: ["Copywriting", "Advertising", "Leadership"],
-      workHistory: [
-        {
-          company: "TechoCameroun",
-          role: "Frontend Developer",
-          description:
-            "Developed high-performance SaaS frontends, improved Core Web Vitals, and led UI component standards across three product squads.",
-          period: "Jan. 2023 - Aug. 2025 • Buea, Cameroon",
-        },
-        {
-          company: "Bafta Technologies",
-          role: "Marketing Manager",
-          description:
-            "Planned and executed multi-channel campaigns that increased qualified leads by 28% in six months.",
-          period: "Jan 2022 - Dec 2022 • Limbe, Cameroon",
-        },
-      ],
-      documents: [{ name: "HubSpot Marketing Manager_Ako_James.pdf", type: "PDF" }],
-    },
+    coverNote: "I can start within two weeks and am excited about this role.",
+    submittedProfile: profileSnapshot,
+    profileSnapshot,
   };
 }
 

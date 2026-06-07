@@ -7,66 +7,283 @@ import { Link } from "@/lib/i18n/navigation";
 import { EmployerAsyncState } from "@/components/employer/employer-async-state";
 import { EmployerApplicantStatusBadge } from "@/components/employer/employer-applicant-status-badge";
 import {
-  useCopyApplicantShareLink,
   useEmployerApplicant,
   usePatchEmployerApplicantNotes,
   usePatchEmployerApplicantStatus,
 } from "@/features/employer/hooks";
-import { parseSubmittedProfile, type ParsedApplicantProfile } from "@/features/employer/lib/applicant-profile";
+import { parseApplicantDetailProfile, type ParsedApplicantProfile } from "@/features/employer/lib/applicant-profile";
+import { employerJobDurationLabel, employerJobStartDateLabel } from "@/features/employer/lib/employer-job-fields";
+import {
+  EmployerJobRequiredSkillsBlock,
+  employerJobRequiredSkillsList,
+} from "@/components/employer/employer-job-required-skills";
 import type { EmployerApplicantStatus, EmployerJobDetail } from "@/features/employer/types/employer-portal";
-import { IconClose, IconMoreHorizontal, IconVerified } from "@/components/worker/icons";
+import { useEmployerMe } from "@/features/employer/hooks/use-employer-me";
+import { IconClose, IconExpand, IconMoreHorizontal, IconVerified } from "@/components/worker/icons";
+import { SimpleDialog } from "@/components/worker/dashboard/simple-dialog";
 import {
   portalAvatarPlaceholderClass,
   portalCardClass,
   portalDetailSectionClass,
-  portalDetailSectionMutedClass,
   portalIconButtonMutedClass,
-  portalOutlineButtonClass,
   portalSectionLabelClass,
 } from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
 import { buttonClassName } from "@/components/ui/button";
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <h3 className={portalSectionLabelClass}>{children}</h3>;
+function SectionLabel({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <h3 className={cn(portalSectionLabelClass, className)}>{children}</h3>;
 }
 
-function MetaRow({ label, value }: { label: string; value: string }) {
+function DocumentFileRow({ doc }: { doc: ParsedApplicantProfile["documents"][number] }) {
+  const typeLabel = doc.type.toUpperCase().slice(0, 3);
+  const isPdf = typeLabel === "PDF";
+
+  const content = (
+    <>
+      <span
+        className={cn(
+          "flex h-[52px] w-[52px] shrink-0 items-end justify-end overflow-hidden rounded-sm rounded-tr-lg bg-[var(--joballa-tag-bg)] pl-2",
+        )}
+      >
+        <span className={cn("px-1 py-0.5 text-xs font-bold text-white", isPdf ? "bg-[#cf3897]" : "bg-[#9e6c00]")}>
+          {typeLabel}
+        </span>
+      </span>
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold text-[var(--joballa-fg)]">{doc.name}</p>
+        {doc.size ? <p className="text-xs text-[var(--joballa-muted)]">{doc.size}</p> : null}
+      </div>
+    </>
+  );
+
+  if (doc.url) {
+    return (
+      <li>
+        <a
+          href={doc.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 transition hover:opacity-80"
+        >
+          {content}
+        </a>
+      </li>
+    );
+  }
+
+  return <li className="flex items-center gap-3">{content}</li>;
+}
+
+function ProfileSectionRow({
+  label,
+  children,
+  bordered = true,
+}: {
+  label: React.ReactNode;
+  children: React.ReactNode;
+  bordered?: boolean;
+}) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-[var(--joballa-border)] py-2.5 text-sm last:border-b-0">
-      <dt className="font-semibold text-[var(--joballa-fg)]">{label}</dt>
-      <dd className="text-right text-[var(--joballa-muted)]">{value}</dd>
+    <div
+      className={cn(
+        "flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-16",
+        bordered && "border-b border-[var(--joballa-border)] pb-8",
+      )}
+    >
+      <div className="w-full shrink-0 sm:w-[160px]">{label}</div>
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }
 
-function jobPayLine(job: EmployerJobDetail | undefined): string {
-  if (!job) return "—";
-  if (typeof job.salary === "string" && job.salary.trim()) return job.salary;
-  if (job.pay != null && job.pay !== "") {
-    const currency = String(job.currency ?? "XAF");
-    const per = String(job.per ?? "mo").toLowerCase();
-    return `${Number(job.pay).toLocaleString()} ${currency}/${per}`;
+function WorkHistoryMeta({ period, location }: { period: string; location: string }) {
+  let displayPeriod = period;
+  let displayLocation = location;
+
+  if (period.includes(" • ") && !location) {
+    const [parsedPeriod, ...rest] = period.split(" • ");
+    displayPeriod = parsedPeriod ?? period;
+    displayLocation = rest.join(" • ");
   }
-  return "—";
+
+  if (!displayPeriod && !displayLocation) return null;
+
+  return (
+    <div className="flex items-start text-xs text-[var(--joballa-muted)]">
+      {displayPeriod ? <span className="whitespace-nowrap">{displayPeriod}</span> : null}
+      {displayPeriod && displayLocation ? (
+        <span aria-hidden className="mx-0.5 inline-flex size-4 shrink-0 items-center justify-center">
+          ·
+        </span>
+      ) : null}
+      {displayLocation ? <span>{displayLocation}</span> : null}
+    </div>
+  );
 }
 
-function jobScheduleLine(job: EmployerJobDetail | undefined): string {
-  if (!job) return "—";
-  const type = String(job.jobType ?? job.employmentType ?? "—");
-  const schedule = String((job as { schedule?: string }).schedule ?? "");
-  return schedule ? `${type} • ${schedule}` : type;
+function ProfileEmptyText({ children }: { children: React.ReactNode }) {
+  return <p className="text-sm italic leading-5 text-[var(--joballa-muted)]">{children}</p>;
 }
 
-function jobLocationLine(job: EmployerJobDetail | undefined): string {
-  if (!job) return "—";
-  const workMode = String((job as { workMode?: string }).workMode ?? "Onsite");
-  const city = String(job.city ?? job.location ?? "—");
-  const neighbourhood = String(job.neighbourhood ?? "");
-  return [workMode, city, neighbourhood].filter(Boolean).join(", ");
+function ApplicantProfilePageCard({
+  profile,
+  coverNote,
+  t,
+}: {
+  profile: ParsedApplicantProfile;
+  coverNote?: string | null;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const speaksLine = profile.languages
+    ? profile.languages.startsWith("Speaks")
+      ? profile.languages
+      : `Speaks ${profile.languages}`
+    : null;
+  const note = coverNote?.trim() ?? "";
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between border-b border-[var(--joballa-border)] pb-8">
+        <div className="flex min-w-0 items-center gap-6">
+          {profile.avatarUrl ? (
+            <span className="relative flex size-24 shrink-0 overflow-hidden rounded-full">
+              <Image src={profile.avatarUrl} alt="" fill className="object-cover" sizes="96px" unoptimized />
+            </span>
+          ) : (
+            <span className={cn(portalAvatarPlaceholderClass, "size-24 text-3xl")}>
+              {profile.fullName.charAt(0)}
+            </span>
+          )}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-1">
+              <h2 className="text-2xl font-bold leading-8 text-[var(--joballa-fg)]">{profile.fullName}</h2>
+              {profile.verified ? <IconVerified className="size-6 text-[var(--joballa-primary)]" /> : null}
+            </div>
+            <p className="text-xs leading-4 text-[var(--joballa-muted)]">
+              {profile.headline || t("profile.notProvided")}
+            </p>
+          </div>
+        </div>
+        <dl className="w-[180px] shrink-0 space-y-0.5 text-right text-sm leading-5 text-[var(--joballa-muted)]">
+          <dd>{profile.location || t("profile.notProvided")}</dd>
+          <dd>{profile.phone || t("profile.notProvided")}</dd>
+          <dd>{speaksLine || t("profile.notProvided")}</dd>
+        </dl>
+      </div>
+
+      <ProfileSectionRow label={<SectionLabel>{t("profile.summaryTitle")}</SectionLabel>}>
+        {profile.summary || profile.industries || profile.availability ? (
+          <div className="flex flex-col gap-1 text-sm leading-5">
+            {profile.summary ? (
+              <p className="text-[var(--joballa-fg)]">{profile.summary}</p>
+            ) : (
+              <ProfileEmptyText>{t("profile.emptySummary")}</ProfileEmptyText>
+            )}
+            {profile.industries ? <p className="text-[var(--joballa-muted)]">{profile.industries}</p> : null}
+            {profile.availability ? <p className="text-[var(--joballa-muted)]">{profile.availability}</p> : null}
+          </div>
+        ) : (
+          <ProfileEmptyText>{t("profile.emptySummary")}</ProfileEmptyText>
+        )}
+      </ProfileSectionRow>
+
+      <ProfileSectionRow label={<SectionLabel>{t("profile.skillsTitle")}</SectionLabel>}>
+        {profile.skills.length > 0 ? (
+          <p className="text-sm leading-5">
+            {profile.skills.map((skill, index) => {
+              const bold = profile.highlightedSkills.some((h) => h.toLowerCase() === skill.toLowerCase());
+              return (
+                <span key={skill}>
+                  <span className={bold ? "font-semibold text-[var(--joballa-fg)]" : "text-[#bbb]"}>{skill}</span>
+                  {index < profile.skills.length - 1 ? ", " : ""}
+                </span>
+              );
+            })}
+          </p>
+        ) : (
+          <ProfileEmptyText>{t("profile.emptySkills")}</ProfileEmptyText>
+        )}
+      </ProfileSectionRow>
+
+      <ProfileSectionRow label={<SectionLabel>{t("profile.workTitle")}</SectionLabel>}>
+        {profile.workHistory.length > 0 ? (
+          <ul className="flex flex-col gap-8">
+            {profile.workHistory.map((item, index) => (
+              <li key={`${item.company}-${index}`} className="flex flex-col gap-1">
+                <p className="text-sm font-bold leading-5 text-[var(--joballa-fg)]">{item.company}</p>
+                <p className="text-sm leading-5 text-[var(--joballa-fg)]">{item.role}</p>
+                {item.description ? (
+                  <p className="text-xs leading-4 text-[var(--joballa-fg)]">{item.description}</p>
+                ) : null}
+                <WorkHistoryMeta period={item.period} location={item.location} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ProfileEmptyText>{t("profile.emptyWorkHistory")}</ProfileEmptyText>
+        )}
+      </ProfileSectionRow>
+
+      <ProfileSectionRow label={<SectionLabel>{t("profile.educationTitle")}</SectionLabel>}>
+        {profile.education.length > 0 ? (
+          <ul className="flex flex-col gap-8">
+            {profile.education.map((item, index) => (
+              <li key={`${item.institution}-${index}`} className="flex flex-col gap-1">
+                <p className="text-sm font-bold leading-5 text-[var(--joballa-fg)]">{item.institution}</p>
+                <p className="text-sm leading-5 text-[var(--joballa-fg)]">
+                  {[item.degree, item.field].filter(Boolean).join(" · ")}
+                </p>
+                {item.description ? (
+                  <p className="text-xs leading-4 text-[var(--joballa-fg)]">{item.description}</p>
+                ) : null}
+                {item.period ? <p className="text-xs text-[var(--joballa-muted)]">{item.period}</p> : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ProfileEmptyText>{t("profile.emptyEducation")}</ProfileEmptyText>
+        )}
+      </ProfileSectionRow>
+
+      <ProfileSectionRow label={<SectionLabel>{t("profile.documentsTitle")}</SectionLabel>}>
+        {profile.documents.length > 0 ? (
+          <ul className="flex flex-col gap-8">
+            {profile.documents.map((doc) => (
+              <DocumentFileRow key={`${doc.url ?? ""}:${doc.name}`} doc={doc} />
+            ))}
+          </ul>
+        ) : (
+          <ProfileEmptyText>{t("profile.emptyDocuments")}</ProfileEmptyText>
+        )}
+      </ProfileSectionRow>
+
+      <ProfileSectionRow label={<SectionLabel>{t("profile.coverNoteTitle")}</SectionLabel>} bordered={false}>
+        {note ? (
+          <p className="text-sm leading-6 text-[var(--joballa-fg)]">{note}</p>
+        ) : (
+          <ProfileEmptyText>{t("profile.emptyCoverNote")}</ProfileEmptyText>
+        )}
+      </ProfileSectionRow>
+    </div>
+  );
 }
 
-function ProfileSections({ profile, t }: { profile: ParsedApplicantProfile; t: ReturnType<typeof useTranslations> }) {
+function ProfileSections({
+  profile,
+  t,
+  variant = "panel",
+  coverNote,
+}: {
+  profile: ParsedApplicantProfile;
+  t: ReturnType<typeof useTranslations>;
+  variant?: "panel" | "page";
+  coverNote?: string | null;
+}) {
+  if (variant === "page") {
+    return <ApplicantProfilePageCard profile={profile} coverNote={coverNote} t={t} />;
+  }
+
   return (
     <>
       <div className="flex flex-col gap-4 border-b border-[var(--joballa-border)] pb-5 lg:flex-row lg:items-start lg:justify-between">
@@ -174,6 +391,41 @@ function ProfileSections({ profile, t }: { profile: ParsedApplicantProfile; t: R
   );
 }
 
+function MetaRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-[var(--joballa-border)] py-2.5 text-sm last:border-b-0">
+      <dt className="font-semibold text-[var(--joballa-fg)]">{label}</dt>
+      <dd className="text-right text-[var(--joballa-muted)]">{value}</dd>
+    </div>
+  );
+}
+
+function jobPayLine(job: EmployerJobDetail | undefined): string {
+  if (!job) return "—";
+  if (typeof job.salary === "string" && job.salary.trim()) return job.salary;
+  if (job.pay != null && job.pay !== "") {
+    const currency = String(job.currency ?? "XAF");
+    const per = String(job.per ?? "mo").toLowerCase();
+    return `${Number(job.pay).toLocaleString()} ${currency}/${per}`;
+  }
+  return "—";
+}
+
+function jobScheduleLine(job: EmployerJobDetail | undefined): string {
+  if (!job) return "—";
+  const type = String(job.jobType ?? job.employmentType ?? "—");
+  const schedule = String((job as { schedule?: string }).schedule ?? "");
+  return schedule ? `${type} • ${schedule}` : type;
+}
+
+function jobLocationLine(job: EmployerJobDetail | undefined): string {
+  if (!job) return "—";
+  const workMode = String((job as { workMode?: string }).workMode ?? "Onsite");
+  const city = String(job.city ?? job.location ?? "—");
+  const neighbourhood = String(job.neighbourhood ?? "");
+  return [workMode, city, neighbourhood].filter(Boolean).join(", ");
+}
+
 function ApplicantNotesSection({
   applicationId,
   initialNotes,
@@ -207,6 +459,208 @@ function ApplicantNotesSection({
   );
 }
 
+function RejectApplicantDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  busy,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: (note: string) => void;
+  busy?: boolean;
+}) {
+  const tr = useTranslations("employer.applicantDetail.rejectDialog");
+  const tc = useTranslations("common.confirm");
+  const [note, setNote] = useState("");
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next) setNote("");
+    onOpenChange(next);
+  };
+
+  return (
+    <SimpleDialog
+      open={open}
+      onOpenChange={handleOpenChange}
+      title={tr("title")}
+      description={tr("description")}
+      footer={
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => handleOpenChange(false)}
+            className="rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-4 py-2.5 text-sm font-medium text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)] disabled:opacity-50"
+          >
+            {tc("cancel")}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onConfirm(note.trim())}
+            className="rounded-[10px] bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            {busy ? "…" : tr("confirm")}
+          </button>
+        </div>
+      }
+    >
+      <label className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-[var(--joballa-fg)]">{tr("noteLabel")}</span>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows={4}
+          className="w-full rounded-[12px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 py-2 text-sm text-[var(--joballa-fg)] outline-none focus:border-[var(--joballa-primary)] focus:ring-2 focus:ring-[var(--joballa-primary)]"
+          placeholder={tr("notePlaceholder")}
+        />
+      </label>
+    </SimpleDialog>
+  );
+}
+
+function ApplicantPanelChromeButton({
+  children,
+  className,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        "inline-flex h-8 shrink-0 items-center justify-center rounded-xl bg-[var(--joballa-secondary)] text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ApplicantPanelActionsMenu({
+  open,
+  onOpenChange,
+  status,
+  statusLabels,
+  patchStatus,
+  ta,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  status: EmployerApplicantStatus;
+  statusLabels: Record<string, string>;
+  patchStatus: ReturnType<typeof usePatchEmployerApplicantStatus>;
+  ta: ReturnType<typeof useTranslations>;
+}) {
+  const [rejectOpen, setRejectOpen] = useState(false);
+
+  const runAction = (next: "shortlisted" | "rejected" | "hired") => {
+    onOpenChange(false);
+    if (next === "rejected") {
+      setRejectOpen(true);
+      return;
+    }
+    patchStatus.mutate({ status: next });
+  };
+
+  return (
+    <>
+      {open ? (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-10 cursor-default bg-transparent"
+            aria-hidden
+            onClick={() => onOpenChange(false)}
+          />
+          <div className="absolute right-0 z-20 mt-1 min-w-[168px] overflow-hidden rounded-xl border border-[var(--joballa-border)] bg-[var(--joballa-dropdown-bg)] py-1 text-sm shadow-[var(--joballa-shadow-elevated)]">
+            <p className="border-b border-[var(--joballa-border)] px-3 py-2 text-xs font-medium text-[var(--joballa-muted)]">
+              {statusLabels[status] ?? status}
+            </p>
+            {(["shortlisted", "rejected", "hired"] as const).map((next) => (
+              <button
+                key={next}
+                type="button"
+                disabled={patchStatus.isPending || status === next}
+                onClick={() => runAction(next)}
+                className={cn(
+                  "block w-full px-3 py-2 text-left capitalize text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)] disabled:cursor-not-allowed disabled:opacity-50",
+                  next === "rejected" && "text-[var(--joballa-danger-fg)] hover:bg-[var(--joballa-danger-bg)]",
+                )}
+              >
+                {ta(`actions.${next}`)}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : null}
+      <RejectApplicantDialog
+        open={rejectOpen}
+        onOpenChange={setRejectOpen}
+        busy={patchStatus.isPending}
+        onConfirm={(rejectNote) =>
+          patchStatus.mutate(
+            { status: "rejected", note: rejectNote || undefined },
+            { onSuccess: () => setRejectOpen(false) },
+          )
+        }
+      />
+    </>
+  );
+}
+
+function ApplicantStatusActions({
+  status,
+  statusLabels,
+  patchStatus,
+  ta,
+}: {
+  status: EmployerApplicantStatus;
+  statusLabels: Record<string, string>;
+  patchStatus: ReturnType<typeof usePatchEmployerApplicantStatus>;
+  ta: ReturnType<typeof useTranslations>;
+}) {
+  const [rejectOpen, setRejectOpen] = useState(false);
+
+  const handleStatusClick = (next: "shortlisted" | "rejected" | "hired") => {
+    if (next === "rejected") {
+      setRejectOpen(true);
+      return;
+    }
+    patchStatus.mutate({ status: next });
+  };
+
+  return (
+    <>
+      <EmployerApplicantStatusBadge status={status} label={statusLabels[status] ?? status} />
+      {(["shortlisted", "rejected", "hired"] as const).map((next) => (
+        <button
+          key={next}
+          type="button"
+          disabled={patchStatus.isPending || status === next}
+          onClick={() => handleStatusClick(next)}
+          className={cn(buttonClassName(status === next ? "primary" : "outline"), "text-xs capitalize")}
+        >
+          {ta(`actions.${next}`)}
+        </button>
+      ))}
+      <RejectApplicantDialog
+        open={rejectOpen}
+        onOpenChange={setRejectOpen}
+        busy={patchStatus.isPending}
+        onConfirm={(rejectNote) =>
+          patchStatus.mutate(
+            { status: "rejected", note: rejectNote || undefined },
+            { onSuccess: () => setRejectOpen(false) },
+          )
+        }
+      />
+    </>
+  );
+}
+
 function ApplicantSidebarPanel({
   applicationId,
   onClose,
@@ -217,8 +671,8 @@ function ApplicantSidebarPanel({
   t,
   ta,
   patchStatus,
-  copyShare,
-  employerNotes,
+  coverNote,
+  companyLogo,
 }: {
   applicationId: string;
   onClose?: () => void;
@@ -229,99 +683,96 @@ function ApplicantSidebarPanel({
   t: ReturnType<typeof useTranslations>;
   ta: ReturnType<typeof useTranslations>;
   patchStatus: ReturnType<typeof usePatchEmployerApplicantStatus>;
-  copyShare: ReturnType<typeof useCopyApplicantShareLink>;
-  employerNotes?: string | null;
+  coverNote?: string | null;
+  companyLogo?: string | null;
 }) {
   const [jobExpanded, setJobExpanded] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const companyName = String(job?.company ?? "—");
-  const startDate = job?.startAsap ? "As soon as possible" : String(job?.startDate ?? "—");
-  const duration =
-    job?.durationValue && job?.durationUnit
-      ? `${job.durationValue} ${String(job.durationUnit).toLowerCase()}`
-      : String((job as { duration?: string })?.duration ?? "—");
+  const startDate = job ? employerJobStartDateLabel(job) : "—";
+  const duration = job ? employerJobDurationLabel(job) : "—";
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
-      <div className="flex items-center justify-end gap-2">
-        <Link
-          href={`/employer/applicants/${applicationId}`}
-          className={cn(portalOutlineButtonClass, "size-9 shrink-0 p-0 text-xs")}
-          aria-label={t("openFull")}
-        >
-          ↗
-        </Link>
-        <button type="button" aria-label={t("more")} className={cn(portalIconButtonMutedClass, "size-9")}>
-          <IconMoreHorizontal className="size-4" />
-        </button>
-        {onClose ? (
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={t("closePanel")}
-            className={cn(portalOutlineButtonClass, "size-9 shrink-0 p-0")}
-          >
-            <IconClose className="size-5" />
-          </button>
-        ) : null}
-      </div>
-
-      <section className={cn(portalDetailSectionClass, "p-4 sm:p-5")}>
-        <section className={cn(portalDetailSectionMutedClass, "mb-4 p-4")}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="text-lg font-bold text-[var(--joballa-fg)]">{job?.title ?? "—"}</h2>
-              <p className="mt-1 text-xs font-semibold text-[var(--joballa-muted)]">{companyName}</p>
+    <div className="flex min-h-0 flex-1 flex-col gap-3 rounded-[26px] border border-[var(--joballa-border)] bg-[var(--joballa-page-tint)] p-4">
+      <section className={cn(portalDetailSectionClass, "shrink-0 !p-[14px] shadow-[var(--joballa-shadow-card)]")}>
+        <div className="flex items-start justify-between gap-2.5 pb-3">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-semibold leading-7 text-[var(--joballa-fg)]">{job?.title ?? "—"}</h2>
+            <div className="mt-1 flex items-center gap-2">
+              {companyLogo ? (
+                <span className="relative flex size-6 shrink-0 overflow-hidden rounded-full">
+                  <Image src={companyLogo} alt="" fill className="object-cover" sizes="24px" unoptimized />
+                </span>
+              ) : (
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-fg)] text-[8px] font-bold text-[var(--joballa-on-primary)]">
+                  {companyName.charAt(0)}
+                </span>
+              )}
+              <p className="truncate text-xs font-semibold text-[var(--joballa-muted)]">{companyName}</p>
             </div>
-            <button type="button" aria-label={t("more")} className={cn(portalIconButtonMutedClass, "size-8")}>
-              <IconMoreHorizontal className="size-4" />
-            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setJobExpanded((v) => !v)}
-            className="mt-3 flex w-full items-center justify-center gap-1 text-sm text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
-          >
-            {jobExpanded ? t("seeLess") : t("seeMore")}
-            <span aria-hidden className={cn("transition", jobExpanded && "rotate-180")}>
-              ▾
-            </span>
-          </button>
-          {jobExpanded && job ? (
-            <dl className="mt-3 border-t border-[var(--joballa-border)] pt-3">
-              <MetaRow label={t("summary.jobType")} value={String(job.jobType ?? job.employmentType ?? "—")} />
-              <MetaRow label={t("summary.location")} value={jobLocationLine(job)} />
-              <MetaRow label={t("summary.startDate")} value={startDate} />
-              <MetaRow label={t("summary.duration")} value={duration} />
-              <MetaRow label={t("summary.applications")} value={String(job.applicantsCount ?? "—")} />
-            </dl>
-          ) : null}
-        </section>
-
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <EmployerApplicantStatusBadge status={status} label={statusLabels[status] ?? status} />
-          {(["shortlisted", "rejected", "hired"] as const).map((next) => (
-            <button
-              key={next}
-              type="button"
-              disabled={patchStatus.isPending || status === next}
-              onClick={() => patchStatus.mutate(next)}
-              className={cn(buttonClassName(status === next ? "primary" : "outline"), "text-xs capitalize")}
+          <div className="flex shrink-0 items-center gap-2.5">
+            <Link
+              href={`/employer/applicants/${applicationId}`}
+              aria-label={t("openFull")}
+              className="inline-flex h-8 shrink-0 items-center justify-center rounded-xl bg-[var(--joballa-secondary)] px-3 text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
             >
-              {ta(`actions.${next}`)}
-            </button>
-          ))}
-          <button
-            type="button"
-            disabled={copyShare.isPending}
-            onClick={() => copyShare.mutate()}
-            className={cn(buttonClassName("outline"), "text-xs")}
-          >
-            {t("share")}
-          </button>
+              <IconExpand className="size-4" />
+            </Link>
+            <div className="relative">
+              <ApplicantPanelChromeButton
+                aria-label={t("more")}
+                aria-expanded={actionsOpen}
+                className="px-2"
+                onClick={() => setActionsOpen((open) => !open)}
+              >
+                <IconMoreHorizontal className="size-6" />
+              </ApplicantPanelChromeButton>
+              <ApplicantPanelActionsMenu
+                open={actionsOpen}
+                onOpenChange={setActionsOpen}
+                status={status}
+                statusLabels={statusLabels}
+                patchStatus={patchStatus}
+                ta={ta}
+              />
+            </div>
+            {onClose ? (
+              <ApplicantPanelChromeButton aria-label={t("closePanel")} onClick={onClose}>
+                <IconClose className="size-4" />
+              </ApplicantPanelChromeButton>
+            ) : null}
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setJobExpanded((value) => !value)}
+          className="flex w-full items-center justify-center gap-0.5 text-sm text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
+        >
+          {jobExpanded ? t("seeLess") : t("seeMore")}
+          <span aria-hidden className={cn("inline-flex transition", jobExpanded && "rotate-180")}>
+            ▾
+          </span>
+        </button>
+        {jobExpanded && job ? (
+          <dl className="mt-3 border-t border-[var(--joballa-border)] pt-3">
+            <MetaRow label={t("summary.jobType")} value={String(job.jobType ?? job.employmentType ?? "—")} />
+            <MetaRow label={t("summary.location")} value={jobLocationLine(job)} />
+            <MetaRow label={t("summary.startDate")} value={startDate} />
+            <MetaRow label={t("summary.duration")} value={duration} />
+            <MetaRow label={t("summary.applications")} value={String(job.applicantsCount ?? "—")} />
+            {employerJobRequiredSkillsList(job).length > 0 ? (
+              <MetaRow
+                label={t("jobInfo.requiredSkillsTitle")}
+                value={employerJobRequiredSkillsList(job).join(", ")}
+              />
+            ) : null}
+          </dl>
+        ) : null}
+      </section>
 
-        <ProfileSections profile={profile} t={t} />
-        <ApplicantNotesSection key={applicationId} applicationId={applicationId} initialNotes={employerNotes} />
+      <section className={cn(portalDetailSectionClass, "min-h-0 flex-1 overflow-y-auto p-6")}>
+        <ProfileSections profile={profile} t={t} variant="page" coverNote={coverNote} />
       </section>
     </div>
   );
@@ -339,21 +790,31 @@ export function EmployerApplicantDetailPanel({
   const t = useTranslations("employer.applicantDetail");
   const ta = useTranslations("employer.applicants");
   const applicant = useEmployerApplicant(applicationId);
+  const employerMe = useEmployerMe();
   const patchStatus = usePatchEmployerApplicantStatus(applicationId);
-  const copyShare = useCopyApplicantShareLink(applicationId);
 
   const status = String(applicant.data?.status ?? "pending") as EmployerApplicantStatus;
-  const profile = parseSubmittedProfile(applicant.data?.submittedProfile as Record<string, unknown> | undefined);
+  const profile = parseApplicantDetailProfile(applicant.data);
   const employerNotes = typeof applicant.data?.employerNotes === "string" ? applicant.data.employerNotes : null;
+  const coverNote =
+    typeof applicant.data?.coverNote === "string"
+      ? applicant.data.coverNote
+      : typeof (applicant.data as { jobSpecificNote?: string | null })?.jobSpecificNote === "string"
+        ? (applicant.data as { jobSpecificNote?: string | null }).jobSpecificNote
+        : null;
   const job = applicant.data?.job as EmployerJobDetail | undefined;
   const requirements = Array.isArray(job?.requirements) ? job.requirements : [];
   const responsibilities = Array.isArray(job?.responsibilities) ? job.responsibilities : [];
-  const companyName = String(job?.company ?? "—");
-  const startDate = job?.startAsap ? "As soon as possible" : String(job?.startDate ?? "—");
-  const duration =
-    job?.durationValue && job?.durationUnit
-      ? `${job.durationValue} ${String(job.durationUnit).toLowerCase()}`
-      : String((job as { duration?: string })?.duration ?? "—");
+  const requiredSkills = employerJobRequiredSkillsList(job);
+  const companyName = String(job?.company ?? employerMe.data?.company?.name ?? "—");
+  const companyLogo =
+    (job as { logoUrl?: string | null; companyLogo?: string | null })?.logoUrl ??
+    (job as { companyLogo?: string | null })?.companyLogo ??
+    employerMe.data?.company?.logo ??
+    null;
+  const listedForName = [employerMe.data?.firstName, employerMe.data?.lastName].filter(Boolean).join(" ").trim();
+  const startDate = job ? employerJobStartDateLabel(job) : "—";
+  const duration = job ? employerJobDurationLabel(job) : "—";
 
   const statusLabels: Record<string, string> = {
     pending: ta("status.pending"),
@@ -381,11 +842,11 @@ export function EmployerApplicantDetailPanel({
             t={t}
             ta={ta}
             patchStatus={patchStatus}
-            copyShare={copyShare}
-            employerNotes={employerNotes}
+            coverNote={coverNote}
+            companyLogo={companyLogo}
           />
         ) : (
-          <div className="mx-auto flex max-w-[1025px] flex-col gap-[26px]">
+          <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-[26px]">
             <Link
               href="/employer/applicants"
               className="inline-flex h-8 items-center gap-1.5 rounded-xl px-3 text-sm font-medium text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
@@ -394,37 +855,15 @@ export function EmployerApplicantDetailPanel({
             </Link>
 
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <button
-                type="button"
-                aria-label={t("more")}
-                className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-2.5 text-sm font-medium text-[var(--joballa-fg)]"
-              >
-                {t("more")}
-                <span aria-hidden>▾</span>
-              </button>
-              <EmployerApplicantStatusBadge status={status} label={statusLabels[status] ?? status} />
-              {(["shortlisted", "rejected", "hired"] as const).map((next) => (
-                <button
-                  key={next}
-                  type="button"
-                  disabled={patchStatus.isPending || status === next}
-                  onClick={() => patchStatus.mutate(next)}
-                  className={cn(buttonClassName(status === next ? "primary" : "outline"), "text-xs capitalize")}
-                >
-                  {ta(`actions.${next}`)}
-                </button>
-              ))}
-              <button
-                type="button"
-                disabled={copyShare.isPending}
-                onClick={() => copyShare.mutate()}
-                className={cn(buttonClassName("outline"), "text-xs")}
-              >
-                {t("share")}
-              </button>
+              <ApplicantStatusActions
+                status={status}
+                statusLabels={statusLabels}
+                patchStatus={patchStatus}
+                ta={ta}
+              />
             </div>
 
-            <div className="grid gap-[26px] xl:grid-cols-[400px_minmax(0,1fr)] xl:items-start">
+            <div className="grid gap-[26px] xl:grid-cols-[minmax(380px,420px)_minmax(720px,1fr)] xl:items-start">
               <div className="flex flex-col gap-3">
                 <section className={cn(portalCardClass(), "flex flex-col gap-6 p-6")}>
                   <div className="flex items-start justify-between gap-3">
@@ -440,9 +879,15 @@ export function EmployerApplicantDetailPanel({
                   <div>
                     <h2 className="text-lg font-semibold leading-7 text-[var(--joballa-fg)]">{job?.title ?? "—"}</h2>
                     <div className="mt-2 flex items-center gap-2">
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-fg)] text-[8px] font-bold text-[var(--joballa-on-primary)]">
-                        {companyName.charAt(0)}
-                      </span>
+                      {companyLogo ? (
+                        <span className="relative flex size-6 shrink-0 overflow-hidden rounded-full">
+                          <Image src={companyLogo} alt="" fill className="object-cover" sizes="24px" unoptimized />
+                        </span>
+                      ) : (
+                        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-fg)] text-[8px] font-bold text-[var(--joballa-on-primary)]">
+                          {companyName.charAt(0)}
+                        </span>
+                      )}
                       <span className="text-xs font-semibold text-[var(--joballa-muted)]">{companyName}</span>
                     </div>
                   </div>
@@ -471,43 +916,54 @@ export function EmployerApplicantDetailPanel({
                   </dl>
                 </section>
 
-                {job?.description || requirements.length > 0 || responsibilities.length > 0 ? (
+                {job?.description || requiredSkills.length > 0 || requirements.length > 0 || responsibilities.length > 0 ? (
                   <section className={cn(portalCardClass(), "flex flex-col gap-6 p-6")}>
                     {job?.description ? (
-                      <>
+                      <div>
                         <h4 className="text-sm font-bold text-[var(--joballa-fg)]">{t("jobInfo.aboutTitle")}</h4>
                         <p className="mt-2 text-sm leading-6 text-[var(--joballa-muted)]">{job.description}</p>
-                      </>
+                      </div>
                     ) : null}
+                    <EmployerJobRequiredSkillsBlock
+                      skills={requiredSkills}
+                      title={t("jobInfo.requiredSkillsTitle")}
+                    />
                     {requirements.length > 0 ? (
-                      <div className={job?.description ? "mt-5" : undefined}>
+                      <div>
                         <h4 className="text-sm font-bold text-[var(--joballa-fg)]">{t("jobInfo.requirementsTitle")}</h4>
                         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
-                          {requirements.map((item) => (
-                            <li key={item}>{item}</li>
+                          {requirements.map((item, index) => (
+                            <li key={`req-${index}`}>{item}</li>
                           ))}
                         </ul>
                       </div>
                     ) : null}
                     {responsibilities.length > 0 ? (
-                      <div className="mt-5">
+                      <div>
                         <h4 className="text-sm font-bold text-[var(--joballa-fg)]">{t("jobInfo.doTitle")}</h4>
                         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
-                          {responsibilities.map((item) => (
-                            <li key={item}>{item}</li>
+                          {responsibilities.map((item, index) => (
+                            <li key={`resp-${index}`}>{item}</li>
                           ))}
                         </ul>
                       </div>
                     ) : null}
+                    <div className="border-t border-[var(--joballa-border)] pt-4">
+                      <p className="text-center text-xs text-[#bbb]">{t("jobInfo.listedBy", { company: companyName })}</p>
+                      {listedForName ? (
+                        <p className="text-center text-xs text-[#bbb]">{t("jobInfo.listedFor", { name: listedForName })}</p>
+                      ) : null}
+                    </div>
                   </section>
                 ) : null}
               </div>
 
-              <section className={cn(portalDetailSectionClass, "p-5 sm:p-6")}>
-                <ProfileSections profile={profile} t={t} />
-                <ApplicantNotesSection key={applicationId} applicationId={applicationId} initialNotes={employerNotes} />
+              <section className={cn(portalDetailSectionClass, "p-6 xl:p-8")}>
+                <ProfileSections profile={profile} t={t} variant="page" coverNote={coverNote} />
               </section>
             </div>
+
+            <ApplicantNotesSection key={applicationId} applicationId={applicationId} initialNotes={employerNotes} />
           </div>
         )
       ) : null}

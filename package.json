@@ -11,7 +11,9 @@
     "seed:demo": "node scripts/seed-demo.mjs",
     "seed:accounts": "node scripts/seed-accounts.mjs",
     "seed:fabrice-jobs": "node scripts/post-fabrice-jobs.mjs",
-    "seed:kongnyuy-jobs": "node scripts/post-kongnyuy-jobs.mjs"
+    "seed:kongnyuy-jobs": "node scripts/post-kongnyuy-jobs.mjs",
+    "cleanup:smoke-jobs": "node scripts/cleanup-smoke-jobs.mjs",
+    "cleanup:smoke-jobs:dry-run": "node scripts/cleanup-smoke-jobs.mjs --dry-run"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.6",

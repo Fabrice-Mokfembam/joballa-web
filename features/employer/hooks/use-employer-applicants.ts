@@ -11,7 +11,7 @@ import {
 } from "@/features/employer/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
 import { employerKeys, type ApplicantsListParams } from "@/features/employer/query-keys";
-import type { EmployerApplicantStatus } from "@/features/employer/types/employer-portal";
+import type { PatchEmployerApplicantStatusBody } from "@/features/employer/types/employer-portal";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { toast } from "@/lib/toast";
 
@@ -63,7 +63,7 @@ export function useEmployerApplicantShare(applicationId: string) {
 export function usePatchEmployerApplicantStatus(applicationId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (status: EmployerApplicantStatus) => patchEmployerApplicantStatus(applicationId, status),
+    mutationFn: (body: PatchEmployerApplicantStatusBody) => patchEmployerApplicantStatus(applicationId, body),
     onSuccess: () => {
       toastSuccess("Applicant status updated.");
       void qc.invalidateQueries({ queryKey: employerKeys.applicant(applicationId) });

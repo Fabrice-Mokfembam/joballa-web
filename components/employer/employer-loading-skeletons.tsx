@@ -14,17 +14,26 @@ function StatSkeleton() {
   );
 }
 
-function ApplicantRowSkeleton() {
+function ApplicantCardSkeleton() {
   return (
-    <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
-      <div className="flex items-center gap-3">
-        <Skeleton className="size-10 rounded-full" />
+    <div className="rounded-[14px] border border-[var(--joballa-pill-border)] bg-[var(--joballa-card)] p-[14px] shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
+      <div className="flex items-center justify-between gap-2">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-5 w-16 rounded-full" />
+      </div>
+      <div className="mt-6 flex items-center gap-3">
+        <Skeleton className="size-12 rounded-full" />
         <div className="min-w-0 flex-1 space-y-2">
-          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-6 w-2/3" />
           <Skeleton className="h-3 w-1/2" />
         </div>
-        <Skeleton className="h-6 w-16 rounded-full" />
       </div>
+      <div className="mt-6 flex gap-2.5">
+        <Skeleton className="h-7 w-16 rounded-full" />
+        <Skeleton className="h-7 w-24 rounded-full" />
+        <Skeleton className="h-7 w-20 rounded-full" />
+      </div>
+      <Skeleton className="mt-6 h-3 w-28" />
     </div>
   );
 }
@@ -75,9 +84,9 @@ export function EmployerDashboardPageSkeleton() {
             <Skeleton className="h-4 w-14" />
           </div>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <ApplicantRowSkeleton key={i} />
+            <ApplicantCardSkeleton key={i} />
           ))}
         </div>
       </section>
@@ -100,9 +109,9 @@ export function EmployerApplicantsPageSkeleton() {
           <Skeleton key={i} className="h-9 w-24 rounded-full" />
         ))}
       </div>
-      <div className="space-y-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <ApplicantRowSkeleton key={i} />
+          <ApplicantCardSkeleton key={i} />
         ))}
       </div>
     </div>

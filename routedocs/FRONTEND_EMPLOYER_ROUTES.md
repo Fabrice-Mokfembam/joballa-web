@@ -141,6 +141,41 @@ Receives:
 type EmployerJobsResponse = Paginated<EmployerJobCard>;
 ```
 
+### `/employer/jobs/new` — department catalog
+
+What it does:
+
+- Loads canonical departments so the category picker can resolve `departmentId` for `POST /employer/jobs`.
+
+API:
+
+- `GET /employer/departments`
+
+Sends:
+
+```ts
+type EmployerDepartmentsQuery = {
+  isActive?: boolean; // default true
+  category?: string; // e.g. "education", "software_tech"
+};
+```
+
+Receives:
+
+```ts
+type EmployerDepartmentRow = {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  isActive: boolean;
+};
+
+type EmployerDepartmentsResponse = Paginated<EmployerDepartmentRow>;
+```
+
+Frontend maps `category` → `id` when posting or editing a job. See `BACKEND_RESPONSE_EMPLOYER_DEPARTMENTS.md`.
+
 ### `/employer/jobs/new`
 
 What it does:
@@ -227,16 +262,46 @@ Receives:
 
 ```ts
 type EmployerJobDetail = EmployerJobCard & {
+  departmentId: string;
+  department?: {
+    id: string;
+    name: string;
+    slug?: string;
+    category?: string;
+  };
   description: string;
   requirements: string[];
   responsibilities: string[];
   requiredSkills: string[];
+  experienceLevel?: string | null;
+  employmentType?: string;
+  workMode?: string;
+  country?: string;
+  region?: string;
+  city?: string;
+  neighbourhood?: string | null;
+  payAmount?: number;
+  payCurrency?: string;
+  payStructure?: string;
+  duration?: string; // e.g. "3 months" — single string, not split
   requestedDocuments?: unknown[];
   numberOfOpenings: number;
   startDate?: string | null;
   startNow: boolean;
+  paymentManagedByJoballa?: boolean;
   adminNotes?: string | null;
 };
+```
+
+**Edit notes (2026-06-07):**
+
+- Content fields editable for all statuses including `active`; status changes use `PATCH …/status` only.
+- `PATCH /employer/jobs/:jobId` returns full `EmployerJobDetail` (same as GET).
+- Active job edits do **not** re-trigger moderation.
+- Validation errors: `400` with `{ message: string }` (no field map).
+- API status value is `active` (not `live`).
+
+See `routedocs/BACKEND_RESPONSE_EMPLOYER_JOB_EDIT.md`.
 
 type DeleteResponse = {
   ok: true;
@@ -279,7 +344,10 @@ type EmployerApplicantListItem = {
   jobId: string;
   jobTitle: string;
   workerId: string;
+  /** Display name — from profileSnapshot; never login email (see BACKEND_RESPONSE_EMPLOYER_APPLICANT_LIST.md) */
   workerName: string;
+  workerHeadline?: string | null;
+  workerEmail?: string | null;
   workerPhotoUrl?: string | null;
   workerLocation?: string | null;
   topSkills: string[];
@@ -329,14 +397,64 @@ type UpdateApplicantNotesRequest = {
 Receives:
 
 ```ts
+type ApplicantDocumentEntry = {
+  name: string;
+  fileName?: string;
+  type?: string;
+  size?: string | number | null;
+  url?: string;
+};
+
+type ApplicantProfileSnapshot = {
+  fullName: string;
+  headline?: string | null;
+  professionalTitle?: string | null;
+  avatarUrl?: string | null;
+  verificationStatus?: string;
+  location?: string | null;
+  phone?: string | null;
+  languages?: string | null;
+  languagesSpoken?: string[];
+  summary?: string | null;
+  professionalSummary?: string | null;
+  bio?: string | null;
+  industries?: string | string[];
+  availability?: string | null;
+  preferredJobTypes?: string[];
+  availabilityStatus?: string | null;
+  skills: string[];
+  highlightedSkills?: string[];
+  workHistory?: WorkHistoryEntry[];
+  workHistories?: WorkHistoryEntry[];
+  educations?: EducationEntry[];
+  documents?: ApplicantDocumentEntry[];
+  snapshotAt?: string;
+};
+
+type EducationEntry = {
+  institution: string;
+  degree?: string | null;
+  fieldOfStudy?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  period?: string;
+  description?: string | null;
+  city?: string | null;
+  region?: string | null;
+};
+
 type EmployerApplicantDetail = EmployerApplicantListItem & {
   coverNote?: string | null;
   employerNotes?: string | null;
-  attachedDocuments?: unknown[];
-  profileSnapshot: unknown;
+  attachedDocuments?: ApplicantDocumentEntry[];
+  profileSnapshot: ApplicantProfileSnapshot;
   job: EmployerJobDetail;
 };
+```
 
+See `routedocs/BACKEND_RESPONSE_EMPLOYER_APPLICANT_DETAIL.md` for normalized snapshot example and legacy field mapping.
+
+```ts
 type UpdateApplicantNotesResponse = {
   applicationId: string;
   employerNotes: string | null;

@@ -22,6 +22,8 @@ export const saveEmployerJobDraft = (jobId: string, body: Parameters<typeof live
   withDemo(() => live.saveEmployerJobDraft(jobId, body), () => demo.saveEmployerJobDraft(jobId, body));
 export const deleteEmployerJob = (jobId: string) =>
   withDemo(() => live.deleteEmployerJob(jobId), () => demo.deleteEmployerJob(jobId));
+export const getEmployerDepartments = (params?: Parameters<typeof live.getEmployerDepartments>[0]) =>
+  withDemo(() => live.getEmployerDepartments(params), () => demo.getEmployerDepartments(params));
 export const getEmployerApplicantFilters = () =>
   withDemo(() => live.getEmployerApplicantFilters(), () => demo.getEmployerApplicantFilters());
 export const getEmployerApplicants = (params?: Parameters<typeof live.getEmployerApplicants>[0]) =>
@@ -30,11 +32,11 @@ export const getEmployerApplicant = (applicationId: string) =>
   withDemo(() => live.getEmployerApplicant(applicationId), () => demo.getEmployerApplicant(applicationId));
 export const patchEmployerApplicantStatus = (
   applicationId: string,
-  status: Parameters<typeof live.patchEmployerApplicantStatus>[1],
+  body: Parameters<typeof live.patchEmployerApplicantStatus>[1],
 ) =>
   withDemo(
-    () => live.patchEmployerApplicantStatus(applicationId, status),
-    () => demo.patchEmployerApplicantStatus(applicationId, status),
+    () => live.patchEmployerApplicantStatus(applicationId, body),
+    () => demo.patchEmployerApplicantStatus(applicationId, body),
   );
 export const patchEmployerApplicantNotes = (
   applicationId: string,

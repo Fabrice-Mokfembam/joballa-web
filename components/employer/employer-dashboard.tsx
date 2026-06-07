@@ -2,15 +2,27 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/lib/i18n/navigation";
+import { Link, useRouter } from "@/lib/i18n/navigation";
 import { EmployerAsyncState } from "@/components/employer/employer-async-state";
 import { EmployerApplicantListCard, applicantId } from "@/components/employer/employer-applicant-list-card";
-import { formatStatHint, formatStatValue } from "@/features/employer/lib/applicant-helpers";
-import { formatAppliedAgo } from "@/features/employer/lib/applicant-profile";
+import { EmployerApplicantStatusBadge } from "@/components/employer/employer-applicant-status-badge";
+import { formatStatHint, formatStatValue, applicantName, applicantRole } from "@/features/employer/lib/applicant-helpers";
+import {
+  applicantMatchText,
+  applicantSkillsList,
+  formatAppliedAgo,
+} from "@/features/employer/lib/applicant-profile";
 import { useEmployerApplicants, useEmployerDashboard } from "@/features/employer/hooks";
+import type { EmployerApplicantListItem, EmployerApplicantStatus } from "@/features/employer/types/employer-portal";
 import { IconGrid, IconList } from "@/components/worker/icons";
 import {
+  portalCardClass,
   PortalCardLink,
+  portalListTableBodyRowClass,
+  portalListTableClass,
+  portalListTableHeadRowClass,
+  portalListTableTdClass,
+  portalListTableThClass,
   portalPageShellClass,
   portalSegmentButtonClass,
   portalSegmentGroupClass,
@@ -22,6 +34,93 @@ import { cn } from "@/lib/utils";
 const APPLICANT_PREVIEW_LIMIT = 3;
 const JOB_STATUS_LIMIT = 6;
 
+function DashboardApplicantsTable({
+  applicants,
+  statusLabels,
+  t,
+}: {
+  applicants: EmployerApplicantListItem[];
+  statusLabels: Record<string, string>;
+  t: ReturnType<typeof useTranslations<"employer.dashboardPage">>;
+}) {
+  const router = useRouter();
+
+  return (
+    <div className={cn(portalCardClass(), "overflow-x-auto")}>
+      <table className={cn(portalListTableClass, "min-w-[960px]")}>
+        <thead>
+          <tr className={portalListTableHeadRowClass}>
+            <th className={portalListTableThClass}>{t("applicants.table.applied")}</th>
+            <th className={portalListTableThClass}>{t("applicants.table.applicant")}</th>
+            <th className={portalListTableThClass}>{t("applicants.table.applyingFor")}</th>
+            <th className={portalListTableThClass}>{t("applicants.table.topSkills")}</th>
+            <th className={portalListTableThClass}>{t("applicants.table.jobType")}</th>
+            <th className={portalListTableThClass}>{t("applicants.table.location")}</th>
+            <th className={portalListTableThClass}>{t("applicants.table.match")}</th>
+            <th className={portalListTableThClass}>{t("applicants.table.status")}</th>
+            <th className={portalListTableThClass} />
+          </tr>
+        </thead>
+        <tbody>
+          {applicants.map((applicant) => {
+            const id = applicantId(applicant);
+            const status = (applicant.status as EmployerApplicantStatus) ?? "pending";
+            const match = applicantMatchText(applicant);
+            const matchValue = match?.replace(/\s*match/i, "").replace("%", "").trim() ?? "—";
+            const skills = applicantSkillsList(applicant).slice(0, 2).join(", ");
+            const applied = applicant.appliedAt ? formatAppliedAgo(applicant.appliedAt) : "—";
+
+            return (
+              <tr
+                key={id}
+                className={cn(portalListTableBodyRowClass, "cursor-pointer")}
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest("[data-card-stop]")) return;
+                  void router.push(`/employer/applicants/${encodeURIComponent(id)}`);
+                }}
+              >
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>
+                  {t("applicants.table.appliedAgo", { time: applied })}
+                </td>
+                <td className={portalListTableTdClass}>
+                  <span className="flex items-center gap-2 font-medium text-[var(--joballa-fg)]">
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-primary)] text-[9px] font-bold text-[var(--joballa-on-primary)]">
+                      {applicantName(applicant).charAt(0)}
+                    </span>
+                    {applicantName(applicant)}
+                  </span>
+                </td>
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>{applicantRole(applicant)}</td>
+                <td className={cn(portalListTableTdClass, "max-w-[10rem] truncate text-[var(--joballa-muted)]")}>
+                  {skills || "—"}
+                </td>
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>
+                  {String(applicant.jobType ?? "—")}
+                </td>
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>
+                  {String(applicant.location ?? "—")}
+                </td>
+                <td className={cn(portalListTableTdClass, "font-medium text-[var(--joballa-fg)]")}>{matchValue}</td>
+                <td className={portalListTableTdClass}>
+                  <EmployerApplicantStatusBadge status={status} label={statusLabels[status] ?? status} />
+                </td>
+                <td className={cn(portalListTableTdClass, "text-right")} data-card-stop>
+                  <Link
+                    href={`/employer/applicants/${encodeURIComponent(id)}`}
+                    className="font-medium text-[var(--joballa-primary)] hover:underline"
+                  >
+                    {t("applicants.menu.open")}
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function EmployerDashboard() {
   const t = useTranslations("employer.dashboardPage");
   const dashboard = useEmployerDashboard();
@@ -32,23 +131,36 @@ export function EmployerDashboard() {
     sort: "recent",
     page: 1,
     limit: APPLICANT_PREVIEW_LIMIT,
-    view: "grid",
+    view: "list",
   });
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   const applicants = applicantsPreview.data?.items ?? [];
   const liveJobs = (dashboard.data?.liveJobs ?? []).slice(0, JOB_STATUS_LIMIT);
+
+  const statusLabels = useMemo(
+    () => ({
+      shortlisted: t("applicants.status.shortlisted"),
+      rejected: t("applicants.status.rejected"),
+      pending: t("applicants.status.pending"),
+      hired: t("applicants.status.hired"),
+      submitted: t("applicants.status.pending"),
+    }),
+    [t],
+  );
 
   const applicantCards = useMemo(
     () =>
       applicants.map((applicant) => {
         const id = applicantId(applicant);
-        const appliedTime = applicant.appliedAt ? formatAppliedAgo(applicant.appliedAt) : "—";
+        const appliedTime = applicant.appliedAt ? formatAppliedAgo(applicant.appliedAt) : null;
         return (
           <EmployerApplicantListCard
             key={id}
             applicant={applicant}
-            appliedLabel={t("applicants.appliedAgo", { time: appliedTime })}
+            appliedLabel={
+              appliedTime ? t("applicants.appliedAgo", { time: appliedTime }) : t("applicants.applied", { time: "—" })
+            }
             href={`/employer/applicants/${encodeURIComponent(id)}`}
             moreAriaLabel={t("applicants.moreActions")}
           />
@@ -136,7 +248,7 @@ export function EmployerDashboard() {
           {applicants.length === 0 ? (
             <p className="text-sm text-[var(--joballa-muted)]">{t("applicants.empty")}</p>
           ) : viewMode === "list" ? (
-            <div className="space-y-3">{applicantCards}</div>
+            <DashboardApplicantsTable applicants={applicants} statusLabels={statusLabels} t={t} />
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{applicantCards}</div>
           )}

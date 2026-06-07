@@ -10,10 +10,16 @@ import { EmployerJobGridCard } from "@/components/employer/employer-job-grid-car
 import { useEmployerJobs, useEmployerMe } from "@/features/employer/hooks";
 import type { EmployerJobListItem } from "@/features/employer/types/employer-portal";
 import { employerJobById, employerJobToCard, type EmployerJobCardModel } from "@/lib/employer-job-card";
+import { displayEmployerJobStatus, jobStatusMatchesFilter } from "@/features/employer/lib/employer-job-status";
 import { employerJobId } from "@/features/employer/lib/normalize-employer-job";
 import { IconFilter, IconGrid, IconList, IconSearch } from "@/components/worker/icons";
 import {
   portalCardClass,
+  portalListTableBodyRowClass,
+  portalListTableClass,
+  portalListTableHeadRowClass,
+  portalListTableTdClass,
+  portalListTableThClass,
   portalPageShellClass,
   portalSearchFormClass,
   portalSegmentButtonClass,
@@ -24,9 +30,9 @@ import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 import { buttonClassName } from "@/components/ui/button";
 
-type StatusFilter = "" | "live" | "draft" | "paused" | "closed";
+type StatusFilter = "" | "active" | "under_review" | "draft" | "paused" | "closed";
 
-const STATUS_FILTERS: StatusFilter[] = ["", "live", "draft", "paused"];
+const STATUS_FILTERS: StatusFilter[] = ["", "active", "under_review", "draft", "paused"];
 
 function jobMatchesSearch(job: EmployerJobCardModel, needle: string) {
   if (!needle) return true;
@@ -35,15 +41,12 @@ function jobMatchesSearch(job: EmployerJobCardModel, needle: string) {
     job.title.toLowerCase().includes(n) ||
     job.subtitle.toLowerCase().includes(n) ||
     job.pay.toLowerCase().includes(n) ||
-    job.status.toLowerCase().includes(n)
+    displayEmployerJobStatus(job.status).toLowerCase().includes(n)
   );
 }
 
 function statusMatchesFilter(status: string, filter: StatusFilter) {
-  if (!filter) return true;
-  const normalized = status.replace("_", " ").toLowerCase();
-  if (filter === "live") return normalized === "live" || normalized === "active";
-  return normalized === filter;
+  return jobStatusMatchesFilter(status, filter);
 }
 
 function EmployerJobsViewInner() {
@@ -53,11 +56,25 @@ function EmployerJobsViewInner() {
   const searchParams = useSearchParams();
   const isLg = useMediaQuery("(min-width: 1024px)");
   const jobParam = searchParams.get("job");
+  const statusParam = searchParams.get("status");
 
-  const [grid, setGrid] = useState(true);
+  const [grid, setGrid] = useState(false);
   const [searchDraft, setSearchDraft] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("");
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    if (
+      statusParam === "active" ||
+      statusParam === "under_review" ||
+      statusParam === "draft" ||
+      statusParam === "paused" ||
+      statusParam === "closed"
+    ) {
+      setStatusFilter(statusParam);
+      setFiltersOpen(true);
+    }
+  }, [statusParam]);
 
   const me = useEmployerMe();
   const jobsQuery = useEmployerJobs({ page: 1, limit: 50 });
@@ -268,8 +285,8 @@ function EmployerJobsViewInner() {
           </div>
 
           {showPanel && jobParam ? (
-            <aside className="hidden min-h-0 w-full bg-[var(--joballa-page-tint)] lg:flex lg:max-h-[min(88vh,calc(100dvh-6.5rem))] lg:flex-col lg:overflow-y-auto">
-              <EmployerJobDetailPanel jobId={jobParam} onClose={closePanel} />
+            <aside className="hidden min-h-0 w-full lg:flex lg:max-h-[min(88vh,calc(100dvh-6.5rem))] lg:flex-col lg:overflow-hidden">
+              <EmployerJobDetailPanel jobId={jobParam} onClose={closePanel} variant="panel" />
             </aside>
           ) : null}
         </div>
@@ -297,15 +314,15 @@ function EmployerJobsListTable({
 
   return (
     <div className={cn(portalCardClass(), "overflow-x-auto")}>
-      <table className="w-full min-w-[640px] text-left text-sm">
+      <table className={cn(portalListTableClass, "min-w-[640px]")}>
         <thead>
-          <tr className="border-b border-[var(--joballa-border)] text-xs font-semibold uppercase tracking-wide text-[var(--joballa-muted)]">
-            <th className="px-4 py-3">{t("listColPosted")}</th>
-            <th className="px-4 py-3">{t("listColTitle")}</th>
-            <th className="px-4 py-3">{t("listColStatus")}</th>
-            <th className="px-4 py-3">{t("listColApplicants")}</th>
-            <th className="px-4 py-3">{t("listColPay")}</th>
-            <th className="px-4 py-3" />
+          <tr className={portalListTableHeadRowClass}>
+            <th className={portalListTableThClass}>{t("listColPosted")}</th>
+            <th className={portalListTableThClass}>{t("listColTitle")}</th>
+            <th className={portalListTableThClass}>{t("listColStatus")}</th>
+            <th className={portalListTableThClass}>{t("listColApplicants")}</th>
+            <th className={portalListTableThClass}>{t("listColPay")}</th>
+            <th className={portalListTableThClass} />
           </tr>
         </thead>
         <tbody>
@@ -316,7 +333,8 @@ function EmployerJobsListTable({
               <tr
                 key={job.jobId}
                 className={cn(
-                  "cursor-pointer border-b border-[var(--joballa-border)] last:border-0 transition hover:bg-[var(--joballa-row-hover)]",
+                  portalListTableBodyRowClass,
+                  "cursor-pointer",
                   isActive && "bg-[var(--joballa-row-hover)]",
                 )}
                 onClick={(e) => {
@@ -325,17 +343,19 @@ function EmployerJobsListTable({
                   else void router.push(`/employer/jobs?job=${encodeURIComponent(job.jobId)}`);
                 }}
               >
-                <td className="px-4 py-3 text-[var(--joballa-muted)]">{job.posted}</td>
-                <td className="px-4 py-3 font-semibold text-[var(--joballa-fg)]">{job.title}</td>
-                <td className="px-4 py-3 capitalize text-[var(--joballa-muted)]">{job.status.replace("_", " ")}</td>
-                <td className="px-4 py-3 text-[var(--joballa-muted)]">
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>{job.posted}</td>
+                <td className={cn(portalListTableTdClass, "font-medium text-[var(--joballa-fg)]")}>{job.title}</td>
+                <td className={cn(portalListTableTdClass, "capitalize text-[var(--joballa-muted)]")}>
+                  {displayEmployerJobStatus(job.status)}
+                </td>
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-muted)]")}>
                   {raw?.applicantsCount ?? job.applicantsCount}
                 </td>
-                <td className="px-4 py-3 text-[var(--joballa-fg)]">{job.pay}</td>
-                <td className="px-4 py-3 text-right" data-card-stop>
+                <td className={cn(portalListTableTdClass, "text-[var(--joballa-fg)]")}>{job.pay}</td>
+                <td className={cn(portalListTableTdClass, "text-right")} data-card-stop>
                   <Link
                     href={`/employer/applicants?jobId=${encodeURIComponent(job.jobId)}`}
-                    className="font-semibold text-[var(--joballa-primary)] hover:underline"
+                    className="font-medium text-[var(--joballa-primary)] hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {t("viewApplicants")}

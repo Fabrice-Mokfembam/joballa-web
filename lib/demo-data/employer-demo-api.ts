@@ -13,6 +13,7 @@ import type {
   EmployerDashboard,
   EmployerJobDetail,
   EmployerJobListItem,
+  EmployerJobDepartment,
   EmployerMe,
   EmployerNotification,
   EmployerNotificationSettings,
@@ -27,6 +28,12 @@ import type {
   UpdateEmployerCompanyBody,
   UpdateEmployerJobBody,
 } from "@/features/employer/types/employer-portal";
+import {
+  mapApplicantStatusForApi,
+  normalizeApplicantStatusForUi,
+} from "@/features/employer/lib/employer-applicant-status";
+import { normalizeEmployerWorkforceList } from "@/features/employer/lib/normalize-employer-workforce";
+import { CANONICAL_JOB_DEPARTMENTS } from "@/features/employer/lib/canonical-job-departments";
 import { WORKER_NOTIFICATIONS } from "@/lib/worker-notifications-data";
 import { demoDelay, paginate } from "@/lib/demo-data/paginate";
 import {
@@ -123,7 +130,13 @@ export async function createEmployerJob(body: CreateEmployerJobBody): Promise<Cr
     shortlistedCount: 0,
     postedAt: new Date().toISOString(),
   });
-  return { jobId, status: body.asDraft ? "draft" : "under_review", message: "Job saved (demo)." };
+  return {
+    jobId,
+    status: body.asDraft ? "draft" : "under_review",
+    message: body.asDraft
+      ? "Job saved as draft."
+      : "Job submitted. Joballa admin will review before going live.",
+  };
 }
 
 export async function getEmployerJobs(params?: {
@@ -176,6 +189,18 @@ export async function deleteEmployerJob(jobId: string): Promise<void> {
   state.jobs = state.jobs.filter((j) => j.jobId !== jobId);
 }
 
+export async function getEmployerDepartments(params?: {
+  isActive?: boolean;
+  category?: string;
+}): Promise<Paginated<EmployerJobDepartment>> {
+  await demoDelay();
+  let items = [...CANONICAL_JOB_DEPARTMENTS];
+  if (params?.category) {
+    items = items.filter((dept) => dept.category === params.category);
+  }
+  return { items, total: items.length, page: 1, limit: 50 };
+}
+
 export async function getEmployerApplicantFilters(): Promise<EmployerApplicantFilters> {
   await demoDelay(40);
   return applicantFilters(state.jobs);
@@ -192,7 +217,11 @@ export async function getEmployerApplicants(params?: {
   await demoDelay();
   let list = [...state.applicants];
   if (params?.jobId) list = list.filter((a) => a.jobId === params.jobId);
-  if (params?.status) list = list.filter((a) => String(a.status) === params.status);
+  const apiStatus = mapApplicantStatusForApi(params?.status);
+  if (apiStatus) {
+    const uiStatus = normalizeApplicantStatusForUi(apiStatus);
+    list = list.filter((a) => normalizeApplicantStatusForUi(a.status) === uiStatus);
+  }
   if (params?.sort === "match") {
     list.sort((a, b) => Number(b.matchScore ?? 0) - Number(a.matchScore ?? 0));
   } else {
@@ -211,12 +240,34 @@ export async function getEmployerApplicant(applicationId: string): Promise<Emplo
 
 export async function patchEmployerApplicantStatus(
   applicationId: string,
-  status: EmployerApplicantStatus,
+  body: { status: EmployerApplicantStatus; note?: string },
 ): Promise<EmployerApplicantListItem> {
   await demoDelay(80);
   const app = state.applicants.find((a) => (a.applicationId ?? a.id) === applicationId);
   if (!app) throw new Error("Applicant not found");
-  app.status = status;
+  app.status = body.status;
+  if (body.status === "rejected" && body.note?.trim()) {
+    app.employerNotes = body.note.trim();
+  }
+  if (body.status === "hired") {
+    const workerId = String(app.workerId ?? app.id ?? applicationId);
+    const exists = state.workforce.some((w) => String(w.workerId ?? w.id) === workerId);
+    if (!exists) {
+      const job = state.jobs.find((j) => j.jobId === app.jobId);
+      state.workforce.unshift({
+        workerId,
+        id: workerId,
+        engagementId: `demo-engagement-${state.workforce.length + 1}`,
+        fullName: String(app.applicantName ?? app.name ?? "Worker"),
+        name: String(app.applicantName ?? app.name ?? "Worker"),
+        role: String(app.role ?? job?.title ?? "Role"),
+        status: "active",
+        dateJoined: new Date().toISOString(),
+        jobType: String(app.jobType ?? job?.jobType ?? "full_time"),
+        employmentType: String(app.jobType ?? job?.jobType ?? "full_time"),
+      });
+    }
+  }
   return { ...app };
 }
 
@@ -269,14 +320,14 @@ export async function getEmployerWorkforce(params?: {
   const filter = params?.status && params.status !== "all" ? workforceStatusFilter(params.status) : undefined;
   const page = paginate(state.workforce, params, filter);
   const tabCounts = workforceTabCounts();
-  return {
+  return normalizeEmployerWorkforceList({
     ...page,
     stats: {
-      activeWorkers: { count: 4, trend: "1 hired this month" },
-      engagementsEnded: { count: 5, trend: "4 this year" },
-      tabCounts: { all: 6, active: 4, terminated: 3 },
+      activeWorkers: { count: tabCounts.active, trend: "1 hired this month" },
+      engagementsEnded: { count: tabCounts.terminated, trend: "4 this year" },
+      tabCounts,
     },
-  };
+  });
 }
 
 export async function getEmployerWorkforceWorker(workerId: string): Promise<Record<string, unknown>> {
@@ -286,8 +337,15 @@ export async function getEmployerWorkforceWorker(workerId: string): Promise<Reco
   return workforceWorkerToDetail(w);
 }
 
-export async function patchEmployerWorkforceStatus(_workerId: string, _body: { status: string }): Promise<unknown> {
+export async function patchEmployerWorkforceStatus(
+  workerId: string,
+  body: { status: string; engagementId?: string; reason?: string },
+): Promise<unknown> {
   await demoDelay(60);
+  const worker = state.workforce.find((x) => (x.workerId ?? x.id) === workerId);
+  if (worker) {
+    worker.status = body.status;
+  }
   return { ok: true };
 }
 
