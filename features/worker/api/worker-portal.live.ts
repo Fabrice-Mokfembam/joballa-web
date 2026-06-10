@@ -23,6 +23,7 @@ import {
   encodePersonalInfoPatch,
   encodeProfessionalSummaryPatch,
   encodePutWorkerProfile,
+  mergeWorkerMeWithProfile,
   normalizeWorkerMe,
   normalizeWorkerProfile,
 } from "@/features/worker/lib/profile-mapper";
@@ -36,6 +37,8 @@ import type {
   CreateWorkerPaymentAccountBody,
   CreateWorkHistoryBody,
   CustomizeProfileBody,
+  ApplicationProfileDraft,
+  JobSaveResponse,
   EarningTransaction,
   EarningsSummary,
   EarningsTransactionsParams,
@@ -71,6 +74,7 @@ import type {
   WorkerKycSubmission,
   WorkerMe,
   WorkerNotificationItem,
+  WorkerNotificationUnreadCount,
   WorkerNotificationSettings,
   WorkerOwnedJobDetail,
   WorkerOwnedJobListItem,
@@ -90,7 +94,13 @@ const FILES = "/files";
 
 export async function getWorkerMe(): Promise<WorkerMe> {
   const { data } = await joballaAxios.get(`${WORKER}/me`);
-  return normalizeWorkerMe(data);
+  const me = normalizeWorkerMe(data);
+  try {
+    const { data: profileData } = await joballaAxios.get(`${WORKER}/profile`);
+    return mergeWorkerMeWithProfile(me, normalizeWorkerProfile(profileData));
+  } catch {
+    return me;
+  }
 }
 
 export async function getWorkerDashboard(): Promise<WorkerDashboard> {
@@ -173,7 +183,13 @@ function cvFileName(contentDisposition?: string): string {
 
 export async function getWorkerCvExportStatus(): Promise<WorkerCvExportStatus> {
   const { data } = await joballaAxios.get<WorkerCvExportStatus>(`${WORKER}/profile/cv-export/status`);
-  return data;
+  const downloadUrl =
+    typeof data.downloadUrl === "string" && data.downloadUrl.trim()
+      ? data.downloadUrl.startsWith("http")
+        ? data.downloadUrl
+        : `${WORKER}/profile/cv-export`
+      : null;
+  return { ...data, downloadUrl };
 }
 
 export async function getWorkerCvExport(): Promise<WorkerCvDownload> {
@@ -242,8 +258,9 @@ export async function patchWorkerCertification(
   certId: string,
   body: Partial<CreateCertificationBody>,
 ): Promise<WorkerCertification> {
-  const { data } = await joballaAxios.patch<WorkerCertification>(`${WORKER}/profile/certifications/${certId}`, body);
-  return data;
+  const { data } = await joballaAxios.patch(`${WORKER}/profile/certifications/${certId}`, body);
+  const profile = normalizeWorkerProfile(data);
+  return profile.certifications?.find((c) => c.id === certId) ?? (data as WorkerCertification);
 }
 
 export async function deleteWorkerCertification(certId: string): Promise<void> {
@@ -310,8 +327,12 @@ export async function patchWorkerPaymentAccount(
     `${WORKER}/profile/payment-accounts/${accountId}`,
     encodePaymentAccountBody(body),
   );
-  const accounts = normalizeWorkerProfile({ paymentAccounts: [data] }).paymentAccounts;
-  return accounts?.[0] ?? (data as WorkerPaymentAccount);
+  const profile = normalizeWorkerProfile(data);
+  return (
+    profile.paymentAccounts?.find((a) => a.id === accountId) ??
+    profile.paymentAccounts?.[0] ??
+    (data as WorkerPaymentAccount)
+  );
 }
 
 export async function deleteWorkerPaymentAccount(accountId: string): Promise<void> {
@@ -334,16 +355,27 @@ export async function createWorkerJob(body: CreateWorkerJobBody): Promise<Create
   return data;
 }
 
-function normalizeInformalRequestAsOwnedJob(item: unknown): WorkerOwnedJobListItem {
+function normalizeWorkerOwnedJobListItem(item: unknown): WorkerOwnedJobListItem {
   const raw = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
   const department =
     raw.department && typeof raw.department === "object"
       ? (raw.department as { id?: string; name?: string; category?: string })
       : undefined;
+  const locationParts = [raw.neighbourhood, raw.city, raw.region].filter((part) => typeof part === "string" && part.trim());
+  const payAmount = typeof raw.payAmount === "number" ? raw.payAmount : undefined;
+  const payCurrency = typeof raw.payCurrency === "string" ? raw.payCurrency : "XAF";
+  const payStructure = typeof raw.payStructure === "string" ? raw.payStructure : undefined;
+  const salary =
+    typeof raw.salary === "string"
+      ? raw.salary
+      : payAmount != null
+        ? `${payAmount.toLocaleString("en-US")} ${payCurrency}${payStructure ? `/${payStructure}` : ""}`
+        : undefined;
+
   return {
     ...(raw as WorkerOwnedJobListItem),
-    jobId: String(raw.id ?? raw.jobId ?? raw.assignedJobId ?? ""),
-    title: String(raw.title ?? department?.name ?? "Informal request"),
+    jobId: String(raw.jobId ?? raw.id ?? raw.assignedJobId ?? ""),
+    title: String(raw.title ?? department?.name ?? "Job"),
     department: department
       ? {
           id: String(department.id ?? ""),
@@ -351,9 +383,32 @@ function normalizeInformalRequestAsOwnedJob(item: unknown): WorkerOwnedJobListIt
           category: String(department.category ?? ""),
         }
       : undefined,
-    location: typeof raw.city === "string" ? raw.city : undefined,
-    status: String(raw.status ?? "submitted"),
-    postedAt: raw.createdAt != null ? String(raw.createdAt) : undefined,
+    location:
+      typeof raw.location === "string"
+        ? raw.location
+        : locationParts.length > 0
+          ? locationParts.join(", ")
+          : undefined,
+    jobType:
+      typeof raw.employmentType === "string"
+        ? raw.employmentType
+        : typeof raw.jobType === "string"
+          ? raw.jobType
+          : undefined,
+    salary,
+    status: String(raw.status ?? "draft"),
+    applicantsCount:
+      typeof raw.applicantsCount === "number"
+        ? raw.applicantsCount
+        : typeof raw.applicationCount === "number"
+          ? raw.applicationCount
+          : undefined,
+    postedAt:
+      raw.postedAt != null
+        ? String(raw.postedAt)
+        : raw.createdAt != null
+          ? String(raw.createdAt)
+          : undefined,
     assignedJobId: raw.assignedJobId != null ? String(raw.assignedJobId) : null,
     rejectionReason: raw.rejectionReason != null ? String(raw.rejectionReason) : null,
     changeRequest: raw.changeRequest != null ? String(raw.changeRequest) : null,
@@ -371,7 +426,7 @@ export async function getWorkerOwnedJobs(params?: {
   const page = normalizePaginated<unknown>(data);
   return {
     ...page,
-    items: page.items.map(normalizeInformalRequestAsOwnedJob),
+    items: page.items.map(normalizeWorkerOwnedJobListItem),
   };
 }
 
@@ -394,6 +449,17 @@ export async function deleteWorkerOwnedJob(jobId: string): Promise<void> {
   await joballaAxios.delete(`${WORKER}/jobs/${jobId}`);
 }
 
+function listQueryParams(params?: Record<string, unknown>) {
+  const clamped = clampListParams(params as { page?: number; limit?: number } | undefined) ?? {};
+  return Object.fromEntries(
+    Object.entries({ ...params, ...clamped }).filter(([, value]) => {
+      if (value === undefined || value === null) return false;
+      if (typeof value === "string" && value === "") return false;
+      return true;
+    }),
+  );
+}
+
 export async function getWorkerIncomingApplications(params?: {
   status?: string;
   keyword?: string;
@@ -402,7 +468,7 @@ export async function getWorkerIncomingApplications(params?: {
   limit?: number;
 }): Promise<Paginated<WorkerIncomingApplicationListItem>> {
   const { data } = await joballaAxios.get(`${WORKER}/jobs/applications`, {
-    params: clampListParams(params),
+    params: listQueryParams(params),
   });
   const page = normalizePaginated<unknown>(data);
   return {
@@ -460,13 +526,14 @@ export async function getWorkerJob(jobId: string): Promise<WorkerJobDetail> {
   return normalizeWorkerJobListItem(data as Parameters<typeof normalizeWorkerJobListItem>[0]) as WorkerJobDetail;
 }
 
-export async function saveWorkerJob(jobId: string): Promise<unknown> {
-  const { data } = await joballaAxios.post(`${JOBS}/${jobId}/save`);
-  return data;
+export async function saveWorkerJob(jobId: string): Promise<JobSaveResponse> {
+  const { data } = await joballaAxios.post<JobSaveResponse>(`${JOBS}/${jobId}/save`);
+  return { jobId: String(data.jobId ?? jobId), saved: data.saved !== false };
 }
 
-export async function unsaveWorkerJob(jobId: string): Promise<void> {
-  await joballaAxios.delete(`${JOBS}/${jobId}/save`);
+export async function unsaveWorkerJob(jobId: string): Promise<JobSaveResponse> {
+  const { data } = await joballaAxios.delete<JobSaveResponse>(`${JOBS}/${jobId}/save`);
+  return { jobId: String(data?.jobId ?? jobId), saved: data?.saved === true };
 }
 
 export async function hideWorkerJob(jobId: string): Promise<unknown> {
@@ -490,17 +557,46 @@ export async function getWorkerJobShareLink(jobId: string): Promise<JobShareResp
 
 // —— Applications ——
 
+function normalizeApplicationProfileDraft(raw: unknown, jobId: string): ApplicationProfileDraft {
+  const data = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  return {
+    id: data.id != null ? String(data.id) : undefined,
+    applicationId: data.applicationId == null ? null : String(data.applicationId),
+    jobId: String(data.jobId ?? jobId),
+    profileId: data.profileId != null ? String(data.profileId) : undefined,
+    customizedData: (data.customizedData ?? null) as ApplicationProfileDraft["customizedData"],
+    createdAt: data.createdAt != null ? String(data.createdAt) : undefined,
+    updatedAt: data.updatedAt != null ? String(data.updatedAt) : undefined,
+  };
+}
+
+export async function getJobApplicationProfileDraft(jobId: string): Promise<ApplicationProfileDraft> {
+  const { data } = await joballaAxios.get(`${JOBS}/${jobId}/application/profile`);
+  return normalizeApplicationProfileDraft(data, jobId);
+}
+
+export async function putJobApplicationProfileDraft(
+  jobId: string,
+  body: CustomizeProfileBody,
+): Promise<ApplicationProfileDraft> {
+  const { data } = await joballaAxios.put(`${JOBS}/${jobId}/application/profile`, body);
+  return normalizeApplicationProfileDraft(data, jobId);
+}
+
 export async function customizeJobApplicationProfile(
   jobId: string,
   body: CustomizeProfileBody,
-): Promise<unknown> {
+): Promise<ApplicationProfileDraft> {
   const { data } = await joballaAxios.post(`${JOBS}/${jobId}/application/customize-profile`, body);
-  return data;
+  return normalizeApplicationProfileDraft(data, jobId);
 }
 
 export async function applyToWorkerJob(jobId: string, body?: ApplyToJobBody): Promise<WorkerApplicationDetail> {
+  const note = body?.coverNote ?? body?.jobSpecificNote;
   const { data } = await joballaAxios.post(`${JOBS}/${jobId}/apply`, {
-    coverNote: body?.coverNote ?? body?.jobSpecificNote,
+    coverNote: note,
+    jobSpecificNote: note,
+    source: body?.source ?? "web",
     attachedDocuments: body?.attachedDocuments,
   });
   return normalizeWorkerApplicationDetail(data);
@@ -673,11 +769,19 @@ export async function getWorkerNotificationSettings(): Promise<WorkerNotificatio
   return normalizeWorkerNotificationSettings(data);
 }
 
+export async function getWorkerNotificationsUnreadCount(): Promise<WorkerNotificationUnreadCount> {
+  const { data } = await joballaAxios.get<WorkerNotificationUnreadCount>(`${WORKER}/notifications/unread-count`);
+  return { count: Number(data.count ?? 0) || 0 };
+}
+
+export async function patchWorkerNotificationsReadAll(): Promise<{ ok: boolean }> {
+  const { data } = await joballaAxios.patch<{ ok: boolean }>(`${WORKER}/notifications/read-all`);
+  return { ok: data?.ok !== false };
+}
+
 export async function patchWorkerNotificationRead(notificationId: string): Promise<WorkerNotificationItem> {
-  const { data } = await joballaAxios.patch<WorkerNotificationItem>(
-    `${WORKER}/notifications/${notificationId}/read`,
-  );
-  return data;
+  const { data } = await joballaAxios.patch(`${WORKER}/notifications/${notificationId}/read`);
+  return normalizeWorkerNotification(data);
 }
 
 export async function patchWorkerNotificationSettings(

@@ -54,6 +54,7 @@ export function SignUpEmailForm() {
         email: email.trim().toLowerCase(),
         password,
         role,
+        fullName: name.trim(),
         preferredLanguage: lang,
       });
       writeSignupDisplayName(name.trim());

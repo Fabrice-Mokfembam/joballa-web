@@ -38,6 +38,8 @@ export function normalizeWorkerJobListItem(raw: RawWorkerJob): WorkerJobListItem
     id: String(input.id ?? input.slug ?? ""),
     slug: input.slug != null ? String(input.slug) : undefined,
     title: String(input.title ?? ""),
+    saved: !!(input.saved ?? input.isSaved ?? (input as { savedByViewer?: boolean }).savedByViewer),
+    isSaved: !!(input.saved ?? input.isSaved ?? (input as { savedByViewer?: boolean }).savedByViewer),
     city: input.city != null ? String(input.city) : null,
     region: input.region != null ? String(input.region) : null,
     createdAt: input.createdAt != null ? String(input.createdAt) : input.postedAt != null ? String(input.postedAt) : undefined,

@@ -39,7 +39,12 @@ export function WorkerJobDetailPage({ jobId }: { jobId: string }) {
   return (
     <>
       <WorkerJobDetailLgRedirect jobSlug={job.slug} />
-      <WorkerJobDetailView job={job} jobId={jobId} isSaved={!!query.data?.isSaved} detail={query.data} />
+      <WorkerJobDetailView
+        job={job}
+        jobId={jobId}
+        isSaved={!!(query.data?.saved ?? query.data?.isSaved)}
+        detail={query.data}
+      />
     </>
   );
 }

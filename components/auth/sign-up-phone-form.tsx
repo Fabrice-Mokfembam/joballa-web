@@ -54,6 +54,7 @@ export function SignUpPhoneForm() {
         phone: phone.trim(),
         password,
         role,
+        fullName: name.trim(),
         preferredLanguage: lang,
       });
       writeSignupDisplayName(name.trim());

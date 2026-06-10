@@ -36,5 +36,7 @@ export const workerKeys = {
   paymentAccounts: () => [...root, "profile", "payment-accounts"] as const,
   notifications: (params?: { filter?: string; page?: number; limit?: number }) =>
     [...root, "notifications", params ?? {}] as const,
+  notificationsUnreadCount: () => [...root, "notifications", "unread-count"] as const,
+  applicationProfileDraft: (jobId: string) => [...root, "jobs", jobId, "application-profile-draft"] as const,
   notificationSettings: () => [...root, "settings", "notifications"] as const,
 };

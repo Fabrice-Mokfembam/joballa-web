@@ -35,6 +35,8 @@ export {
   useUnhideWorkerJob,
   useReportWorkerJob,
   useCustomizeJobApplication,
+  useJobApplicationProfileDraft,
+  usePutJobApplicationProfileDraft,
   useApplyToJob,
 } from "./use-worker-jobs";
 export {
@@ -46,6 +48,7 @@ export { useSavedJobs, useDeleteSavedJob, useBulkDeleteSavedJobs } from "./use-w
 export { useEarningsSummary, useEarningsTransactions, useEarningsTransaction, useEarningsStatement } from "./use-worker-earnings";
 export { useWorkerEngagements, useWorkerEngagement } from "./use-worker-engagements";
 export { useWorkerDashboard } from "./use-worker-dashboard";
+export { useWorkerDepartmentOptions } from "./use-worker-department-options";
 export {
   useWorkerOwnedJobs,
   useWorkerOwnedJob,
@@ -58,7 +61,9 @@ export {
 } from "./use-worker-owned-jobs";
 export {
   useWorkerNotifications,
+  useWorkerNotificationsUnreadCount,
   useWorkerNotificationSettings,
   usePatchWorkerNotificationRead,
+  usePatchWorkerNotificationsReadAll,
   usePatchWorkerNotificationSettings,
 } from "./use-worker-notifications";

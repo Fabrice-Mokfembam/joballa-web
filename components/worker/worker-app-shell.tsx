@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { ReactNode, ReactElement } from "react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/lib/i18n/navigation";
 import { JoballaPanelLogoMark } from "@/components/brand/joballa-panel-logo-mark";
@@ -17,7 +17,8 @@ import {
   IconSettings,
   IconUser,
 } from "@/components/worker/icons";
-import { useWorkerMe } from "@/features/worker/hooks";
+import { useWorkerMe, useWorkerNotificationsUnreadCount } from "@/features/worker/hooks";
+import { profileInitials } from "@/features/worker/lib/profile-display";
 import { portalIconButtonClass, portalNavLinkClass, portalProfileSummaryClass } from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
 
@@ -77,14 +78,37 @@ export function WorkerAppShell({ children }: { children: ReactNode }) {
   const menuRef = useRef<HTMLDetailsElement>(null);
   const mobileHeaderTitle = workerMobileHeaderTitle(pathname, ts, t);
   const meQuery = useWorkerMe();
+  const unreadQuery = useWorkerNotificationsUnreadCount();
+  const unreadCount = unreadQuery.data?.count ?? 0;
   const wp = meQuery.data?.workerProfile;
   const userDisplayName = wp?.fullName?.trim() || meQuery.data?.email || "";
   const userAvatarUrl = wp?.avatarUrl ?? null;
-  const userInitial = (userDisplayName || "?").charAt(0).toUpperCase();
+  const userInitial = profileInitials(userDisplayName || "?");
 
   function closeUserMenu() {
     menuRef.current?.removeAttribute("open");
   }
+
+  useEffect(() => {
+    function onDocumentMouseDown(event: MouseEvent) {
+      const menu = menuRef.current;
+      if (!menu?.open) return;
+      if (!menu.contains(event.target as Node)) {
+        menu.removeAttribute("open");
+      }
+    }
+
+    function onDocumentKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") menuRef.current?.removeAttribute("open");
+    }
+
+    document.addEventListener("mousedown", onDocumentMouseDown);
+    document.addEventListener("keydown", onDocumentKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onDocumentMouseDown);
+      document.removeEventListener("keydown", onDocumentKeyDown);
+    };
+  }, []);
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-[var(--joballa-page)] text-[var(--joballa-fg)]">
@@ -173,7 +197,9 @@ export function WorkerAppShell({ children }: { children: ReactNode }) {
               aria-label={ts("notifications")}
             >
               <IconBell className="size-[18px]" />
-              <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-[var(--joballa-primary)] ring-2 ring-white" />
+              {unreadCount > 0 ? (
+                <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-[var(--joballa-primary)] ring-2 ring-white" />
+              ) : null}
             </Link>
 
             <details ref={menuRef} className="relative shrink-0">
@@ -188,7 +214,7 @@ export function WorkerAppShell({ children }: { children: ReactNode }) {
                   )}
                 </span>
                 {userDisplayName ? (
-                  <span className="hidden max-w-[120px] truncate text-sm font-semibold text-[var(--joballa-nav-fg)] sm:max-w-[140px] lg:inline">
+                  <span className="hidden max-w-[120px] truncate text-sm font-semibold text-[var(--joballa-nav-fg)] sm:inline sm:max-w-[140px]">
                     {userDisplayName}
                   </span>
                 ) : null}

@@ -1,533 +1,797 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "@/lib/i18n/navigation";
-import { useCreateWorkerJob, useWorkerKyc, useWorkerMe } from "@/features/worker/hooks";
-import { mapDraftToCreateWorkerJobBody } from "@/features/worker/lib/job-payload";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/lib/i18n/navigation";
+import { findJobDepartment } from "@/features/employer/lib/job-departments";
+import {
+  EMPTY_POST_JOB_DRAFT,
+  formatPostJobStartPreview,
+  mapDraftToCreateWorkerJobBody,
+  normalizePostJobDraft,
+  validateWorkerPostJobDraft,
+  type PostJobDraft,
+} from "@/features/worker/lib/job-payload";
+import { useCreateWorkerJob, useWorkerDepartmentOptions, useWorkerKyc, useWorkerMe } from "@/features/worker/hooks";
 import { getVerificationStatus, isVerifiedStatus } from "@/features/worker/lib/verification";
+import { profileInitials } from "@/features/worker/lib/profile-display";
 import { VerificationGateDialog } from "@/components/verification/verification-gate-dialog";
 import { CAMEROON_CITIES_BY_REGION } from "@/lib/cameroon-region-cities";
+import { toast } from "@/lib/toast";
+import {
+  portalCardClass,
+  portalCheckboxClass,
+  portalInputClass,
+  portalOutlineButtonClass,
+  portalPageShellClass,
+  portalTextareaClass,
+} from "@/components/portal/portal-ui";
+import { fieldMaxLength } from "@/lib/form-field-limits";
 import { cn } from "@/lib/utils";
+import { buttonClassName } from "@/components/ui/button";
 
-type Draft = {
-  departmentId: string;
-  departmentCategory: "education" | "domestic" | "logistics" | "events" | "agriculture" | "construction" | "other";
-  title: string;
-  city: string;
-  neighbourhood: string;
-  description: string;
-  requiredSkillsText: string;
-  requiredLevel: string;
-  jobType: string;
-  durationValue: string;
-  durationUnit: string;
-  pay: string;
-  currency: string;
-  per: string;
-  openings: string;
-  startDate: string;
-  startAsap: boolean;
-  requirements: string[];
-  responsibilities: string[];
-};
+type Step = "basics" | "details" | "preview";
 
-const cityOptions = Array.from(new Set(Object.values(CAMEROON_CITIES_BY_REGION).flat())).sort();
+const INITIAL_DRAFT = EMPTY_POST_JOB_DRAFT;
+const STEPS: Step[] = ["basics", "details", "preview"];
+const FORM_SHELL_CLASS = "mx-auto flex w-full max-w-4xl flex-col";
 
-const initialDraft: Draft = {
-  departmentId: "",
-  departmentCategory: "other",
-  title: "",
-  city: "Douala",
-  neighbourhood: "",
-  description: "",
-  requiredSkillsText: "",
-  requiredLevel: "Senior",
-  jobType: "Full Time",
-  durationValue: "",
-  durationUnit: "Months",
-  pay: "",
-  currency: "XAF",
-  per: "Month",
-  openings: "1",
-  startDate: "",
-  startAsap: true,
-  requirements: [""],
-  responsibilities: [""],
-};
+const EMPLOYMENT_TYPES = ["full_time", "part_time", "contract", "casual", "seasonal", "internship"] as const;
+const PAY_STRUCTURES = ["hourly", "daily", "weekly", "monthly", "fixed"] as const;
+const EXPERIENCE_LEVELS = ["entry", "junior", "mid", "senior", "lead", "tutor", "not_required"] as const;
+const DURATION_UNITS = ["months", "weeks", "years"] as const;
 
-function inputClass(extra?: string) {
-  return cn(
-    "h-12 w-full rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-4 text-sm text-[var(--joballa-fg)] outline-none ring-[var(--joballa-primary)] placeholder:text-[var(--joballa-muted)] focus:border-[var(--joballa-primary)] focus:ring-2",
-    extra,
-  );
+const ALL_CITIES = Array.from(new Set(Object.values(CAMEROON_CITIES_BY_REGION).flat())).sort((a, b) =>
+  a.localeCompare(b),
+);
+
+function splitDuration(raw: string): { amount: string; unit: (typeof DURATION_UNITS)[number] } {
+  const match = raw.trim().match(/^(\d+)\s*(\w+)/i);
+  if (!match) return { amount: "", unit: "months" };
+  const unitRaw = match[2]!.toLowerCase();
+  const unit = unitRaw.startsWith("week")
+    ? "weeks"
+    : unitRaw.startsWith("year") || unitRaw.startsWith("an")
+      ? "years"
+      : "months";
+  return { amount: match[1]!, unit };
 }
 
-function compactPayPeriod(period: string) {
-  const normalized = period.toLowerCase();
-
-  if (normalized.includes("hour")) {
-    return "/h";
-  }
-
-  if (normalized.includes("day")) {
-    return "/d";
-  }
-
-  return "/mo";
+function mergeDuration(amount: string, unit: string): string {
+  const n = amount.trim();
+  if (!n) return "";
+  return `${n} ${unit}`;
 }
 
-function formatNumberText(value: string) {
-  const digits = value.replace(/[^\d]/g, "");
-
-  if (!digits) {
-    return value;
-  }
-
-  return Number(digits).toLocaleString("en-US");
+function formatPayPreview(pay: string, payPer: string): string {
+  const digits = pay.replace(/\D/g, "");
+  if (!digits) return "—";
+  const per =
+    payPer === "monthly"
+      ? "mo"
+      : payPer === "weekly"
+        ? "wk"
+        : payPer === "daily"
+          ? "day"
+          : payPer === "hourly"
+            ? "hr"
+            : "fixed";
+  return `${Number(digits).toLocaleString("en-US")} XAF/${per}`;
 }
 
-function formatPayPreview(draft: Draft) {
-  const amount = formatNumberText(draft.pay.trim());
-
-  if (!amount) {
-    return `- ${draft.currency}${compactPayPeriod(draft.per)}`;
-  }
-
-  return `${amount} ${draft.currency}${compactPayPeriod(draft.per)}`;
-}
-
-function formatDurationPreview(draft: Draft) {
-  const value = draft.durationValue.trim() || "1";
-
-  return `${value} ${draft.durationUnit.toLowerCase()}`;
-}
-
-function formatStartPreview(draft: Draft) {
-  if (draft.startAsap) {
-    return "As soon as possible";
-  }
-
-  if (!draft.startDate) {
-    return "Not set";
-  }
-
-  const date = new Date(`${draft.startDate}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return draft.startDate;
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-}
-
-function MetaRow({ label, value }: { label: string; value: string }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-start justify-between gap-1 text-base min-[480px]:flex-row min-[480px]:gap-6 sm:text-lg">
-      <dt className="font-bold text-[var(--joballa-fg)]">{label}</dt>
-      <dd className="font-bold text-[var(--joballa-muted)] min-[480px]:max-w-[58%] min-[480px]:text-right">{value}</dd>
-    </div>
-  );
-}
-
-function Field({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
-  return (
-    <label className={cn("block text-sm font-semibold text-[var(--joballa-muted)]", className)}>
-      {label}
-      <div className="mt-2">{children}</div>
+    <label className="flex flex-col gap-1">
+      <span className="px-1 text-xs font-medium text-[var(--joballa-muted)]">{label}</span>
+      {children}
     </label>
   );
 }
 
-function BulletInputs({
+function SelectField({
   label,
-  items,
-  placeholder,
+  value,
   onChange,
+  placeholder,
+  options,
+  disabled,
 }: {
   label: string;
-  items: string[];
+  value: string;
+  onChange: (value: string) => void;
   placeholder: string;
-  onChange: (items: string[]) => void;
+  options: { value: string; label: string }[];
+  disabled?: boolean;
 }) {
   return (
-    <div>
-      <p className="text-sm font-semibold text-[var(--joballa-muted)]">{label}</p>
-      <div className="mt-2 space-y-2">
-        {items.map((item, index) => (
-          <div key={index} className="flex gap-2">
-            <input
-              value={item}
-              onChange={(event) => onChange(items.map((current, i) => (i === index ? event.target.value : current)))}
-              placeholder={placeholder}
-              className={inputClass()}
-            />
-            {items.length > 1 ? (
+    <Field label={label}>
+      <select
+        className={cn(portalInputClass, "h-9")}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </Field>
+  );
+}
+
+function SkillsField({
+  label,
+  hint,
+  value,
+  onChange,
+  placeholder,
+  maxLength,
+}: {
+  label: string;
+  hint: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  maxLength?: number;
+}) {
+  const pills = value
+    .split(",")
+    .map((skill) => skill.trim())
+    .filter(Boolean);
+
+  function removeSkill(skill: string) {
+    onChange(pills.filter((item) => item !== skill).join(", "));
+  }
+
+  return (
+    <Field label={label}>
+      <input
+        className={cn(portalInputClass, "h-11")}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+      />
+      {pills.length > 0 ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {pills.map((skill) => (
+            <span
+              key={skill}
+              className="group relative inline-flex min-h-8 items-center rounded-full border border-[var(--joballa-border)] bg-[var(--joballa-tag-bg)] px-3 pr-7 text-xs font-semibold text-[var(--joballa-fg)]"
+            >
+              {skill}
               <button
                 type="button"
-                onClick={() => onChange(items.filter((_, i) => i !== index))}
-                className="h-12 shrink-0 rounded-[14px] border border-[var(--joballa-border)] px-3 text-sm font-semibold text-[var(--joballa-muted)]"
-                aria-label="Remove item"
+                aria-label={`Remove ${skill}`}
+                onClick={() => removeSkill(skill)}
+                className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full border border-[var(--joballa-border)] bg-[var(--joballa-card)] text-[11px] font-bold text-[var(--joballa-muted)] shadow-sm transition hover:bg-[var(--joballa-danger-bg)] hover:text-[var(--joballa-danger-fg)]"
               >
-                x
+                ×
               </button>
-            ) : null}
-          </div>
+            </span>
+          ))}
+        </div>
+      ) : null}
+      <p className="mt-2 px-1 text-xs text-[var(--joballa-muted)]">{hint}</p>
+    </Field>
+  );
+}
+
+function PreviewList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div className="space-y-2.5">
+      <h4 className="text-sm font-semibold text-[var(--joballa-fg)]">{title}</h4>
+      <ul className="list-disc space-y-1.5 pl-5 text-sm leading-5 text-[var(--joballa-muted)]">
+        {items.map((item, index) => (
+          <li key={`${title}-${index}`}>{item}</li>
         ))}
-      </div>
+      </ul>
+    </div>
+  );
+}
+
+function ListComposer({
+  items,
+  onChange,
+  placeholder,
+  addLabel,
+}: {
+  items: string[];
+  onChange: (items: string[]) => void;
+  placeholder: string;
+  addLabel: string;
+}) {
+  function updateItem(index: number, value: string) {
+    onChange(items.map((item, itemIndex) => (itemIndex === index ? value : item)));
+  }
+
+  function addItem() {
+    onChange([...items, ""]);
+  }
+
+  function removeItem(index: number) {
+    onChange(items.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.map((item, index) => (
+        <div
+          key={`${placeholder}-${index}`}
+          className="flex items-start gap-3 rounded-[12px] border border-[var(--joballa-border)] bg-[var(--joballa-page-tint)] px-3 py-3"
+        >
+          <div className="mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-card)] text-xs font-semibold text-[var(--joballa-primary)]">
+            {index + 1}
+          </div>
+          <input
+            value={item}
+            onChange={(event) => updateItem(index, event.target.value)}
+            placeholder={placeholder}
+            maxLength={fieldMaxLength("listLine")}
+            className={cn(portalInputClass, "h-11 border-0 bg-[var(--joballa-card)]")}
+          />
+          {items.length > 1 ? (
+            <button
+              type="button"
+              onClick={() => removeItem(index)}
+              className={cn(portalOutlineButtonClass, "h-11 shrink-0 px-3")}
+              aria-label="Remove"
+            >
+              ×
+            </button>
+          ) : null}
+        </div>
+      ))}
+
       <button
         type="button"
-        onClick={() => onChange([...items, ""])}
-        className="mt-2 text-sm font-semibold text-[var(--joballa-primary)]"
+        onClick={addItem}
+        className="inline-flex h-11 items-center justify-center rounded-[12px] border border-dashed border-[var(--joballa-border)] bg-[var(--joballa-card)] px-4 text-sm font-semibold text-[var(--joballa-primary)] transition hover:bg-[var(--joballa-row-hover)]"
       >
-        Add another
+        {addLabel}
       </button>
     </div>
   );
 }
 
+function StepDash() {
+  return <div className="mx-1 h-px w-6 shrink-0 border-t border-dashed border-[var(--joballa-border)] md:w-10" />;
+}
+
+function PostJobStepIndicator({ step, onStep }: { step: Step; onStep: (s: Step) => void }) {
+  const t = useTranslations("worker.postJobFlow");
+
+  return (
+    <nav
+      className="flex flex-wrap items-center justify-start gap-1"
+      aria-label={t("stepsLabel")}
+    >
+      {STEPS.map((item, index) => {
+        const active = step === item;
+        return (
+          <div key={item} className="flex items-center gap-1">
+            {index > 0 ? <StepDash /> : null}
+            <button
+              type="button"
+              aria-current={active ? "step" : undefined}
+              onClick={() => onStep(item)}
+              className="flex items-center gap-2 rounded-lg p-0.5 transition hover:opacity-90"
+            >
+              <span
+                className={cn(
+                  "flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                  active
+                    ? "bg-[var(--joballa-primary)] text-[var(--joballa-on-primary)]"
+                    : "bg-[var(--joballa-tag-bg)] text-[var(--joballa-muted)]",
+                )}
+              >
+                {index + 1}
+              </span>
+              <span
+                className={cn(
+                  "whitespace-nowrap text-sm font-semibold",
+                  active ? "text-[var(--joballa-primary)]" : "text-[var(--joballa-muted)]",
+                )}
+              >
+                {t(`steps.${item}`)}
+              </span>
+            </button>
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function WorkerPostJobFlow() {
+  const t = useTranslations("worker.postJobFlow");
   const router = useRouter();
   const createJob = useCreateWorkerJob();
   const meQuery = useWorkerMe();
   const kycQuery = useWorkerKyc();
-  const [draft, setDraft] = useState<Draft>(initialDraft);
-  const [preview, setPreview] = useState(false);
+  const { departments, isLoading: departmentsLoading } = useWorkerDepartmentOptions();
+  const [step, setStep] = useState<Step>("basics");
+  const [draft, setDraft] = useState(() => normalizePostJobDraft({ ...INITIAL_DRAFT, workMode: "onsite" }));
   const [verifyOpen, setVerifyOpen] = useState(false);
 
-  const requiredSkills = useMemo(
-    () => draft.requiredSkillsText.split(",").map((skill) => skill.trim()).filter(Boolean),
-    [draft.requiredSkillsText],
+  const durationParts = useMemo(() => splitDuration(draft.duration), [draft.duration]);
+
+  const selectedDepartment = useMemo(
+    () => findJobDepartment(departments, draft.department),
+    [departments, draft.department],
   );
+  const departmentLabel = selectedDepartment?.name ?? "—";
+  const startDatePreview = formatPostJobStartPreview(draft);
+
   const requirements = useMemo(() => draft.requirements.map((line) => line.trim()).filter(Boolean), [draft.requirements]);
   const responsibilities = useMemo(
     () => draft.responsibilities.map((line) => line.trim()).filter(Boolean),
     [draft.responsibilities],
   );
+  const requiredSkills = useMemo(
+    () =>
+      draft.requiredSkillsText
+        .split(/[,;|]/)
+        .map((skill) => skill.trim())
+        .filter(Boolean),
+    [draft.requiredSkillsText],
+  );
+
+  const wp = meQuery.data?.workerProfile;
+  const posterName = wp?.fullName?.trim() || meQuery.data?.email || "You";
+  const posterAvatarUrl =
+    typeof wp?.avatarUrl === "string" && wp.avatarUrl.trim() ? wp.avatarUrl.trim() : null;
+  const posterInitial = profileInitials(posterName);
+
   const latestKycStatus = kycQuery.data?.status ? String(kycQuery.data.status).toUpperCase() : null;
   const verificationStatus = latestKycStatus ?? getVerificationStatus(meQuery.data?.workerProfile);
-  const gateStatus = latestKycStatus === "PENDING" ? "PENDING" : isVerifiedStatus(verificationStatus) ? "VERIFIED" : "UNVERIFIED";
+  const gateStatus =
+    latestKycStatus === "PENDING" ? "PENDING" : isVerifiedStatus(verificationStatus) ? "VERIFIED" : "UNVERIFIED";
 
-  function update<K extends keyof Draft>(key: K, value: Draft[K]) {
-    setDraft((current) => ({ ...current, [key]: value }));
+  const payPreview = formatPayPreview(draft.pay, draft.payPer);
+  const employmentLabel = draft.jobType
+    ? t(`options.employmentType.${draft.jobType as (typeof EMPLOYMENT_TYPES)[number]}`)
+    : "—";
+  const schedulePreview = [employmentLabel !== "—" ? employmentLabel : "", draft.schedule].filter(Boolean).join(" · ");
+  const locationPreview = draft.location ? `Onsite, ${draft.location}` : "—";
+
+  function validateBasics(): boolean {
+    const payload = { ...draft, requirements, responsibilities };
+    if (departmentsLoading) {
+      toast.error(t("errors.departmentsLoading"));
+      return false;
+    }
+    const validationError = validateWorkerPostJobDraft(payload);
+    if (validationError === "INVALID_DEPARTMENT") {
+      toast.error(t("errors.department"));
+      return false;
+    }
+    if (validationError === "INVALID_START_DATE") {
+      toast.error(t("errors.startDate"));
+      return false;
+    }
+    return true;
   }
 
-  function submit(asDraft: boolean) {
+  function submitJob(asDraft: boolean) {
     if (!isVerifiedStatus(verificationStatus)) {
       setVerifyOpen(true);
       return;
     }
-    if (!draft.departmentId.trim()) {
-      setPreview(false);
+    const payload = { ...draft, requirements, responsibilities };
+    if (!validateBasics()) {
+      setStep("basics");
       return;
     }
-
-    createJob.mutate(
-      mapDraftToCreateWorkerJobBody(
-        {
-          departmentId: draft.departmentId,
-          departmentCategory: draft.departmentCategory,
-          title: draft.title,
-          location: `${draft.city}, ${draft.neighbourhood}`,
-          jobType: draft.jobType,
-          pay: draft.pay,
-          currency: draft.currency,
-          per: draft.per,
-          requiredLevel: draft.requiredLevel,
-          requiredSkills,
-          openings: draft.openings,
-          startDate: draft.startDate,
-          startAsap: draft.startAsap,
-          duration: `${draft.durationValue || 1} ${draft.durationUnit}`,
-          description: draft.description,
-          requirements,
-          responsibilities,
-        },
-        asDraft,
-      ),
-      {
-        onSuccess: () => router.push("/worker/my-jobs"),
-      },
-    );
+    let body;
+    try {
+      body = mapDraftToCreateWorkerJobBody(payload, asDraft, departments);
+    } catch {
+      toast.error(t("errors.department"));
+      setStep("basics");
+      return;
+    }
+    createJob.mutate(body, {
+      onSuccess: () => router.push("/worker/my-jobs"),
+    });
   }
 
-  if (preview) {
-    const location = ["Onsite", draft.city, draft.neighbourhood].filter(Boolean).join(", ");
-    const descriptionLines = draft.description
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean);
+  function update<K extends keyof PostJobDraft>(key: K, value: PostJobDraft[K]) {
+    setDraft((current) => ({ ...current, [key]: value }));
+  }
 
-    return (
-      <div className="mx-auto w-full max-w-[1180px] space-y-8">
-        <button
-          type="button"
-          onClick={() => setPreview(false)}
-          className="inline-flex items-center gap-2 text-2xl font-semibold text-[var(--joballa-muted)]"
-        >
-          <span aria-hidden="true" className="text-3xl leading-none">
-            ‹
-          </span>
-          Back
-        </button>
+  function updateDepartment(departmentId: string) {
+    setDraft((current) => ({ ...current, department: departmentId }));
+  }
 
-        <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
-          <section className="rounded-[18px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-5 shadow-[var(--joballa-shadow-card)] sm:p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-3xl font-bold leading-tight text-[var(--joballa-primary)] sm:text-4xl">
-                  {formatPayPreview(draft)}
-                </p>
-                <p className="mt-1 text-lg font-bold text-[var(--joballa-muted)]">{draft.jobType}</p>
+  function updateDuration(amount: string, unit: string) {
+    update("duration", mergeDuration(amount, unit));
+  }
+
+  const isSaving = createJob.isPending || departmentsLoading;
+
+  return (
+    <div className={portalPageShellClass}>
+      <Link
+        href="/worker/my-jobs"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
+      >
+        <span aria-hidden>‹</span> {t("backToJobs")}
+      </Link>
+
+      <div className="flex flex-col gap-5">
+        <div>
+          <h1 className="text-[1.625rem] font-semibold tracking-[-0.05em] text-[var(--joballa-fg)] sm:text-[1.875rem]">
+            {t("title")}
+          </h1>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--joballa-muted)]">{t("description")}</p>
+        </div>
+        <PostJobStepIndicator step={step} onStep={setStep} />
+      </div>
+
+      {step === "basics" ? (
+        <div className={cn(FORM_SHELL_CLASS, "gap-7")}>
+          <section className={cn(portalCardClass(), "p-7 sm:p-8")}>
+            <div className="flex flex-col gap-7">
+              <Field label={t("fields.title")}>
+                <input
+                  className={cn(portalInputClass, "h-[57px]")}
+                  value={draft.title}
+                  onChange={(e) => update("title", e.target.value)}
+                  placeholder={t("placeholders.title")}
+                  maxLength={fieldMaxLength("jobTitle")}
+                />
+              </Field>
+
+              <SelectField
+                label={t("fields.city")}
+                value={draft.location}
+                onChange={(value) => update("location", value)}
+                placeholder={t("placeholders.city")}
+                options={ALL_CITIES.map((city) => ({ value: city, label: city }))}
+              />
+
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                <SelectField
+                  label={t("fields.requiredLevel")}
+                  value={draft.requiredLevel}
+                  onChange={(value) => update("requiredLevel", value)}
+                  placeholder={t("placeholders.requiredLevel")}
+                  options={EXPERIENCE_LEVELS.map((value) => ({
+                    value,
+                    label: t(`options.experienceLevel.${value}`),
+                  }))}
+                />
+                <SelectField
+                  label={t("fields.department")}
+                  value={draft.department}
+                  onChange={updateDepartment}
+                  disabled={departmentsLoading}
+                  placeholder={
+                    departmentsLoading ? t("errors.departmentsLoading") : t("placeholders.department")
+                  }
+                  options={departments.map((dept) => ({
+                    value: dept.id,
+                    label: dept.name,
+                  }))}
+                />
               </div>
-              <button
-                type="button"
-                aria-label="More actions"
-                className="grid size-12 place-items-center rounded-[16px] bg-[var(--joballa-surface)] text-2xl font-bold text-[var(--joballa-muted)]"
-              >
-                ...
-              </button>
-            </div>
 
-            <div className="mt-8 sm:mt-12">
-              <h1 className="text-xl font-bold text-[var(--joballa-fg)] sm:text-3xl">
-                {draft.title || "Untitled job"}
-              </h1>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-black text-sm font-bold text-white">
-                  J
-                </span>
-                <span className="text-lg font-bold text-[var(--joballa-muted)]">joballa</span>
+              <SkillsField
+                label={t("fields.requiredSkills")}
+                hint={t("placeholders.requiredSkills")}
+                value={draft.requiredSkillsText}
+                onChange={(value) => update("requiredSkillsText", value)}
+                placeholder={t("placeholders.requiredSkills")}
+                maxLength={fieldMaxLength("requiredSkills")}
+              />
+
+              <SelectField
+                label={t("fields.employmentType")}
+                value={draft.jobType}
+                onChange={(value) => update("jobType", value)}
+                placeholder={t("placeholders.jobType")}
+                options={EMPLOYMENT_TYPES.map((value) => ({
+                  value,
+                  label: t(`options.employmentType.${value}`),
+                }))}
+              />
+
+              <Field label={t("fields.schedule")}>
+                <input
+                  className={cn(portalInputClass, "h-9")}
+                  value={draft.schedule}
+                  onChange={(e) => update("schedule", e.target.value)}
+                  placeholder={t("placeholders.schedule")}
+                  maxLength={fieldMaxLength("schedule")}
+                />
+              </Field>
+
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                <Field label={t("fields.duration")}>
+                  <input
+                    className={cn(portalInputClass, "h-9")}
+                    value={durationParts.amount}
+                    onChange={(e) => updateDuration(e.target.value, durationParts.unit)}
+                    placeholder="6"
+                    inputMode="numeric"
+                    maxLength={fieldMaxLength("duration")}
+                  />
+                </Field>
+                <SelectField
+                  label={t("fields.durationUnit")}
+                  value={durationParts.unit}
+                  onChange={(value) => updateDuration(durationParts.amount, value)}
+                  placeholder={t("options.durationUnit.months")}
+                  options={DURATION_UNITS.map((value) => ({
+                    value,
+                    label: t(`options.durationUnit.${value}`),
+                  }))}
+                />
+              </div>
+
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                <Field label={t("fields.pay")}>
+                  <input
+                    className={cn(portalInputClass, "h-9")}
+                    value={draft.pay}
+                    onChange={(e) => update("pay", e.target.value)}
+                    placeholder={t("placeholders.pay")}
+                    inputMode="numeric"
+                    maxLength={fieldMaxLength("payAmount")}
+                  />
+                </Field>
+                <SelectField
+                  label={t("fields.payPer")}
+                  value={draft.payPer}
+                  onChange={(value) => update("payPer", value)}
+                  placeholder={t("placeholders.payPer")}
+                  options={PAY_STRUCTURES.map((value) => ({
+                    value,
+                    label: t(`options.payStructure.${value}`),
+                  }))}
+                />
+              </div>
+
+              <Field label={t("fields.openings")}>
+                <input
+                  className={cn(portalInputClass, "h-9")}
+                  value={draft.openings}
+                  onChange={(e) => update("openings", e.target.value)}
+                  placeholder={t("placeholders.openings")}
+                  inputMode="numeric"
+                  maxLength={fieldMaxLength("openings")}
+                />
+              </Field>
+
+              <div className="flex flex-col gap-1">
+                <Field label={t("fields.startDate")}>
+                  <input
+                    type="date"
+                    className={cn(portalInputClass, "h-9")}
+                    value={draft.startDate}
+                    disabled={draft.startNow}
+                    onChange={(e) => update("startDate", e.target.value)}
+                    placeholder={t("placeholders.startDate")}
+                  />
+                </Field>
+                <label className="mt-2 flex items-center gap-2 rounded-[8px] p-0.5">
+                  <input
+                    type="checkbox"
+                    className={portalCheckboxClass}
+                    checked={draft.startNow}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setDraft((current) => ({
+                        ...current,
+                        startNow: checked,
+                        startDate: checked ? "" : current.startDate,
+                      }));
+                    }}
+                  />
+                  <span className="text-sm text-[var(--joballa-muted)]">{t("startNow.label")}</span>
+                </label>
               </div>
             </div>
-
-            <div className="mt-10 space-y-4">
-              <button
-                type="button"
-                disabled={createJob.isPending}
-                onClick={() => submit(false)}
-                className="h-16 w-full rounded-[14px] bg-[var(--joballa-primary)] text-lg font-semibold text-[var(--joballa-on-primary)] disabled:opacity-60"
-              >
-                {createJob.isPending ? "Posting..." : "Post Job"}
-              </button>
-              <button
-                type="button"
-                disabled={createJob.isPending}
-                onClick={() => submit(true)}
-                className="h-16 w-full rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] text-lg font-semibold text-[var(--joballa-fg)] disabled:opacity-60"
-              >
-                Save as Draft
-              </button>
-            </div>
-
-            <dl className="mt-10 space-y-3">
-              <MetaRow label="Job type" value={draft.jobType} />
-              <MetaRow label="Location" value={location || "Not set"} />
-              <MetaRow label="Start Date" value={formatStartPreview(draft)} />
-              <MetaRow label="Duration" value={formatDurationPreview(draft)} />
-              <MetaRow label="Applications" value="0 so far" />
-            </dl>
           </section>
 
-          <section className="rounded-[18px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-5 shadow-[var(--joballa-shadow-card)] sm:p-6">
-            <div className="space-y-10">
+          <div className="flex flex-col items-center gap-[26px]">
+            <button
+              type="button"
+              onClick={() => {
+                if (validateBasics()) setStep("details");
+              }}
+              className={cn(buttonClassName("primary"), "h-12 w-full")}
+            >
+              {t("actions.continue")}
+            </button>
+            <p className="text-center text-xs font-semibold text-[#bbb]">{t("preview.moderationDescription")}</p>
+          </div>
+        </div>
+      ) : null}
+
+      {step === "details" ? (
+        <div className={cn(FORM_SHELL_CLASS, "gap-6")}>
+          <section className={cn(portalCardClass(), "p-7 sm:p-8")}>
+            <h2 className="text-lg font-semibold text-[var(--joballa-fg)]">{t("fields.description")}</h2>
+            <p className="mt-1.5 text-sm leading-6 text-[var(--joballa-muted)]">{t("helpers.descriptionDescription")}</p>
+            <textarea
+              className={cn(portalTextareaClass, "mt-5 min-h-[194px]")}
+              value={draft.description}
+              onChange={(e) => update("description", e.target.value)}
+              placeholder={t("placeholders.description")}
+              maxLength={fieldMaxLength("description")}
+            />
+          </section>
+
+          <section className={cn(portalCardClass(), "p-7 sm:p-8")}>
+            <h2 className="text-lg font-semibold text-[var(--joballa-fg)]">{t("fields.requirements")}</h2>
+            <p className="mt-1.5 text-sm leading-6 text-[var(--joballa-muted)]">{t("helpers.requirementsDescription")}</p>
+            <div className="mt-5">
+              <ListComposer
+                items={draft.requirements}
+                onChange={(items) => update("requirements", items)}
+                placeholder={t("placeholders.requirement")}
+                addLabel={t("actions.addRequirement")}
+              />
+            </div>
+          </section>
+
+          <section className={cn(portalCardClass(), "p-7 sm:p-8")}>
+            <h2 className="text-lg font-semibold text-[var(--joballa-fg)]">{t("fields.responsibilities")}</h2>
+            <p className="mt-1.5 text-sm leading-6 text-[var(--joballa-muted)]">
+              {t("helpers.responsibilitiesDescription")}
+            </p>
+            <div className="mt-5">
+              <ListComposer
+                items={draft.responsibilities}
+                onChange={(items) => update("responsibilities", items)}
+                placeholder={t("placeholders.responsibility")}
+                addLabel={t("actions.addResponsibility")}
+              />
+            </div>
+          </section>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => setStep("basics")}
+              className={cn(portalOutlineButtonClass, "h-12 flex-1")}
+            >
+              {t("actions.back")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (validateBasics()) setStep("preview");
+              }}
+              className={cn(buttonClassName("primary"), "h-12 flex-1")}
+            >
+              {t("actions.preview")}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {step === "preview" ? (
+        <div className={cn(FORM_SHELL_CLASS, "max-w-6xl gap-6")}>
+          <div className="grid gap-4 xl:grid-cols-2 xl:gap-5">
+            <article className={cn(portalCardClass(), "flex flex-col gap-6 p-[14px]")}>
+              <div className="flex items-start justify-between gap-2.5">
+                <div className="min-w-0">
+                  <p className="text-2xl font-semibold leading-8 text-[var(--joballa-primary)]">{payPreview}</p>
+                  <p className="mt-1 text-sm font-semibold text-[var(--joballa-muted)]">{schedulePreview || "—"}</p>
+                </div>
+              </div>
+
               <div>
-                <h2 className="text-2xl font-bold text-[var(--joballa-fg)]">About this role</h2>
-                {descriptionLines.length > 0 ? (
-                  <ul className="mt-4 list-disc space-y-2 pl-6 text-base leading-7 text-[var(--joballa-muted)] sm:mt-5 sm:pl-8 sm:text-xl sm:leading-8">
-                    {descriptionLines.map((item, index) => (
-                      <li key={`${item}-${index}`}>{item}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-4 text-base leading-7 text-[var(--joballa-muted)] sm:mt-5 sm:text-xl sm:leading-8">
-                    No description added yet.
-                  </p>
-                )}
+                <h2 className="text-lg font-semibold leading-7 text-[var(--joballa-fg)]">{draft.title || "—"}</h2>
+                <div className="mt-2 flex items-center gap-2">
+                  {posterAvatarUrl ? (
+                    <span className="relative size-6 shrink-0 overflow-hidden rounded-full">
+                      <Image src={posterAvatarUrl} alt="" fill className="object-cover" sizes="24px" unoptimized />
+                    </span>
+                  ) : (
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-primary)] text-[8px] font-bold text-[var(--joballa-on-primary)]">
+                      {posterInitial}
+                    </span>
+                  )}
+                  <span className="text-xs font-semibold text-[var(--joballa-muted)]">{posterName}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  disabled={isSaving}
+                  onClick={() => submitJob(false)}
+                  className={cn(buttonClassName("primary"), "h-12 w-full disabled:opacity-60")}
+                >
+                  {isSaving ? t("actions.submitting") : t("actions.publish")}
+                </button>
+                <button
+                  type="button"
+                  disabled={isSaving}
+                  onClick={() => submitJob(true)}
+                  className={cn(portalOutlineButtonClass, "h-12 w-full disabled:opacity-60")}
+                >
+                  {t("actions.saveDraft")}
+                </button>
+              </div>
+
+              <dl className="flex flex-col gap-1.5">
+                {[
+                  [t("fields.jobType"), employmentLabel],
+                  [t("fields.location"), locationPreview],
+                  [t("fields.startDate"), startDatePreview],
+                  [t("fields.duration"), draft.duration || "—"],
+                  [t("preview.applications"), t("preview.applicationsCount")],
+                ].map(([label, value]) => (
+                  <div key={String(label)} className="flex items-start justify-between gap-4 text-sm font-semibold">
+                    <dt className="text-[var(--joballa-fg)]">{label}</dt>
+                    <dd className="text-right text-[var(--joballa-muted)]">{value || "—"}</dd>
+                  </div>
+                ))}
+              </dl>
+            </article>
+
+            <article className={cn(portalCardClass(), "flex flex-col gap-6 p-[14px]")}>
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--joballa-fg)]">{t("preview.aboutTitle")}</h3>
+                <p className="mt-2.5 text-sm leading-5 text-[var(--joballa-muted)]">{draft.description || "—"}</p>
               </div>
 
               {requirements.length > 0 ? (
-                <div>
-                  <h2 className="text-xl font-bold text-[var(--joballa-fg)] sm:text-2xl">Requirements</h2>
-                  <ul className="mt-4 list-disc space-y-2 pl-6 text-base leading-7 text-[var(--joballa-muted)] sm:mt-5 sm:pl-8 sm:text-xl sm:leading-8">
-                    {requirements.map((item, index) => (
-                      <li key={`${item}-${index}`}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
+                <PreviewList title={t("preview.requirementsTitle")} items={requirements} />
               ) : null}
 
               {responsibilities.length > 0 ? (
+                <PreviewList title={t("preview.doTitle")} items={responsibilities} />
+              ) : null}
+
+              {requiredSkills.length > 0 ? (
                 <div>
-                  <h2 className="text-xl font-bold text-[var(--joballa-fg)] sm:text-2xl">What you will do</h2>
-                  <ul className="mt-4 list-disc space-y-2 pl-6 text-base leading-7 text-[var(--joballa-muted)] sm:mt-5 sm:pl-8 sm:text-xl sm:leading-8">
-                    {responsibilities.map((item, index) => (
-                      <li key={`${item}-${index}`}>{item}</li>
+                  <h4 className="text-sm font-semibold text-[var(--joballa-fg)]">{t("fields.requiredSkills")}</h4>
+                  <div className="mt-2.5 flex flex-wrap gap-2">
+                    {requiredSkills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex rounded-full border border-[var(--joballa-pill-border)] bg-[var(--joballa-pill-bg)] px-2 py-1 text-xs font-semibold text-[var(--joballa-muted)]"
+                      >
+                        {skill}
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               ) : null}
 
-              <div className="pt-8 text-center text-base font-semibold text-[var(--joballa-muted)]">
-                <div className="mx-auto mb-8 h-px w-16 bg-[var(--joballa-border)]" />
-                <p>Listed by joballa</p>
-                <p>for you</p>
+              <div className="border-t border-[var(--joballa-border)] pt-4 text-center text-xs font-medium text-[#bbb]">
+                <p>{t("preview.listedBy", { department: departmentLabel })}</p>
+                <p>{t("preview.listedFor", { name: posterName })}</p>
               </div>
-            </div>
-          </section>
+            </article>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={() => setStep("details")} className={cn(portalOutlineButtonClass, "h-11 px-5")}>
+              {t("actions.continueEditing")}
+            </button>
+          </div>
         </div>
-        <VerificationGateDialog
-          open={verifyOpen}
-          onOpenChange={setVerifyOpen}
-          status={gateStatus}
-          subject="worker"
-          action="post-job"
-          onVerify={() => router.push("/worker/profile/edit?section=verification")}
-        />
-      </div>
-    );
-  }
+      ) : null}
 
-  return (
-    <div className="mx-auto w-full max-w-[760px] space-y-6">
-      <h1 className="text-2xl font-bold text-[var(--joballa-fg)] sm:text-3xl">Post a Job</h1>
-      <section className="rounded-[18px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-5 py-6 shadow-[var(--joballa-shadow-card)] sm:px-8">
-        <div className="space-y-6">
-          <Field label="Department ID">
-            <input
-              value={draft.departmentId}
-              onChange={(e) => update("departmentId", e.target.value)}
-              placeholder="Paste department UUID"
-              className={inputClass()}
-            />
-          </Field>
-
-          <Field label="Department Category">
-            <select
-              value={draft.departmentCategory}
-              onChange={(e) => update("departmentCategory", e.target.value as Draft["departmentCategory"])}
-              className={inputClass()}
-            >
-              {["education", "domestic", "logistics", "events", "agriculture", "construction", "other"].map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </Field>
-
-          <Field label="Job Title">
-            <input value={draft.title} onChange={(e) => update("title", e.target.value)} className={inputClass()} />
-          </Field>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="City">
-              <select value={draft.city} onChange={(e) => update("city", e.target.value)} className={inputClass()}>
-                {cityOptions.map((city) => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Area / Neighbourhood">
-              <input value={draft.neighbourhood} onChange={(e) => update("neighbourhood", e.target.value)} className={inputClass()} />
-            </Field>
-          </div>
-
-          <Field label="Job Description">
-            <textarea
-              value={draft.description}
-              onChange={(e) => update("description", e.target.value)}
-              className={inputClass("h-44 resize-none py-3 leading-6")}
-            />
-          </Field>
-
-          <Field label="Required Skills">
-            <input
-              value={draft.requiredSkillsText}
-              onChange={(e) => update("requiredSkillsText", e.target.value)}
-              placeholder="React, Tailwind CSS, Problem solving"
-              className={inputClass()}
-            />
-          </Field>
-
-          <Field label="Required Level">
-            <select value={draft.requiredLevel} onChange={(e) => update("requiredLevel", e.target.value)} className={inputClass()}>
-              {["Entry", "Junior", "Mid", "Senior", "Lead"].map((level) => <option key={level}>{level}</option>)}
-            </select>
-          </Field>
-
-          <Field label="Employment Type">
-            <select value={draft.jobType} onChange={(e) => update("jobType", e.target.value)} className={inputClass()}>
-              {["Full Time", "Part Time", "Contract", "Temporary"].map((type) => <option key={type}>{type}</option>)}
-            </select>
-          </Field>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Duration">
-              <input value={draft.durationValue} onChange={(e) => update("durationValue", e.target.value)} placeholder="Ex: 6" className={inputClass()} />
-            </Field>
-            <Field label="Unit">
-              <select value={draft.durationUnit} onChange={(e) => update("durationUnit", e.target.value)} className={inputClass()}>
-                {["Days", "Weeks", "Months", "Years"].map((unit) => <option key={unit}>{unit}</option>)}
-              </select>
-            </Field>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            <Field label="Pay">
-              <input value={draft.pay} onChange={(e) => update("pay", e.target.value)} placeholder="185,000" className={inputClass()} />
-            </Field>
-            <Field label="Currency">
-              <select value={draft.currency} onChange={(e) => update("currency", e.target.value)} className={inputClass()}>
-                <option>XAF</option>
-              </select>
-            </Field>
-            <Field label="Per">
-              <select value={draft.per} onChange={(e) => update("per", e.target.value)} className={inputClass()}>
-                {["Month", "Hour", "Day"].map((per) => <option key={per}>{per}</option>)}
-              </select>
-            </Field>
-          </div>
-
-          <Field label="Number of Openings">
-            <input value={draft.openings} onChange={(e) => update("openings", e.target.value)} className={inputClass()} />
-          </Field>
-
-          <Field label="Start Date">
-            <input
-              type="date"
-              value={draft.startDate}
-              onChange={(e) => update("startDate", e.target.value)}
-              disabled={draft.startAsap}
-              className={inputClass(draft.startAsap ? "opacity-60" : undefined)}
-            />
-          </Field>
-          <label className="flex items-center gap-3 text-sm font-semibold text-[var(--joballa-muted)]">
-            <input
-              type="checkbox"
-              checked={draft.startAsap}
-              onChange={(e) => update("startAsap", e.target.checked)}
-              className="size-5 accent-[var(--joballa-primary)]"
-            />
-            Shortlisted applicant starts as soon as possible
-          </label>
-
-          <BulletInputs label="Requirements" items={draft.requirements} placeholder="Add one requirement" onChange={(items) => update("requirements", items)} />
-          <BulletInputs label="What you will do" items={draft.responsibilities} placeholder="Add one responsibility" onChange={(items) => update("responsibilities", items)} />
-        </div>
-      </section>
-
-      <button
-        type="button"
-        onClick={() => setPreview(true)}
-        className="h-12 w-full rounded-[14px] bg-[var(--joballa-primary)] text-sm font-semibold text-[var(--joballa-on-primary)]"
-      >
-        Preview
-      </button>
-      <p className="text-center text-sm font-semibold text-[var(--joballa-muted)]">Jobs are reviewed by joballa Admin before going live</p>
+      <VerificationGateDialog
+        open={verifyOpen}
+        onOpenChange={setVerifyOpen}
+        status={gateStatus}
+        subject="worker"
+        action="post-job"
+        onVerify={() => router.push("/worker/profile/edit?section=verification")}
+      />
     </div>
   );
 }

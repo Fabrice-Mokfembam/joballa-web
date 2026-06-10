@@ -11,6 +11,7 @@ import type {
   WorkerFullProfile,
   WorkerKycSubmission,
   WorkerMe,
+  WorkerMeProfile,
   WorkerPaymentAccount,
   WorkerWorkHistory,
   CreateWorkerPaymentAccountBody,
@@ -74,6 +75,14 @@ function mapCertification(entry: unknown): WorkerCertification | null {
     issuer: typeof raw.issuer === "string" ? raw.issuer : undefined,
     issueDate: raw.issueDate != null ? String(raw.issueDate) : undefined,
     expiryDate: raw.expiryDate != null ? String(raw.expiryDate) : raw.expiryDate === null ? null : undefined,
+    credentialUrl:
+      typeof raw.credentialUrl === "string"
+        ? raw.credentialUrl
+        : raw.credentialUrl === null
+          ? null
+          : undefined,
+    createdAt: raw.createdAt != null ? String(raw.createdAt) : undefined,
+    updatedAt: raw.updatedAt != null ? String(raw.updatedAt) : undefined,
   };
 }
 
@@ -83,11 +92,22 @@ function mapDocument(entry: unknown): WorkerDocument | null {
   const id = String(raw.id ?? raw.documentId ?? "");
   const url = String(raw.url ?? raw.fileUrl ?? "");
   if (!id && !url) return null;
+  const mimeType = typeof raw.mimeType === "string" ? raw.mimeType : undefined;
+  const fileType =
+    raw.fileType === "pdf" || raw.fileType === "image"
+      ? raw.fileType
+      : mimeType?.startsWith("image/")
+        ? "image"
+        : mimeType === "application/pdf"
+          ? "pdf"
+          : undefined;
   return {
     id: id || url,
     type: typeof raw.type === "string" ? raw.type : undefined,
     fileName: typeof raw.fileName === "string" ? raw.fileName : undefined,
     url: url || undefined,
+    mimeType,
+    fileType,
     createdAt: raw.createdAt != null ? String(raw.createdAt) : undefined,
   };
 }
@@ -137,7 +157,9 @@ function mapPaymentAccount(entry: unknown): WorkerPaymentAccount | null {
     id: id || phone,
     provider,
     phone,
+    phoneNumber: phone,
     isPrimary: typeof raw.isPrimary === "boolean" ? raw.isPrimary : undefined,
+    createdAt: raw.createdAt != null ? String(raw.createdAt) : undefined,
   };
 }
 
@@ -169,24 +191,30 @@ export function normalizeWorkerProfile(raw: unknown): WorkerFullProfile {
   const educationRaw = data.educations ?? data.education ?? [];
   const documentsRaw = data.documents ?? data.supportingDocuments ?? [];
   const kycRaw = data.kycSubmissions ?? (data.latestKyc ? [data.latestKyc] : []);
-  const paymentAccounts = asArray<unknown>(data.paymentAccounts)
+  const paymentAccounts = asArray<unknown>(data.paymentAccounts ?? data.paymentMethods)
     .map(mapPaymentAccount)
     .filter((a): a is WorkerPaymentAccount => a != null);
   const primaryAccount =
     paymentAccounts.find((a) => a.isPrimary) ?? paymentAccounts[0] ?? null;
+  const completenessBreakdown =
+    (data.profileStrengthBreakdown ?? data.profileCompletenessBreakdown) as WorkerFullProfile["profileStrengthBreakdown"];
 
   const profile: WorkerFullProfile = {
     id: String(data.id ?? ""),
     userId: data.userId != null ? String(data.userId) : undefined,
     firstName: data.firstName != null ? String(data.firstName) : null,
     lastName: data.lastName != null ? String(data.lastName) : null,
-    fullName: data.fullName != null ? String(data.fullName) : null,
+    fullName:
+      data.fullName != null
+        ? String(data.fullName)
+        : [data.firstName, data.lastName].filter(Boolean).join(" ").trim() || null,
     city: data.city != null ? String(data.city) : null,
     region: data.region != null ? String(data.region) : null,
     country: data.country != null ? String(data.country) : null,
     languages: asArray<string>(data.languages),
     availabilityStatus:
       data.availabilityStatus != null ? (String(data.availabilityStatus) as WorkerFullProfile["availabilityStatus"]) : undefined,
+    availableForHire: typeof data.availableForHire === "boolean" ? data.availableForHire : undefined,
     professionalTitle:
       data.professionalTitle != null
         ? String(data.professionalTitle)
@@ -220,8 +248,8 @@ export function normalizeWorkerProfile(raw: unknown): WorkerFullProfile {
       data.verificationStatus != null ? String(data.verificationStatus) : undefined,
     profileCompleteness:
       typeof data.profileCompleteness === "number" ? data.profileCompleteness : undefined,
-    profileStrengthBreakdown:
-      (data.profileStrengthBreakdown ?? data.profileCompletenessBreakdown) as WorkerFullProfile["profileStrengthBreakdown"],
+    profileStrengthBreakdown: completenessBreakdown,
+    profileCompletenessBreakdown: completenessBreakdown as WorkerFullProfile["profileCompletenessBreakdown"],
     workHistories: asArray<unknown>(workRaw)
       .map(mapWorkHistory)
       .filter((w): w is WorkerWorkHistory => w != null),
@@ -238,6 +266,7 @@ export function normalizeWorkerProfile(raw: unknown): WorkerFullProfile {
       .map(mapKyc)
       .filter((k): k is WorkerKycSubmission => k != null),
     paymentAccounts,
+    paymentMethods: paymentAccounts,
     mobileMoneyProvider: primaryAccount ? providerToUi(String(primaryAccount.provider)) : null,
     mobileMoneyNumber: primaryAccount?.phone ?? null,
   };
@@ -245,11 +274,46 @@ export function normalizeWorkerProfile(raw: unknown): WorkerFullProfile {
   return profile;
 }
 
+function mapMeProfileNested(workerProfile: ApiRecord) {
+  const workRaw =
+    workerProfile.workHistory ?? workerProfile.workHistories ?? workerProfile.experiences;
+  const educationRaw = workerProfile.educations ?? workerProfile.education;
+  const documentsRaw = workerProfile.documents ?? workerProfile.profileDocuments;
+
+  return {
+    workHistory: asArray<unknown>(workRaw)
+      .map(mapWorkHistory)
+      .filter((w): w is WorkerWorkHistory => w != null),
+    educations: asArray<unknown>(educationRaw)
+      .map(mapEducation)
+      .filter((e): e is WorkerEducation => e != null),
+    certifications: asArray<unknown>(workerProfile.certifications)
+      .map(mapCertification)
+      .filter((c): c is WorkerCertification => c != null),
+    documents: asArray<unknown>(documentsRaw)
+      .map(mapDocument)
+      .filter((d): d is WorkerDocument => d != null),
+    kycSubmissions: (() => {
+      const list = asArray<unknown>(workerProfile.kycSubmissions);
+      const mapped = list.map(mapKyc).filter((k): k is WorkerKycSubmission => k != null);
+      if (mapped.length > 0) return mapped;
+      const latest = workerProfile.latestKyc;
+      if (latest && typeof latest === "object") {
+        const one = mapKyc(latest);
+        return one ? [one] : [];
+      }
+      return [];
+    })(),
+  };
+}
+
 /** Map v2 `GET /worker/me`, whose worker profile avatar field is `photoUrl`. */
 export function normalizeWorkerMe(raw: unknown): WorkerMe {
   const data = asRecord(raw) ?? {};
   const workerProfile = asRecord(data.workerProfile);
   if (!workerProfile) return data as WorkerMe;
+
+  const nested = mapMeProfileNested(workerProfile);
 
   return {
     ...(data as WorkerMe),
@@ -271,12 +335,61 @@ export function normalizeWorkerMe(raw: unknown): WorkerMe {
             : workerProfile.profilePhotoUrl != null
               ? String(workerProfile.profilePhotoUrl)
               : null,
+      summary:
+        typeof workerProfile.summary === "string"
+          ? workerProfile.summary
+          : typeof workerProfile.shortBio === "string"
+            ? workerProfile.shortBio
+            : undefined,
+      skills: asArray<string>(workerProfile.skills).map(String),
+      languages: asArray<string>(workerProfile.languages).map(String),
+      ...nested,
+    },
+  };
+}
+
+/** Enrich sparse `GET /worker/me` with `GET /worker/profile` for nav, logging, and completeness. */
+export function mergeWorkerMeWithProfile(me: WorkerMe, profile: WorkerFullProfile): WorkerMe {
+  if (!me.workerProfile) return me;
+
+  return {
+    ...me,
+    workerProfile: {
+      ...me.workerProfile,
+      fullName: me.workerProfile.fullName ?? profile.fullName ?? null,
+      professionalTitle: me.workerProfile.professionalTitle ?? profile.professionalTitle ?? null,
+      city: me.workerProfile.city ?? profile.city ?? null,
+      region: me.workerProfile.region ?? profile.region ?? null,
+      profileCompleteness: profile.profileCompleteness ?? me.workerProfile.profileCompleteness,
+      profileStrengthBreakdown:
+        profile.profileStrengthBreakdown ?? me.workerProfile.profileStrengthBreakdown,
+      verificationStatus: (profile.verificationStatus ??
+        me.workerProfile.verificationStatus) as WorkerMeProfile["verificationStatus"],
+      availabilityStatus: (profile.availabilityStatus ??
+        me.workerProfile.availabilityStatus) as WorkerMeProfile["availabilityStatus"],
+      availableForHire: profile.availableForHire ?? me.workerProfile.availableForHire,
+      avatarUrl: profile.avatarUrl ?? me.workerProfile.avatarUrl ?? null,
+      summary: profile.summary ?? (me.workerProfile.summary as string | undefined),
+      skills: profile.skills?.length ? profile.skills : (me.workerProfile.skills as string[] | undefined),
+      languages: profile.languages?.length
+        ? profile.languages
+        : (me.workerProfile.languages as string[] | undefined),
+      workHistory: profile.workHistory ?? (me.workerProfile.workHistory as WorkerWorkHistory[] | undefined),
+      educations: profile.educations ?? (me.workerProfile.educations as WorkerEducation[] | undefined),
+      certifications:
+        profile.certifications ?? (me.workerProfile.certifications as WorkerCertification[] | undefined),
+      documents: profile.documents ?? (me.workerProfile.documents as WorkerDocument[] | undefined),
+      kycSubmissions:
+        profile.kycSubmissions ?? (me.workerProfile.kycSubmissions as WorkerKycSubmission[] | undefined),
+      paymentAccounts:
+        profile.paymentAccounts ?? (me.workerProfile.paymentAccounts as WorkerPaymentAccount[] | undefined),
     },
   };
 }
 
 export function encodePersonalInfoPatch(body: PatchPersonalInfoBody): ApiRecord {
   return {
+    fullName: body.fullName,
     firstName: body.firstName,
     lastName: body.lastName,
     city: body.city,

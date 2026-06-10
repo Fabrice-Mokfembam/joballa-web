@@ -31,6 +31,7 @@ import {
   portalSegmentGroupClass,
   portalTextareaClass,
 } from "@/components/portal/portal-ui";
+import { fieldMaxLength } from "@/lib/form-field-limits";
 import { cn } from "@/lib/utils";
 import { buttonClassName } from "@/components/ui/button";
 
@@ -151,6 +152,7 @@ function ListComposer({
             value={item}
             onChange={(event) => updateItem(index, event.target.value)}
             placeholder={placeholder}
+            maxLength={fieldMaxLength("listLine")}
             className={cn(portalInputClass, "h-11 border-0 bg-[var(--joballa-card)]")}
           />
           {items.length > 1 ? (
@@ -396,6 +398,7 @@ function EmployerPostJobFlowEditor({
                   value={draft.title}
                   onChange={(e) => update("title", e.target.value)}
                   placeholder={t("placeholders.title")}
+                  maxLength={fieldMaxLength("jobTitle")}
                 />
               </Field>
               <SelectField
@@ -415,6 +418,7 @@ function EmployerPostJobFlowEditor({
                     value={draft.categoryCustom}
                     onChange={(e) => update("categoryCustom", e.target.value)}
                     placeholder={t("placeholders.categoryOther")}
+                    maxLength={fieldMaxLength("categoryCustom")}
                   />
                 </Field>
               ) : null}
@@ -444,6 +448,7 @@ function EmployerPostJobFlowEditor({
                   value={draft.location}
                   onChange={(e) => update("location", e.target.value)}
                   placeholder={t("placeholders.location")}
+                  maxLength={fieldMaxLength("location")}
                 />
               </Field>
               <Field label={t("fields.pay")}>
@@ -453,6 +458,7 @@ function EmployerPostJobFlowEditor({
                   onChange={(e) => update("pay", e.target.value)}
                   placeholder={t("placeholders.pay")}
                   inputMode="numeric"
+                  maxLength={fieldMaxLength("payAmount")}
                 />
               </Field>
               <SelectField
@@ -472,6 +478,7 @@ function EmployerPostJobFlowEditor({
                   onChange={(e) => update("openings", e.target.value)}
                   placeholder={t("placeholders.openings")}
                   inputMode="numeric"
+                  maxLength={fieldMaxLength("openings")}
                 />
               </Field>
               <SelectField
@@ -554,6 +561,7 @@ function EmployerPostJobFlowEditor({
                       value={draft.duration}
                       onChange={(e) => update("duration", e.target.value)}
                       placeholder={t("placeholders.duration")}
+                      maxLength={fieldMaxLength("duration")}
                     />
                   </Field>
                   <Field label={t("fields.schedule")}>
@@ -562,6 +570,7 @@ function EmployerPostJobFlowEditor({
                       value={draft.schedule}
                       onChange={(e) => update("schedule", e.target.value)}
                       placeholder={t("placeholders.schedule")}
+                      maxLength={fieldMaxLength("schedule")}
                     />
                   </Field>
                 </div>
@@ -574,6 +583,7 @@ function EmployerPostJobFlowEditor({
                 value={draft.requiredSkillsText}
                 onChange={(e) => update("requiredSkillsText", e.target.value)}
                 placeholder={t("placeholders.requiredSkills")}
+                maxLength={fieldMaxLength("requiredSkills")}
               />
             </DetailCard>
 
@@ -583,6 +593,7 @@ function EmployerPostJobFlowEditor({
                 value={draft.description}
                 onChange={(e) => update("description", e.target.value)}
                 placeholder={t("placeholders.description")}
+                maxLength={fieldMaxLength("description")}
               />
             </DetailCard>
 

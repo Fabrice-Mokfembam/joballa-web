@@ -4,6 +4,8 @@ import type { WorkerJobCard } from "@/lib/worker-job-data";
 import { useRouter } from "@/lib/i18n/navigation";
 import { WorkerJobPostingCard } from "@/components/job-posting/worker-job-posting-card";
 import type { JobPostingCardMenuItem } from "@/components/job-posting/job-posting-card";
+import { useSaveWorkerJob, useUnsaveWorkerJob } from "@/features/worker/hooks";
+import { useCallback, useEffect, useState } from "react";
 
 type Props = {
   job: WorkerJobCard;
@@ -39,6 +41,23 @@ export function WorkerJobGridCard({
   menuItems,
 }: Props) {
   const router = useRouter();
+  const saveJob = useSaveWorkerJob();
+  const unsaveJob = useUnsaveWorkerJob();
+  const [saved, setSaved] = useState(() => !!(bookmarkFilled ?? job.isSaved));
+
+  useEffect(() => {
+    setSaved(!!(bookmarkFilled ?? job.isSaved));
+  }, [bookmarkFilled, job.isSaved]);
+
+  const toggleBookmark = useCallback(() => {
+    const next = !saved;
+    setSaved(next);
+    if (next) {
+      saveJob.mutate(job.slug, { onError: () => setSaved(false) });
+    } else {
+      unsaveJob.mutate(job.slug, { onError: () => setSaved(true) });
+    }
+  }, [job.slug, saveJob, saved, unsaveJob]);
 
   return (
     <WorkerJobPostingCard
@@ -47,7 +66,8 @@ export function WorkerJobGridCard({
       postedLabel={topLine}
       matchTextOverride={matchLabel}
       bookmarkLabel={bookmarkLabel}
-      bookmarkFilled={bookmarkFilled}
+      bookmarkFilled={saved}
+      onBookmarkClick={toggleBookmark}
       applyLabel={applyLabel}
       showApply={showApply}
       menuItems={menuItems}

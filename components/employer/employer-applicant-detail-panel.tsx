@@ -269,7 +269,7 @@ function ApplicantProfilePageCard({
   );
 }
 
-function ProfileSections({
+export function ProfileSections({
   profile,
   t,
   variant = "panel",
@@ -391,7 +391,7 @@ function ProfileSections({
   );
 }
 
-function MetaRow({ label, value }: { label: string; value: string }) {
+export function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-[var(--joballa-border)] py-2.5 text-sm last:border-b-0">
       <dt className="font-semibold text-[var(--joballa-fg)]">{label}</dt>

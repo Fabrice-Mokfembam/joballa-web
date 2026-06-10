@@ -29,9 +29,15 @@ export function isRejectedStatus(status?: string | null) {
 export function verificationStatusLabel(status?: string | null) {
   const normalized = String(status ?? "").toUpperCase();
   if (normalized === "VERIFIED") return "Verified";
-  if (normalized === "PENDING") return "Pending";
+  if (normalized === "PENDING") return "Under Review";
   if (normalized === "REJECTED") return "Rejected";
   if (normalized === "MORE_INFO_REQUIRED") return "More info required";
   if (normalized === "RESUBMISSION_REQUESTED") return "Resubmission requested";
-  return "Not submitted";
+  if (normalized === "NOT_SUBMITTED" || normalized === "UNVERIFIED") return "Not Submitted";
+  return "Not Submitted";
+}
+
+export function isNotSubmittedStatus(status?: string | null) {
+  const normalized = String(status ?? "").toUpperCase();
+  return !normalized || normalized === "NOT_SUBMITTED" || normalized === "UNVERIFIED";
 }

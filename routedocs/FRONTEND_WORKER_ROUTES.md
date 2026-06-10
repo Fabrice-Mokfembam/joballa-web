@@ -6,6 +6,8 @@ This document is for the frontend team. It describes Worker portal pages, what e
 
 **Implementation status** — see `ROUTE_AUDIT.md`. The Next.js app calls `/worker/*` (v2, no `/api` prefix). `/worker/my-jobs` may still use owned-jobs routes vs informal-requests (see audit).
 
+**Code catalog** — every worker route path, request type, and response type is tracked in `features/worker/api/worker-routes.ts` (`WORKER_ROUTE_CONTRACTS`). Request encoders live in `features/worker/lib/worker-request-encoders.ts`; response normalizers in `features/worker/lib/worker-api-normalizers.ts`.
+
 All Worker API calls require a Bearer access token and the authenticated user must have role `worker`.
 
 ## Shared Worker Types

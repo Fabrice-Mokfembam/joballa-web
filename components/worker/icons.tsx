@@ -5,6 +5,7 @@ import {
   Bookmark,
   Briefcase,
   Building2,
+  BadgeCheck,
   CheckCircle2,
   ChevronDown,
   Expand,
@@ -157,7 +158,7 @@ export function IconCollapseSidebar(props: IconProps) {
 }
 
 export function IconVerified(props: IconProps) {
-  return <CheckCircle2 aria-hidden fill="#2563eb" color="#2563eb" stroke="white" strokeWidth={2.4} {...props} />;
+  return <BadgeCheck aria-hidden strokeWidth={1.8} {...props} />;
 }
 
 /** Bottom tab / nav: applications */

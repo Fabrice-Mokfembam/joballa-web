@@ -95,6 +95,7 @@ function formatStartDate(value?: string | null, startAsap?: boolean): string {
 
 function formatDuration(detail?: WorkerJobDetail | null): string {
   const ext = detail as WorkerJobDetail & { duration?: string; durationValue?: number | string; durationUnit?: string };
+  if (detail?.duration) return String(detail.duration);
   if (ext?.duration) return String(ext.duration);
   if (ext?.durationValue) {
     const unit = ext.durationUnit ? String(ext.durationUnit).toLowerCase() : "months";
@@ -149,6 +150,7 @@ export function WorkerJobDetailView({
   const description = typeof detail?.description === "string" ? detail.description.trim() : "";
   const latestKycStatus = kycQuery.data?.status ? String(kycQuery.data.status).toUpperCase() : null;
   const verificationStatus = latestKycStatus ?? getVerificationStatus(meQuery.data?.workerProfile);
+  const verificationReady = !kycQuery.isLoading && !meQuery.isLoading;
   const gateStatus = latestKycStatus === "PENDING" ? "PENDING" : isVerifiedStatus(verificationStatus) ? "VERIFIED" : "UNVERIFIED";
   const alreadyApplied = useMemo(
     () =>
@@ -159,9 +161,19 @@ export function WorkerJobDetailView({
   );
 
   const metaRows = useMemo(() => {
-    const ext = detail as WorkerJobDetail & { startDate?: string; startAsap?: boolean };
+    const ext = detail as WorkerJobDetail & {
+      startDate?: string;
+      startAsap?: boolean;
+      department?: { name?: string };
+    };
+    const detailRaw = detail as Record<string, unknown> | undefined;
+    const departmentValue =
+      job.department?.trim() ||
+      (ext?.department?.name ? String(ext.department.name) : "") ||
+      (typeof detailRaw?.departmentName === "string" ? detailRaw.departmentName : "");
     const rows = [
-      { label: t("meta.jobType"), value: displayValue(job.seniority || schedule) },
+      { label: t("meta.department"), value: displayValue(departmentValue) },
+      { label: t("meta.jobType"), value: displayValue(job.employmentType || schedule) },
       { label: t("meta.location"), value: displayValue(location || detail?.city) },
       { label: t("meta.startDate"), value: displayValue(formatStartDate(ext?.startDate, ext?.startAsap)) },
       { label: t("meta.duration"), value: displayValue(formatDuration(detail)) },
@@ -171,24 +183,28 @@ export function WorkerJobDetailView({
       },
     ];
     return rows.filter((row) => row.value);
-  }, [detail, job.seniority, location, schedule, t]);
+  }, [detail, job.department, job.employmentType, location, schedule, t]);
 
   useEffect(() => {
     if (searchParams.get("apply") !== "1") {
       setApplyOpen(false);
+      setVerifyOpen(false);
       return;
     }
+    if (!verificationReady) return;
     if (alreadyApplied) {
       setApplyOpen(false);
+      setVerifyOpen(false);
       return;
     }
     if (isVerifiedStatus(verificationStatus)) {
+      setVerifyOpen(false);
       setApplyOpen(true);
       return;
     }
     setApplyOpen(false);
     setVerifyOpen(true);
-  }, [alreadyApplied, searchParams, verificationStatus]);
+  }, [alreadyApplied, searchParams, verificationReady, verificationStatus]);
 
   useEffect(() => {
     setSaved(isSavedProp);
@@ -218,14 +234,12 @@ export function WorkerJobDetailView({
   }, [job.slug, pathname, router, variant]);
 
   const toggleSave = useCallback(() => {
-    if (saved) {
-      unsaveJob.mutate(jobId, {
-        onSuccess: () => setSaved(false),
-      });
+    const next = !saved;
+    setSaved(next);
+    if (next) {
+      saveJob.mutate(jobId, { onError: () => setSaved(false) });
     } else {
-      saveJob.mutate(jobId, {
-        onSuccess: () => setSaved(true),
-      });
+      unsaveJob.mutate(jobId, { onError: () => setSaved(true) });
     }
   }, [jobId, saveJob, saved, unsaveJob]);
 
@@ -335,24 +349,34 @@ export function WorkerJobDetailView({
             </div>
           </div>
 
-          <div className={cn("mt-5 grid grid-cols-1 gap-3", !alreadyApplied && "min-[420px]:grid-cols-2")}>
-            {!alreadyApplied ? (
-              <button
-                type="button"
-                onClick={openApply}
-                className="flex h-12 items-center justify-center rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-semibold text-white shadow-[0_1px_1px_rgba(0,0,0,0.1)] transition hover:opacity-[0.96]"
-              >
-                {t("applyNow")}
-              </button>
-            ) : null}
+          <div className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
+            <button
+              type="button"
+              onClick={openApply}
+              disabled={alreadyApplied}
+              className={cn(
+                "flex h-12 items-center justify-center rounded-[12px] px-4 text-sm font-semibold shadow-[0_1px_1px_rgba(0,0,0,0.1)] transition",
+                alreadyApplied
+                  ? "cursor-not-allowed bg-[var(--joballa-primary)]/45 text-white/85"
+                  : "bg-[var(--joballa-primary)] text-white hover:opacity-[0.96]",
+              )}
+            >
+              {alreadyApplied ? t("applied") : t("applyNow")}
+            </button>
             <button
               type="button"
               onClick={toggleSave}
               disabled={saveJob.isPending || unsaveJob.isPending}
-              className="flex h-12 items-center justify-center gap-2 rounded-[12px] border border-[#e5e5e5] bg-white px-4 text-sm font-semibold text-[#171717] transition hover:border-[var(--joballa-primary)] hover:text-[var(--joballa-primary)] disabled:opacity-50"
+              aria-pressed={saved}
+              className={cn(
+                "flex h-12 items-center justify-center gap-2 rounded-[12px] border px-4 text-sm font-semibold transition disabled:opacity-50",
+                saved
+                  ? "border-[var(--joballa-primary)] bg-[var(--joballa-jade-3)] text-[var(--joballa-primary)] hover:opacity-90"
+                  : "border-[#e5e5e5] bg-white text-[#171717] hover:border-[var(--joballa-primary)] hover:text-[var(--joballa-primary)]",
+              )}
             >
               {saved ? <IconBookmarkSolid className="size-4" /> : <IconBookmark className="size-4" />}
-              {saved ? t("savedJob") : t("saveJob")}
+              {saved ? t("menu.unsave") : t("saveJob")}
             </button>
           </div>
 

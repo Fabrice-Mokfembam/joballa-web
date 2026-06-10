@@ -45,19 +45,44 @@ export function normalizeWorkerApplicationDetail(raw: unknown): WorkerApplicatio
 
 export function normalizeWorkerIncomingApplication(raw: unknown): WorkerIncomingApplicationListItem {
   const data = record(raw);
+  const nestedWorker =
+    data.worker && typeof data.worker === "object" ? record(data.worker) : null;
+  const nestedJob = data.job && typeof data.job === "object" ? record(data.job) : null;
+  const nestedProfile =
+    data.profileSnapshot && typeof data.profileSnapshot === "object"
+      ? record(data.profileSnapshot)
+      : null;
   return {
     ...data,
     applicationId: optionalString(data.applicationId ?? data.id),
     id: optionalString(data.id ?? data.applicationId),
-    applicantName: optionalString(data.applicantName ?? data.workerName),
+    applicantName: optionalString(
+      data.applicantName ?? data.workerName ?? nestedWorker?.fullName ?? nestedProfile?.fullName,
+    ),
     applicantAvatarUrl:
-      data.applicantAvatarUrl == null ? null : String(data.applicantAvatarUrl),
-    workerId: optionalString(data.workerId),
-    jobTitle: optionalString(data.jobTitle),
-    jobId: optionalString(data.jobId),
+      data.applicantAvatarUrl == null
+        ? nestedWorker?.avatarUrl == null
+          ? nestedProfile?.avatarUrl == null
+            ? null
+            : String(nestedProfile.avatarUrl)
+          : String(nestedWorker.avatarUrl)
+        : String(data.applicantAvatarUrl),
+    workerId: optionalString(data.workerId ?? nestedWorker?.id),
+    jobTitle: optionalString(data.jobTitle ?? nestedJob?.title),
+    jobId: optionalString(data.jobId ?? nestedJob?.id),
     status: optionalString(data.status),
-    matchPercent: typeof data.matchPercent === "number" ? data.matchPercent : undefined,
-    appliedAt: optionalString(data.appliedAt ?? data.createdAt),
+    matchPercent:
+      typeof data.matchPercent === "number"
+        ? data.matchPercent
+        : typeof data.matchScore === "number"
+          ? data.matchScore
+          : undefined,
+    appliedAt: optionalString(data.appliedAt ?? data.createdAt ?? data.submittedAt),
+    profileSnapshot:
+      nestedProfile ??
+      (data.profileSnapshot && typeof data.profileSnapshot === "object"
+        ? record(data.profileSnapshot)
+        : undefined),
   };
 }
 
@@ -145,6 +170,7 @@ export function normalizeWorkerNotification(raw: unknown): WorkerNotificationIte
     title: optionalString(data.title),
     body: optionalString(data.body),
     read: typeof data.read === "boolean" ? data.read : Boolean(data.isRead),
+    isRead: typeof data.isRead === "boolean" ? data.isRead : Boolean(data.read),
     createdAt: optionalString(data.createdAt),
     deepLink: data.deepLink == null ? null : String(data.deepLink),
   };

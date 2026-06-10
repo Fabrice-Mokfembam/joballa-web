@@ -8,6 +8,7 @@ import type { CreateInformalJobRequest } from "@/features/employer/types/employe
 import { portalCardClass, portalInputClass, portalPageShellClass } from "@/components/portal/portal-ui";
 import { buttonClassName } from "@/components/ui/button";
 import { JoballaApiError } from "@/lib/joballa/request";
+import { fieldMaxLength } from "@/lib/form-field-limits";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: CreateInformalJobRequest["departmentCategory"][] = [
@@ -65,7 +66,8 @@ export function EmployerInformalRequestForm() {
             required
             value={departmentId}
             onChange={(e) => setDepartmentId(e.target.value)}
-            className={cn(portalInputClass, "mt-1 w-full")}
+            className={cn(portalInputClass, "mt-1 w-full max-w-xs")}
+            maxLength={fieldMaxLength("departmentId")}
           />
         </label>
         <label className="block text-sm font-semibold text-[var(--joballa-fg)]">
@@ -75,6 +77,7 @@ export function EmployerInformalRequestForm() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className={cn(portalInputClass, "mt-1 w-full")}
+            maxLength={fieldMaxLength("jobTitle")}
           />
         </label>
         <label className="block text-sm font-semibold text-[var(--joballa-fg)]">
@@ -82,7 +85,7 @@ export function EmployerInformalRequestForm() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as CreateInformalJobRequest["departmentCategory"])}
-            className={cn(portalInputClass, "mt-1 w-full")}
+            className={cn(portalInputClass, "mt-1 w-full max-w-xs")}
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -106,6 +109,7 @@ export function EmployerInformalRequestForm() {
             onChange={(e) => setNotes(e.target.value)}
             rows={4}
             className={cn(portalInputClass, "mt-1 w-full resize-y")}
+            maxLength={fieldMaxLength("notes")}
           />
         </label>
         {error ? <p className="text-sm text-[var(--joballa-danger-fg)]">{error}</p> : null}

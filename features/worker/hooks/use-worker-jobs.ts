@@ -4,9 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   applyToWorkerJob,
   customizeJobApplicationProfile,
+  getJobApplicationProfileDraft,
   getWorkerJob,
   getWorkerJobShareLink,
   hideWorkerJob,
+  putJobApplicationProfileDraft,
   reportWorkerJob,
   saveWorkerJob,
   searchWorkerJobs,
@@ -14,6 +16,7 @@ import {
   unsaveWorkerJob,
 } from "@/features/worker/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
+import { patchJobSavedInCache } from "@/features/worker/lib/saved-jobs-cache";
 import { workerKeys } from "@/features/worker/query-keys";
 import type {
   ApplyToJobBody,
@@ -54,13 +57,17 @@ export function useSaveWorkerJob() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (jobId: string) => saveWorkerJob(jobId),
+    onMutate: async (jobId) => {
+      patchJobSavedInCache(qc, jobId, true);
+    },
     onSuccess: (_d, jobId) => {
       toastSuccess("Job saved.");
-      void qc.invalidateQueries({ queryKey: workerKeys.job(jobId) });
-      void qc.invalidateQueries({ queryKey: workerKeys.jobs() });
       void qc.invalidateQueries({ queryKey: workerKeys.savedJobs() });
     },
-    onError: (e) => toastApiError(e, "Could not save job."),
+    onError: (e, jobId) => {
+      patchJobSavedInCache(qc, jobId, false);
+      toastApiError(e, "Could not save job.");
+    },
   });
 }
 
@@ -68,13 +75,17 @@ export function useUnsaveWorkerJob() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (jobId: string) => unsaveWorkerJob(jobId),
+    onMutate: async (jobId) => {
+      patchJobSavedInCache(qc, jobId, false);
+    },
     onSuccess: (_d, jobId) => {
       toastSuccess("Removed from saved jobs.");
-      void qc.invalidateQueries({ queryKey: workerKeys.job(jobId) });
-      void qc.invalidateQueries({ queryKey: workerKeys.jobs() });
       void qc.invalidateQueries({ queryKey: workerKeys.savedJobs() });
     },
-    onError: (e) => toastApiError(e, "Could not remove saved job."),
+    onError: (e, jobId) => {
+      patchJobSavedInCache(qc, jobId, true);
+      toastApiError(e, "Could not remove saved job.");
+    },
   });
 }
 
@@ -109,6 +120,27 @@ export function useReportWorkerJob() {
   });
 }
 
+export function useJobApplicationProfileDraft(jobId: string) {
+  const sessionReady = useAuthSessionReady();
+  return useQuery({
+    queryKey: workerKeys.applicationProfileDraft(jobId),
+    queryFn: () => getJobApplicationProfileDraft(jobId),
+    enabled: sessionReady && !!jobId,
+  });
+}
+
+export function usePutJobApplicationProfileDraft() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ jobId, body }: { jobId: string; body: CustomizeProfileBody }) =>
+      putJobApplicationProfileDraft(jobId, body),
+    onSuccess: (_data, { jobId }) => {
+      void qc.invalidateQueries({ queryKey: workerKeys.applicationProfileDraft(jobId) });
+    },
+    onError: (e) => toastApiError(e, "Could not save application draft."),
+  });
+}
+
 export function useCustomizeJobApplication() {
   return useMutation({
     mutationFn: ({ jobId, body }: { jobId: string; body: CustomizeProfileBody }) =>
@@ -121,10 +153,13 @@ export function useApplyToJob() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ jobId, body }: { jobId: string; body?: ApplyToJobBody }) => applyToWorkerJob(jobId, body),
-    onSuccess: () => {
+    onSuccess: (_data, { jobId }) => {
       toastSuccess("Application submitted.");
       void qc.invalidateQueries({ queryKey: workerKeys.applications() });
+      void qc.invalidateQueries({ queryKey: workerKeys.applicationProfileDraft(jobId) });
       void qc.invalidateQueries({ queryKey: workerKeys.me() });
+      void qc.invalidateQueries({ queryKey: workerKeys.notifications() });
+      void qc.invalidateQueries({ queryKey: workerKeys.notificationsUnreadCount() });
     },
     onError: (e) => toastApiError(e, "Could not submit application."),
   });

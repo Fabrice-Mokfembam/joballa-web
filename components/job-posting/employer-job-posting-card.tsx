@@ -33,7 +33,7 @@ export function EmployerJobPostingCard({
       title={job.title}
       scheduleLabel={schedule}
       locationLabel={location}
-      pillTags={[job.seniority, job.pay]}
+      pillTags={[job.department || job.employmentType, job.pay].filter(Boolean)}
       companyName={job.company}
       companyLogoUrl={job.companyLogoUrl}
       companyInitial={job.companyInitial}

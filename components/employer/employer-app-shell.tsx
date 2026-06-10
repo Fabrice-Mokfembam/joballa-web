@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { ReactElement, ReactNode } from "react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { JoballaPanelLogoMark } from "@/components/brand/joballa-panel-logo-mark";
 import {
@@ -93,6 +93,27 @@ export function EmployerAppShell({ children }: { children: ReactNode }) {
   function closeUserMenu() {
     menuRef.current?.removeAttribute("open");
   }
+
+  useEffect(() => {
+    function onDocumentMouseDown(event: MouseEvent) {
+      const menu = menuRef.current;
+      if (!menu?.open) return;
+      if (!menu.contains(event.target as Node)) {
+        menu.removeAttribute("open");
+      }
+    }
+
+    function onDocumentKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") menuRef.current?.removeAttribute("open");
+    }
+
+    document.addEventListener("mousedown", onDocumentMouseDown);
+    document.addEventListener("keydown", onDocumentKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onDocumentMouseDown);
+      document.removeEventListener("keydown", onDocumentKeyDown);
+    };
+  }, []);
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-[var(--joballa-page)] text-[var(--joballa-fg)]">

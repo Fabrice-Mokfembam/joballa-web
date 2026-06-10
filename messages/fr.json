@@ -58,7 +58,9 @@
       "signIn": "Connexion",
       "getStarted": "Commencer",
       "findJobs": "Trouver un emploi",
+      "forWorkers": "Pour les travailleurs",
       "forEmployers": "Pour les employeurs",
+      "howItWorks": "Comment ca marche",
       "resources": "Ressources",
       "about": "A propos",
       "logIn": "Se connecter",
@@ -69,18 +71,98 @@
       "menuTitle": "Menu"
     },
     "hero": {
+      "kicker": "La plateforme numerique de travail du Cameroun",
       "title": "La maison du Cameroun pour l'emploi et le recrutement",
+      "titleLine1": "Trouvez du travail.",
+      "titleLine2": "Recrutez des travailleurs.",
+      "titleAccent": "Soyez paye.",
       "titleLead": "Trouvez votre prochain emploi. ",
-      "titleAccent": "Recrutez votre prochain talent.",
-      "description": "Des premiers emplois aux equipes en croissance, Joballa aide les professionnels et les employeurs a reussir ensemble.",
-      "findJobsCta": "Trouver un emploi",
-      "hireTalentCta": "Recruter",
+      "description": "joballa connecte travailleurs et employeurs a travers le Cameroun — du premier contact jusqu'au paiement. Un profil verifie. Une plateforme. Disponible en anglais et en francais.",
+      "findJobsCta": "Je cherche du travail",
+      "hireTalentCta": "J'ai besoin de recruter",
+      "verifiedBadge": "Travailleur verifie",
+      "verifiedSubtext": "Profil authentifie",
+      "jobCard": {
+        "postedAgo": "Il y a 2 j",
+        "match": "60 % de correspondance",
+        "title": "Specialiste marketing",
+        "employmentType": "Temps plein",
+        "location": "Yaounde",
+        "level": "Senior",
+        "pay": "205 000 XAF/mois",
+        "company": "Fayaba Studios",
+        "apply": "Postuler"
+      },
       "trustLine": "Securise. Fiable. Pense pour le travail de demain.",
       "imageAlt": "Personne enthousiaste avec un ordinateur portable portant la marque Joballa",
       "primaryCta": "Creer un compte",
       "secondaryCta": "Connexion",
       "signInWithEmail": "Connexion par email",
       "signInWithPhone": "Connexion par telephone"
+    },
+    "trustBar": {
+      "verifiedProfiles": "Profils verifies",
+      "mobileMoney": "MTN MoMo et Orange Money",
+      "languages": "Anglais et francais",
+      "cities": "Tout le Cameroun",
+      "secure": "Securise et documente"
+    },
+    "problem": {
+      "kicker": "Le probleme que nous resolvons",
+      "title": "Le recrutement au Cameroun a toujours ete informel. joballa change cela.",
+      "cards": {
+        "workers": {
+          "title": "Pour les travailleurs",
+          "description": "Construisez un profil verifie qui sert de CV pour chaque candidature. Plus besoin d'imprimer des documents ou d'envoyer des fichiers sur WhatsApp."
+        },
+        "employers": {
+          "title": "Pour les employeurs",
+          "description": "Publiez des offres, examinez des profils structures, embauchez, gerez les shifts et payez les travailleurs — tout au meme endroit."
+        },
+        "informal": {
+          "title": "Pour le travail informel",
+          "description": "Domestique, education, evenementiel, logistique — les departements geres par joballa offrent aux travailleurs informels un canal verifie et aux clients une facon fiable de recruter."
+        }
+      }
+    },
+    "oneProfile": {
+      "kicker": "Votre profil, votre identite",
+      "title": "Un profil. Toutes les opportunites.",
+      "description": "Votre profil joballa remplace le CV. Construisez-le une fois, postulez partout. Les employeurs voient une vue standardisee et verifiee de chaque candidat.",
+      "imageAlt": "Graphique abstrait d'identite de profil",
+      "features": {
+        "identity": {
+          "title": "Identite verifiee",
+          "description": "La verification de la carte nationale donne confiance aux employeurs et de la credibilite aux travailleurs des le premier jour."
+        },
+        "skills": {
+          "title": "Competences et historique",
+          "description": "Votre experience, competences, formation et disponibilite — structures, lisibles et toujours a jour."
+        },
+        "apply": {
+          "title": "Postuler en un clic",
+          "description": "Quand vous postulez, votre profil est envoye comme instantane. Aucun document a joindre, aucun formulaire a remplir."
+        },
+        "cv": {
+          "title": "Telecharger en CV",
+          "description": "Besoin d'un CV traditionnel ? Exportez votre profil joballa en PDF a tout moment, en anglais ou en francais."
+        }
+      }
+    },
+    "payments": {
+      "kicker": "Paiements penses pour le Cameroun",
+      "title": "Soyez paye directement sur votre telephone.",
+      "description": "Pas de compte bancaire requis. Les travailleurs recoivent les paiements directement sur MTN MoMo ou Orange Money. Les employeurs initient les transferts depuis leur tableau de bord.",
+      "cards": {
+        "mobile": {
+          "title": "Paiements mobile money",
+          "description": "Les employeurs paient les travailleurs via MTN MoMo ou Orange Money — directement depuis le tableau de paie joballa. Les travailleurs recoivent une confirmation SMS instantanee."
+        },
+        "records": {
+          "title": "Historique complet des paiements",
+          "description": "Chaque paiement est enregistre. Les travailleurs suivent leurs gains et exportent des releves. Les employeurs conservent un historique de paie complet."
+        }
+      }
     },
     "floatingSeekers": {
       "title": "Pour les candidats",
@@ -122,37 +204,80 @@
       }
     },
     "howDual": {
+      "kicker": "Comment ca marche",
       "title": "Comment fonctionne Joballa",
-      "subtitle": "Des parcours differents, une meme place de marche de confiance.",
+      "subtitle": "Simple pour les travailleurs. Puissant pour les employeurs.",
       "seekers": {
-        "label": "Candidats",
+        "label": "Pour les travailleurs",
         "steps": {
-          "0": { "title": "Creez votre profil", "description": "Competences, experience, documents et preferences de paiement au meme endroit structure." },
-          "1": { "title": "Decouvrir & postuler", "description": "Recherche par categorie, offres sauvegardees et candidatures avec le contexte attendu par les employeurs." },
-          "2": { "title": "Etre embauche & paye", "description": "Suivez entretiens et offres avec une visibilite sur l'engagement et la preparation mobile money." }
+          "0": {
+            "title": "Construisez votre profil",
+            "description": "Ajoutez competences, historique, formation et disponibilite. Telechargez votre carte nationale pour etre verifie."
+          },
+          "1": {
+            "title": "Postulez avec votre profil",
+            "description": "Parcourez les offres et postulez en un clic. Votre profil est envoye directement — pas de CV a telecharger."
+          },
+          "2": {
+            "title": "Etre embauche et paye",
+            "description": "Suivez vos candidatures, recevez les confirmations d'embauche et soyez paye directement sur votre compte mobile money."
+          }
         }
       },
       "employers": {
-        "label": "Employeurs",
+        "label": "Pour les employeurs",
         "steps": {
-          "0": { "title": "Publier une offre", "description": "Offres structurees pour roles formels et informels, alignees sur la moderation Joballa." },
-          "1": { "title": "Examiner les candidats", "description": "Profils standardises et filtres pour comparer de maniere homogene." },
-          "2": { "title": "Gerer votre main-d'oeuvre", "description": "Suivez embauches, passations et decaissements depuis le tableau employeur." }
+          "0": {
+            "title": "Publier une offre",
+            "description": "Decrivez le role, fixez la remuneration et soumettez. Votre offre est publiee apres une verification rapide par l'equipe joballa."
+          },
+          "1": {
+            "title": "Examiner les candidats",
+            "description": "Chaque candidat a un profil structure et verifie. Voyez competences, experience et statut de verification."
+          },
+          "2": {
+            "title": "Embaucher, gerer et payer",
+            "description": "Embauchez, enregistrez les shifts et payez les travailleurs via MTN MoMo ou Orange Money depuis votre tableau de bord."
+          }
         }
       }
     },
     "metricsBanner": {
-      "users": { "value": "50 000+", "label": "Utilisateurs actifs" },
-      "jobs": { "value": "10 000+", "label": "Offres publiees" },
-      "companies": { "value": "2 500+", "label": "Entreprises qui recrutent" },
-      "satisfaction": { "value": "98 %", "label": "Satisfaction utilisateurs" }
+      "users": {
+        "value": "50 000+",
+        "label": "Utilisateurs actifs"
+      },
+      "jobs": {
+        "value": "10 000+",
+        "label": "Offres publiees"
+      },
+      "companies": {
+        "value": "2 500+",
+        "label": "Entreprises qui recrutent"
+      },
+      "satisfaction": {
+        "value": "98 %",
+        "label": "Satisfaction utilisateurs"
+      }
     },
     "testimonials": {
       "title": "Ce que disent nos utilisateurs",
       "items": {
-        "0": { "quote": "Enfin un seul endroit pour mon profil et mes paiements—plus de relances RH sur WhatsApp.", "name": "Sarah N.", "role": "Product designer" },
-        "1": { "quote": "Publier des roles domestiques etait le chaos. Joballa rend les examens previsibles.", "name": "Marc T.", "role": "Responsable operations" },
-        "2": { "quote": "On embauche les saisonniers plus vite car les profils se ressemblent enfin.", "name": "Grace E.", "role": "Responsable RH" }
+        "0": {
+          "quote": "Enfin un seul endroit pour mon profil et mes paiements—plus de relances RH sur WhatsApp.",
+          "name": "Sarah N.",
+          "role": "Product designer"
+        },
+        "1": {
+          "quote": "Publier des roles domestiques etait le chaos. Joballa rend les examens previsibles.",
+          "name": "Marc T.",
+          "role": "Responsable operations"
+        },
+        "2": {
+          "quote": "On embauche les saisonniers plus vite car les profils se ressemblent enfin.",
+          "name": "Grace E.",
+          "role": "Responsable RH"
+        }
       }
     },
     "appPromo": {
@@ -163,8 +288,15 @@
       "storeSoon": "App Store & Google Play — bientot"
     },
     "footer": {
-      "tagline": "Carrieres et recrutement structures pour le Cameroun et au-dela.",
-      "copyright": "© {year} Joballa. Tous droits reserves.",
+      "tagline": "Combler le fossé entre les institutions formelles et les marches du travail informel au Cameroun.",
+      "usersTitle": "Pour les utilisateurs",
+      "companyTitle": "Entreprise",
+      "terms": "Conditions",
+      "privacy": "Confidentialite",
+      "contact": "Contact",
+      "copyright": "© {year} joballa · joballa.com",
+      "linkedin": "LinkedIn",
+      "facebook": "Facebook",
       "columns": {
         "seekers": {
           "title": "Pour les candidats",
@@ -243,40 +375,43 @@
       }
     },
     "departments": {
-      "kicker": "Secteurs informels inclus",
-      "title": "Les departements geres par Joballa gardent le travail informel dans le meme systeme de confiance",
-      "description": "La landing page communique maintenant que Joballa ne s'adresse pas seulement aux entreprises enregistrees. Elle prend aussi en charge des departements internes pour les categories de travail informel importantes au Cameroun.",
+      "kicker": "Departements joballa",
+      "title": "Travail informel, organise formellement.",
+      "description": "Tous les emplois ne viennent pas d'une entreprise enregistree. Les departements geres par joballa connectent les travailleurs des secteurs informels avec les clients qui en ont besoin.",
       "items": {
         "education": {
-          "title": "Education",
-          "description": "Tutorat, ecole a domicile et missions d'enseignement informel."
+          "title": "joballa Education",
+          "description": "Tutorat, enseignement, ecole a domicile"
         },
         "domestic": {
-          "title": "Domestique",
-          "description": "Menage, garde d'enfants, cuisine et aide a domicile."
+          "title": "joballa Domestique",
+          "description": "Aide a domicile, garde d'enfants, menage"
         },
         "logistics": {
-          "title": "Logistique",
-          "description": "Livreurs, demenageurs et soutien transport."
+          "title": "joballa Logistique",
+          "description": "Livraison, demenagement, transport"
         },
         "events": {
-          "title": "Evenementiel",
-          "description": "Accueil, installation, service et equipes evenementielles."
+          "title": "joballa Evenementiel",
+          "description": "Accueil, restauration, installation"
         },
         "agriculture": {
-          "title": "Agriculture",
-          "description": "Travail saisonnier, recolte et agro-transformation."
+          "title": "joballa Agriculture",
+          "description": "Travail agricole, recolte, agro-transformation"
         },
         "construction": {
-          "title": "Construction",
-          "description": "Main-d'oeuvre occasionnelle, peinture, maconnerie et bricolage."
+          "title": "joballa Construction",
+          "description": "Main-d'oeuvre, macons, bricolage"
         }
       }
     },
     "closing": {
       "kicker": "Rejoignez-nous",
-      "title": "Rejoignez Joballa aujourd'hui",
-      "description": "Creez votre compte en quelques minutes, ou reconnectez-vous par email ou telephone sur les pages prevues pour chaque canal.",
+      "title": "Pret a commencer ?",
+      "description": "Rejoignez joballa aujourd'hui — que vous cherchiez votre prochaine opportunite ou que vous construisiez l'equipe dont vous avez besoin.",
+      "workerCta": "Creer un profil travailleur",
+      "employerCta": "Publier votre premiere offre",
+      "footnote": "Gratuit · Disponible en anglais et francais · Cameroun d'abord",
       "signIn": "Connexion",
       "createAccount": "Creer un compte",
       "postJobCta": "Publier une offre"
@@ -417,12 +552,14 @@
       },
       "passwordRules": "Mot de passe : 8 a 128 caracteres.",
       "fields": {
+        "name": "Nom complet",
         "email": "Adresse email",
         "phone": "Numero de telephone",
         "password": "Creer un mot de passe",
         "code": "Code de verification"
       },
       "placeholders": {
+        "name": "Ex : Jane Doe",
         "email": "vous@example.com",
         "phone": "+237612345678",
         "password": "Creez un mot de passe fort",
@@ -776,7 +913,8 @@
         "job": "Offre",
         "profile": "Profil"
       },
-      "empty": "Aucune notification pour le moment."
+      "empty": "Aucune notification pour le moment.",
+      "markAllRead": "Tout marquer comme lu"
     },
     "dashboardPage": {
       "title": "Tableau de bord",
@@ -919,7 +1057,11 @@
         "southwest": "Sud-Ouest",
         "west": "Ouest"
       },
-      "typeOptions": ["Temps plein", "Temps partiel", "Contrat"],
+      "typeOptions": [
+        "Temps plein",
+        "Temps partiel",
+        "Contrat"
+      ],
       "deptOptions": [
         "Aucun",
         "Agriculture",
@@ -932,7 +1074,11 @@
       ],
       "match": "{pct}% de correspondance",
       "posted": "il y a {time}",
-      "payOptions": ["Moins de 50k XAF", "50k – 150k XAF", "Plus de 150k XAF"],
+      "payOptions": [
+        "Moins de 50k XAF",
+        "50k – 150k XAF",
+        "Plus de 150k XAF"
+      ],
       "bookmark": "Enregistrer",
       "apply": "Postuler",
       "cardMenu": "Plus d'actions sur l'offre",
@@ -972,6 +1118,7 @@
       "what3": "Respecter les heures convenues, les resultats et une communication professionnelle.",
       "sidebarHint": "La candidature prend quelques minutes : verifiez votre profil et ajoutez une note optionnelle a l'employeur.",
       "applyNow": "Postuler",
+      "applied": "Postule",
       "saveJob": "Enregistrer",
       "savedJob": "Enregistre",
       "expand": "Ouvrir les details complets",
@@ -979,6 +1126,7 @@
       "cadencePartTime": "3j/semaine",
       "cadenceFullTime": "5j/semaine",
       "meta": {
+        "department": "Departement",
         "jobType": "Type de poste",
         "location": "Lieu",
         "startDate": "Date de debut",
@@ -1016,7 +1164,10 @@
       "customizeLink": "Personnaliser pour ce role",
       "noteTitle": "AJOUTER UNE NOTE",
       "noteHint": "Une courte note a l'equipe de recrutement peut faire la difference.",
-      "notePlaceholder": "Je combine une approche analytique du developpement frontend et une communication claire issue du marketing et de la redaction. J'accompagne les eleves avec patience pour rendre les mathematiques et l'anglais accessibles et motivants.",
+      "notePlaceholder": "Ajoutez une courte note…",
+      "customizeHint": "Personnalisez votre profil pour ce role. Les modifications ne s'appliquent qu'a cette candidature.",
+      "detachSection": "Retirer",
+      "includeSection": "Inclure",
       "chars": "{used}/500 caracteres",
       "saveContinue": "Enregistrer et continuer",
       "attachedNote": "Note jointe",
@@ -1083,7 +1234,173 @@
       "backToProfile": "Retour au profil",
       "bookmark": "Enregistrer l'offre",
       "manage": "Gerer",
-      "menu": "Actions de l'offre"
+      "menu": "Actions de l'offre",
+      "status": {
+        "draft": "Brouillon",
+        "under_review": "En attente de revue",
+        "live": "En ligne",
+        "paused": "En pause",
+        "closed": "Fermee"
+      }
+    },
+    "postJobFlow": {
+      "title": "Publier une offre",
+      "editTitle": "Modifier l'offre",
+      "editDescription": "Mettez a jour les details visibles par les candidats. Les offres actives restent actives une fois enregistrees.",
+      "description": "Creez le role, ajoutez les details utiles aux candidats, puis relisez l apercu avant publication.",
+      "backToJobs": "Retour a mes offres",
+      "backToJob": "Retour a l'offre",
+      "stepsLabel": "Etapes de publication",
+      "steps": {
+        "basics": "Base",
+        "details": "Details",
+        "preview": "Apercu"
+      },
+      "helpers": {
+        "scheduleDescription": "Definissez le calendrier, la duree et le rythme afin que les candidats comprennent clairement l'organisation du poste.",
+        "descriptionDescription": "Ceci est le coeur de l'offre. Restez clair, precis et facile a parcourir.",
+        "requirementsDescription": "Decoupez les exigences en points individuels plutot qu'en un long paragraphe.",
+        "responsibilitiesDescription": "Listez les attentes du quotidien sous forme d'elements separes pour garder un apercu bien structure."
+      },
+      "placeholders": {
+        "title": "ex. Ingenieur commercial",
+        "department": "Choisir un departement",
+        "category": "Choisir une categorie",
+        "categoryOther": "Decrivez votre categorie",
+        "jobType": "Choisir le type d'emploi",
+        "workMode": "Choisir le mode de travail",
+        "location": "Quartier, Ville, Region — ex. Bonanjo, Douala, Littoral",
+        "city": "Choisir une ville",
+        "pay": "ex. 60000",
+        "payPer": "Choisir la structure de paie",
+        "openings": "ex. 1",
+        "startDate": "AAAA-MM-JJ",
+        "duration": "ex. 1 mois, 6 mois, Permanent",
+        "schedule": "ex. 5 jours par semaine",
+        "requiredLevel": "Choisir le niveau d'experience",
+        "requiredSkills": "ex. React, Vente, Communication (separes par des virgules)",
+        "description": "Decrivez le role, le contexte et ce qu'un bon candidat doit attendre.",
+        "requirement": "Ajouter une exigence",
+        "responsibility": "Ajouter une responsabilite"
+      },
+      "options": {
+        "employmentType": {
+          "full_time": "Temps plein",
+          "part_time": "Temps partiel",
+          "contract": "Contrat",
+          "casual": "Occasionnel",
+          "seasonal": "Saisonnier",
+          "internship": "Stage"
+        },
+        "workMode": {
+          "onsite": "Sur site",
+          "remote": "Teletravail",
+          "hybrid": "Hybride"
+        },
+        "payStructure": {
+          "hourly": "Horaire",
+          "daily": "Journalier",
+          "weekly": "Hebdomadaire",
+          "monthly": "Mensuel",
+          "fixed": "Forfait"
+        },
+        "experienceLevel": {
+          "entry": "Debutant",
+          "junior": "Junior",
+          "mid": "Intermediaire",
+          "senior": "Senior",
+          "lead": "Lead",
+          "tutor": "Tuteur",
+          "not_required": "Non requis"
+        },
+        "category": {
+          "education": "Education",
+          "domestic": "Travail domestique",
+          "logistics": "Logistique et livraison",
+          "events": "Evenements et hotellerie",
+          "agriculture": "Agriculture",
+          "construction": "Construction",
+          "software_tech": "Logiciel et technologie",
+          "other": "Autre"
+        },
+        "durationUnit": {
+          "months": "Mois",
+          "weeks": "Semaines",
+          "years": "Annees"
+        }
+      },
+      "startNow": {
+        "label": "Demarrer immediatement",
+        "hint": "Si coche, aucune date de debut n'est envoyee a l'API."
+      },
+      "errors": {
+        "category": "Choisissez une categorie pour cette offre.",
+        "categoryOther": "Decrivez votre categorie lorsque vous choisissez Autre.",
+        "categoryNotConfigured": "Cette categorie n'est pas disponible pour le moment. Reessayez ou contactez le support.",
+        "department": "Choisissez un departement pour cette offre.",
+        "departmentsLoading": "Chargement des departements. Patientez un instant et reessayez.",
+        "startDate": "Indiquez une date valide (AAAA-MM-JJ) ou cochez « Demarrer immediatement »."
+      },
+      "fields": {
+        "title": "Intitule du poste",
+        "department": "Departement",
+        "category": "Categorie",
+        "categoryOther": "Autre categorie",
+        "jobType": "Type de poste",
+        "workMode": "Mode de travail",
+        "location": "Lieu",
+        "city": "Ville",
+        "pay": "Paie",
+        "payPer": "Par",
+        "openings": "Nombre de postes",
+        "startDate": "Date de debut",
+        "duration": "Duree",
+        "schedule": "Rythme",
+        "description": "Description du role",
+        "requirements": "Exigences",
+        "responsibilities": "Ce que le travailleur fera",
+        "requiredLevel": "Niveau requis",
+        "requiredSkills": "Competences requises",
+        "durationUnit": "Unite de duree",
+        "employmentType": "Type d'emploi"
+      },
+      "summary": {
+        "title": "Resume rapide",
+        "readyTitle": "Pret pour l'apercu",
+        "readyDescription": "Relisez le texte final et la structure du role avant de passer a l'etat d'apercu visible cote candidat."
+      },
+      "preview": {
+        "status": "Apercu",
+        "statusDraft": "Brouillon",
+        "statusPending": "En attente de revue",
+        "aboutTitle": "A propos du role",
+        "requirementsTitle": "Exigences",
+        "doTitle": "Ce que vous ferez",
+        "panelTitle": "Panneau de soumission",
+        "panelDescription": "Quand vous soumettez, l'offre entre dans le flux de moderation avant publication.",
+        "moderationTitle": "Note de moderation",
+        "moderationDescription": "Joballa verifie la structure, la securite et la clarte avant publication.",
+        "applications": "Candidatures",
+        "applicationsCount": "0 pour l'instant",
+        "listedBy": "Publie par {department}",
+        "listedFor": "pour {name}"
+      },
+      "actions": {
+        "continue": "Continuer",
+        "back": "Retour",
+        "preview": "Ouvrir l'apercu",
+        "submit": "Soumettre pour revue",
+        "submitting": "Envoi en cours…",
+        "saveChanges": "Enregistrer les modifications",
+        "saveDraft": "Enregistrer comme brouillon",
+        "publish": "Publier l'offre",
+        "continueEditing": "Continuer la modification",
+        "edit": "Modifier les details",
+        "addRequirement": "Ajouter une exigence",
+        "addResponsibility": "Ajouter une responsabilite",
+        "returnDashboard": "Retour au tableau de bord",
+        "returnJobs": "Retour aux offres"
+      }
     },
     "postJob": {
       "title": "Publier une offre",
@@ -1112,6 +1429,8 @@
       },
       "editor": {
         "replacePhoto": "Remplacer la photo",
+        "avatarFormatError": "La photo de profil doit être au format JPG ou PNG.",
+        "fullName": "Nom complet",
         "firstName": "Prenom",
         "lastName": "Nom",
         "city": "Ville",
@@ -1129,7 +1448,8 @@
         "currentStudy": "J'y suis actuellement en formation",
         "description": "Description",
         "phone": "Numero mobile money",
-        "save": "Enregistrer les modifications",
+        "save": "Enregistrer",
+        "saveChanges": "Enregistrer les modifications",
         "saving": "Enregistrement…",
         "saved": "Profil enregistre.",
         "saveError": "Impossible d'enregistrer le profil. Reessayez.",
@@ -1143,8 +1463,32 @@
         "certificationIssuer": "Organisme emetteur",
         "issueDate": "Date d'obtention",
         "addCertification": "Ajouter une certification",
+        "editCertification": "Modifier la certification",
+        "editWorkExperience": "Modifier l'experience",
+        "editEducation": "Modifier la formation",
+        "edit": "Modifier",
+        "cancelEdit": "Annuler la modification",
+        "credentialUrl": "URL du certificat (HTTPS)",
+        "paymentHint": "Le nom sur ce compte doit correspondre a votre piece d'identite.",
+        "primaryAccount": "Moyen de paiement principal",
+        "addPaymentMethod": "Ajouter un moyen de paiement",
+        "editPaymentMethod": "Modifier le moyen de paiement",
+        "currentRoleBadge": "Poste actuel",
+        "confirmRemoveWork": "Supprimer l'experience",
+        "confirmRemoveWorkDesc": "Voulez-vous vraiment supprimer cette experience ?",
+        "confirmRemoveEducation": "Supprimer la formation",
+        "confirmRemoveEducationDesc": "Voulez-vous vraiment supprimer cette formation ?",
+        "confirmRemoveCertification": "Supprimer la certification",
+        "confirmRemoveCertificationDesc": "Voulez-vous vraiment supprimer cette certification ?",
+        "confirmRemoveDocument": "Supprimer le document",
+        "confirmRemoveDocumentDesc": "Voulez-vous vraiment supprimer ce document ?",
+        "confirmRemovePayment": "Supprimer le moyen de paiement",
+        "confirmRemovePaymentDesc": "Voulez-vous vraiment supprimer ce moyen de paiement ?",
         "delete": "Supprimer",
         "uploadDocument": "Televerser un document",
+        "saveDocument": "Enregistrer le document",
+        "savingDocument": "Enregistrement...",
+        "cancelDocument": "Annuler",
         "kycStatus": "Statut KYC : {status}",
         "kycNone": "Aucune verification soumise.",
         "kycVerified": "Votre KYC a ete verifie. Vous pouvez postuler avec un badge de profil verifie.",
@@ -1173,8 +1517,17 @@
         "exportCv": "Exporter le CV",
         "postJob": "Publier une offre",
         "verified": "Profil verifie",
-        "verifyKyc": "Verifier le badge KYC",
-        "availableForHire": "Disponible",
+        "verifyKyc": "Verifier le KYC",
+        "underReview": "En cours d'examen",
+        "availableForHire": "Disponible a l'embauche",
+        "applicationNoteLabel": "Note de candidature",
+        "addWork": "Ajouter une experience",
+        "addEducation": "Ajouter une formation",
+        "addCertification": "Ajouter une certification",
+        "addDocument": "Ajouter un document",
+        "paymentLabel": "Coordonnees de paiement",
+        "paymentPrivate": "Visible uniquement par vous",
+        "primaryPayment": "Principal",
         "verificationTooltip": "Piece d'identite verifiee par Joballa",
         "summaryLabel": "Resume professionnel",
         "skillsLabel": "Competences",
@@ -1255,6 +1608,7 @@
       "viewList": "Liste",
       "applied": "Candidature envoyee il y a {time}",
       "incomingApplied": "Postule il y a {time}",
+      "moreActions": "Plus d'actions candidat",
       "status": {
         "shortlisted": "Preselectionnee",
         "pending": "En attente",
@@ -1323,10 +1677,26 @@
       "loadError": "Impossible de charger les gains. Reessayez.",
       "empty": "Aucune transaction pour le moment.",
       "stats": {
-        "total": { "label": "Total des gains", "value": "1,2M", "hint": "Depuis le debut" },
-        "month": { "label": "Ce mois-ci", "value": "195k", "hint": "+20% ce mois-ci" },
-        "pending": { "label": "En attente", "value": "320k", "hint": "1 en attente" },
-        "jobs": { "label": "Vos missions", "value": "03", "hint": "2 actives" }
+        "total": {
+          "label": "Total des gains",
+          "value": "1,2M",
+          "hint": "Depuis le debut"
+        },
+        "month": {
+          "label": "Ce mois-ci",
+          "value": "195k",
+          "hint": "+20% ce mois-ci"
+        },
+        "pending": {
+          "label": "En attente",
+          "value": "320k",
+          "hint": "1 en attente"
+        },
+        "jobs": {
+          "label": "Vos missions",
+          "value": "03",
+          "hint": "2 actives"
+        }
       },
       "tabs": {
         "all": "Tous({count})",
@@ -1453,10 +1823,22 @@
       "title": "Gerez tout le cycle d'embauche depuis une seule surface",
       "description": "Le tableau de bord employeur est maintenant structure autour des vraies taches produit au lieu d'un tableau de stats generique.",
       "stats": {
-        "jobs": { "label": "Offres actives", "value": "0" },
-        "applicants": { "label": "Candidats", "value": "0" },
-        "workers": { "label": "Travailleurs embauches", "value": "0" },
-        "payroll": { "label": "Paie a regler", "value": "XAF 0" }
+        "jobs": {
+          "label": "Offres actives",
+          "value": "0"
+        },
+        "applicants": {
+          "label": "Candidats",
+          "value": "0"
+        },
+        "workers": {
+          "label": "Travailleurs embauches",
+          "value": "0"
+        },
+        "payroll": {
+          "label": "Paie a regler",
+          "value": "XAF 0"
+        }
       },
       "queue": {
         "title": "File operationnelle",
@@ -1606,6 +1988,7 @@
         "jobType": "Choisir le type d'emploi",
         "workMode": "Choisir le mode de travail",
         "location": "Quartier, Ville, Region — ex. Bonanjo, Douala, Littoral",
+        "city": "Choisir une ville",
         "pay": "ex. 60000",
         "payPer": "Choisir la structure de paie",
         "openings": "ex. 1",
@@ -1657,6 +2040,11 @@
           "construction": "Construction",
           "software_tech": "Logiciel et technologie",
           "other": "Autre"
+        },
+        "durationUnit": {
+          "months": "Mois",
+          "weeks": "Semaines",
+          "years": "Annees"
         }
       },
       "startNow": {
@@ -1667,28 +2055,32 @@
         "category": "Choisissez une categorie pour cette offre.",
         "categoryOther": "Decrivez votre categorie lorsque vous choisissez Autre.",
         "categoryNotConfigured": "Cette categorie n'est pas disponible pour le moment. Reessayez ou contactez le support.",
-        "departmentsLoading": "Chargement des categories. Patientez un instant et reessayez.",
+        "department": "Choisissez un departement pour cette offre.",
+        "departmentsLoading": "Chargement des departements. Patientez un instant et reessayez.",
         "startDate": "Indiquez une date valide (AAAA-MM-JJ) ou cochez « Demarrer immediatement »."
       },
       "fields": {
         "title": "Intitule du poste",
-        "department": "Departement / employeur",
+        "department": "Departement",
         "category": "Categorie",
         "categoryOther": "Autre categorie",
         "jobType": "Type de poste",
         "workMode": "Mode de travail",
         "location": "Lieu",
+        "city": "Ville",
         "pay": "Paie",
-        "payPer": "Structure de paie",
-        "openings": "Postes ouverts",
+        "payPer": "Par",
+        "openings": "Nombre de postes",
         "startDate": "Date de debut",
         "duration": "Duree",
         "schedule": "Rythme",
         "description": "Description du role",
         "requirements": "Exigences",
         "responsibilities": "Ce que le travailleur fera",
-        "requiredLevel": "Niveau d'experience",
-        "requiredSkills": "Competences requises"
+        "requiredLevel": "Niveau requis",
+        "requiredSkills": "Competences requises",
+        "durationUnit": "Unite de duree",
+        "employmentType": "Type d'emploi"
       },
       "summary": {
         "title": "Resume rapide",
@@ -1697,13 +2089,19 @@
       },
       "preview": {
         "status": "Apercu",
+        "statusDraft": "Brouillon",
+        "statusPending": "En attente de revue",
         "aboutTitle": "A propos du role",
         "requirementsTitle": "Exigences",
         "doTitle": "Ce que vous ferez",
         "panelTitle": "Panneau de soumission",
         "panelDescription": "Quand vous soumettez, l'offre entre dans le flux de moderation avant publication.",
         "moderationTitle": "Note de moderation",
-        "moderationDescription": "Joballa verifie la structure, la securite et la clarte avant publication."
+        "moderationDescription": "Joballa verifie la structure, la securite et la clarte avant publication.",
+        "applications": "Candidatures",
+        "applicationsCount": "0 pour l'instant",
+        "listedBy": "Publie par {department}",
+        "listedFor": "pour {name}"
       },
       "actions": {
         "continue": "Continuer",
@@ -1713,6 +2111,8 @@
         "submitting": "Envoi en cours…",
         "saveChanges": "Enregistrer les modifications",
         "saveDraft": "Enregistrer comme brouillon",
+        "publish": "Publier l'offre",
+        "continueEditing": "Continuer la modification",
         "edit": "Modifier les details",
         "addRequirement": "Ajouter une exigence",
         "addResponsibility": "Ajouter une responsabilite",
@@ -2134,10 +2534,22 @@
       "title": "Centre de commande operationnel",
       "description": "L'accueil admin reflete maintenant la moderation, la confiance et la supervision de la plateforme.",
       "stats": {
-        "pendingUsers": { "label": "Utilisateurs en attente", "value": "0" },
-        "pendingJobs": { "label": "Offres en revue", "value": "0" },
-        "disputes": { "label": "Litiges ouverts", "value": "0" },
-        "payments": { "label": "Paiements suivis", "value": "0" }
+        "pendingUsers": {
+          "label": "Utilisateurs en attente",
+          "value": "0"
+        },
+        "pendingJobs": {
+          "label": "Offres en revue",
+          "value": "0"
+        },
+        "disputes": {
+          "label": "Litiges ouverts",
+          "value": "0"
+        },
+        "payments": {
+          "label": "Paiements suivis",
+          "value": "0"
+        }
       },
       "queue": {
         "title": "File d'action",

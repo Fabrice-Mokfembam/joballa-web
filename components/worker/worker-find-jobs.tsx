@@ -14,6 +14,7 @@ import {
 import {
   useHideWorkerJob,
   useReportWorkerJob,
+  useUnsaveWorkerJob,
   useSaveWorkerJob,
   useWorkerJob,
   useWorkerApplications,
@@ -36,7 +37,6 @@ import {
   IconList,
   IconMap,
   IconPin,
-  IconPlus,
   IconSearch,
   IconWallet,
 } from "@/components/worker/icons";
@@ -62,6 +62,8 @@ function jobMatchesQuery(job: WorkerJobCard, needle: string) {
     job.title.toLowerCase().includes(n) ||
     job.company.toLowerCase().includes(n) ||
     job.subtitle.toLowerCase().includes(n) ||
+    job.department.toLowerCase().includes(n) ||
+    job.employmentType.toLowerCase().includes(n) ||
     job.seniority.toLowerCase().includes(n) ||
     job.pay.toLowerCase().includes(n)
   );
@@ -73,7 +75,6 @@ function FindJobsFallback() {
 
 function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean }) {
   const t = useTranslations("worker.findJobsPage");
-  const tNav = useTranslations("worker.nav");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -138,6 +139,7 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
   const jobsQuery = useWorkerJobSearch(apiSearchParams);
   const appsQuery = useWorkerApplications({ limit: 100 });
   const saveJob = useSaveWorkerJob();
+  const unsaveJob = useUnsaveWorkerJob();
   const hideJob = useHideWorkerJob();
   const reportJob = useReportWorkerJob();
 
@@ -147,13 +149,26 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
       const regionCities = new Set(getCitiesForRegion(regionId));
       items = items.filter((job) => job.city && regionCities.has(job.city));
     }
-    const appliedJobIds = new Set(workerApplicationRowsFromApi(appsQuery.data?.items ?? []).map((app) => app.linkedJobSlug).filter(Boolean));
     const cards = workerJobCardsFromApi(items);
-    const unappliedCards = cards.filter((job) => !appliedJobIds.has(job.slug) && !appliedJobIds.has(job.id));
     const needle = searchMode ? "" : q.trim().toLowerCase();
-    if (!needle) return unappliedCards;
-    return unappliedCards.filter((job) => jobMatchesQuery(job, needle));
-  }, [appsQuery.data?.items, city, jobsQuery.data?.items, q, regionId, searchMode]);
+    if (!needle) return cards;
+    return cards.filter((job) => jobMatchesQuery(job, needle));
+  }, [city, jobsQuery.data?.items, q, regionId, searchMode]);
+
+  const appliedJobIds = useMemo(
+    () =>
+      new Set(
+        workerApplicationRowsFromApi(appsQuery.data?.items ?? [])
+          .map((app) => app.linkedJobSlug)
+          .filter(Boolean),
+      ),
+    [appsQuery.data?.items],
+  );
+
+  const isJobApplied = useCallback(
+    (job: WorkerJobCard) => appliedJobIds.has(job.slug) || appliedJobIds.has(job.id) || !!job.hasApplied,
+    [appliedJobIds],
+  );
 
   const panelJobQuery = useWorkerJob(jobParam ?? "");
   const selectedJob = useMemo(() => {
@@ -202,8 +217,8 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
         },
       },
       {
-        label: t("menu.save"),
-        onSelect: () => saveJob.mutate(job.slug),
+        label: job.isSaved ? t("menu.unsave") : t("menu.save"),
+        onSelect: () => (job.isSaved ? unsaveJob.mutate(job.slug) : saveJob.mutate(job.slug)),
       },
       {
         label: t("menu.share"),
@@ -227,7 +242,7 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
         destructive: true,
       },
     ],
-    [hideJob, reportJob, router, saveJob, selectJob, t, useSplit],
+    [hideJob, reportJob, router, saveJob, selectJob, t, unsaveJob, useSplit],
   );
 
   useEffect(() => {
@@ -253,7 +268,7 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
   return (
     <div
       className={cn(
-        "relative flex w-full min-w-0 flex-1 flex-col gap-3 bg-[var(--joballa-page-tint)] pb-20 max-[599px]:-mx-2 max-[599px]:w-[calc(100%+1rem)] min-[600px]:mx-0 min-[600px]:w-full sm:gap-5 md:gap-6 lg:min-h-0 lg:flex-1",
+        "flex w-full min-w-0 flex-1 flex-col gap-3 bg-[var(--joballa-page-tint)] max-[599px]:-mx-2 max-[599px]:w-[calc(100%+1rem)] min-[600px]:mx-0 min-[600px]:w-full sm:gap-5 md:gap-6 lg:min-h-0 lg:flex-1",
         showPanel && "lg:h-[calc(100dvh-7rem)] lg:overflow-hidden",
       )}
     >
@@ -407,8 +422,10 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
                   topLine={t("posted", { time: job.posted })}
                   matchLabel={job.match != null ? t("match", { pct: job.match }) : undefined}
                   bookmarkLabel={t("bookmark")}
+                  bookmarkFilled={!!job.isSaved}
                   moreMenuAriaLabel={t("cardMenu")}
                   applyLabel={t("apply")}
+                  showApply={!isJobApplied(job)}
                   menuItems={jobMenuItems(job)}
                   splitPane={useSplit}
                   isActive={useSplit && job.slug === jobParam}
@@ -445,22 +462,24 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
                       <td className="px-4 py-3 text-[var(--joballa-fg)]">{job.company}</td>
                       <td className="px-4 py-3 text-[var(--joballa-fg)]">{job.pay}</td>
                       <td className="px-4 py-3 text-right" data-card-stop>
-                        {useSplit ? (
-                          <button
-                            type="button"
-                            onClick={() => selectJobAndApply(job.slug)}
-                            className="font-semibold text-[var(--joballa-primary)] hover:underline"
-                          >
-                            {t("apply")}
-                          </button>
-                        ) : (
-                          <Link
-                            href={`/worker/jobs/${job.slug}?apply=1`}
-                            className="font-semibold text-[var(--joballa-primary)] hover:underline"
-                          >
-                            {t("apply")}
-                          </Link>
-                        )}
+                        {!isJobApplied(job) ? (
+                          useSplit ? (
+                            <button
+                              type="button"
+                              onClick={() => selectJobAndApply(job.slug)}
+                              className="font-semibold text-[var(--joballa-primary)] hover:underline"
+                            >
+                              {t("apply")}
+                            </button>
+                          ) : (
+                            <Link
+                              href={`/worker/jobs/${job.slug}?apply=1`}
+                              className="font-semibold text-[var(--joballa-primary)] hover:underline"
+                            >
+                              {t("apply")}
+                            </Link>
+                          )
+                        ) : null}
                       </td>
                     </tr>
                   ))}
@@ -478,7 +497,7 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
               <WorkerJobDetailView
                 job={selectedJob}
                 jobId={jobParam!}
-                isSaved={!!panelJobQuery.data?.isSaved}
+                isSaved={!!(panelJobQuery.data?.saved ?? panelJobQuery.data?.isSaved)}
                 detail={panelJobQuery.data}
                 variant="panel"
                 onClosePanel={closePanel}
@@ -487,13 +506,6 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
           </aside>
         ) : null}
       </div>
-      <Link
-        href="/worker/jobs/new"
-        className="absolute bottom-4 right-3 z-30 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--joballa-primary)] px-6 text-sm font-semibold text-[var(--joballa-on-primary)] shadow-[var(--joballa-shadow-elevated)] outline-none ring-[var(--joballa-primary)] transition hover:opacity-[0.96] focus-visible:ring-2 min-[600px]:bottom-5 min-[600px]:right-5 min-[600px]:px-7"
-      >
-        <IconPlus className="size-4" />
-        {tNav("postJob")}
-      </Link>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   useWorkerCvExportStatus,
   useWorkerDocuments,
   useWorkerFullProfile,
+  useWorkerMe,
 } from "@/features/worker/hooks";
 import {
   documentFileLabel,
@@ -16,36 +17,51 @@ import {
   formatEducationMeta,
   formatWorkHistoryMeta,
   profileDisplayName,
+  profileInitials,
   profileEmploymentTypes,
   profileHeadline,
   profileIndustriesLine,
   profileLanguagesLine,
   profileLocationLine,
   profileSkillsLine,
+  sortedCertifications,
+  sortedEducations,
+  sortedWorkHistories,
 } from "@/features/worker/lib/profile-display";
+import { isAvailableForHire } from "@/features/worker/lib/availability";
+import { ProfileSectionEmpty } from "@/components/worker/profile-section-empty";
 import { portalCardClass, portalOutlineButtonClass } from "@/components/portal/portal-ui";
+import { buttonClassName } from "@/components/ui/button";
 import { IconDownload, IconFileDown, IconGlobe, IconPencil, IconPhone, IconPin, IconPlus, IconShieldCheck, IconVerified } from "@/components/worker/icons";
-import { isVerifiedStatus } from "@/features/worker/lib/verification";
+import { getVerificationStatus, isPendingStatus, isVerifiedStatus } from "@/features/worker/lib/verification";
 import { WorkerProfilePageSkeleton } from "@/components/worker/worker-loading-skeletons";
 import { JoballaApiError } from "@/lib/joballa/request";
+import type { WorkerFullProfile } from "@/features/worker/types/worker-portal";
 import { cn } from "@/lib/utils";
 
 export function WorkerProfilePublic({
   className,
   showEditProfileButton = true,
+  applicationNote,
+  compactHeader = false,
+  previewProfile,
 }: {
   className?: string;
   showEditProfileButton?: boolean;
+  applicationNote?: string;
+  compactHeader?: boolean;
+  /** When set (e.g. apply-flow preview), renders this profile instead of the live query. */
+  previewProfile?: WorkerFullProfile;
 }) {
   const tProfile = useTranslations("worker.profile");
-  const tNav = useTranslations("worker.nav");
   const profileQuery = useWorkerFullProfile();
+  const meQuery = useWorkerMe();
   const documentsQuery = useWorkerDocuments();
   const cvStatusQuery = useWorkerCvExportStatus();
   const generateCv = useGenerateWorkerCvExport();
   const downloadCv = useDownloadWorkerCvExport();
 
-  if (profileQuery.isLoading) {
+  if (!previewProfile && profileQuery.isLoading) {
     return (
       <div className={cn("w-full", className)}>
         <WorkerProfilePageSkeleton />
@@ -53,7 +69,7 @@ export function WorkerProfilePublic({
     );
   }
 
-  if (profileQuery.isError || !profileQuery.data) {
+  if (!previewProfile && (profileQuery.isError || !profileQuery.data)) {
     const message =
       profileQuery.error instanceof JoballaApiError
         ? profileQuery.error.message
@@ -65,18 +81,30 @@ export function WorkerProfilePublic({
     );
   }
 
-  const profile = profileQuery.data;
-  const documents = documentsQuery.data ?? profile.documents ?? [];
+  const profile = previewProfile ?? profileQuery.data!;
+  const documents = previewProfile?.documents ?? documentsQuery.data ?? profile.documents ?? [];
   const name = profileDisplayName(profile);
-  const verified =
-    profile.kycSubmissions?.some((k) => isVerifiedStatus(String(k.status))) || isVerifiedStatus(profile.verificationStatus);
-  const available = String(profile.availabilityStatus ?? "").toUpperCase() === "AVAILABLE";
+  const kycStatus = getVerificationStatus(profile, profile.kycSubmissions?.[0]);
+  const verified = isVerifiedStatus(kycStatus);
+  const kycPending = isPendingStatus(kycStatus);
+  const available = isAvailableForHire(profile);
+  const paymentMethods = profile.paymentMethods ?? profile.paymentAccounts ?? [];
+  const primaryPayment = paymentMethods.find((m) => m.isPrimary) ?? paymentMethods[0];
+  const contactPhone =
+    meQuery.data?.phone?.trim() ||
+    primaryPayment?.phoneNumber?.trim() ||
+    primaryPayment?.phone?.trim() ||
+    profile.mobileMoneyNumber?.trim() ||
+    "";
+  const workHistories = sortedWorkHistories(profile);
+  const educations = sortedEducations(profile);
+  const certifications = sortedCertifications(profile);
   const avatarUrl = profile.avatarUrl;
   const cvStatus = cvStatusQuery.data;
   const cvBusy = generateCv.isPending || downloadCv.isPending;
 
   return (
-    <div className={cn("relative flex flex-col items-center gap-4 pb-20 sm:gap-5", className)}>
+    <div className={cn("flex flex-col items-center gap-4 sm:gap-5", className)}>
       {showEditProfileButton ? (
         <div className="flex w-full max-w-[72rem] flex-wrap items-center justify-between gap-2 sm:gap-3">
           <Link
@@ -116,22 +144,38 @@ export function WorkerProfilePublic({
                     ? tProfile("preview.regenerateCv")
                     : tProfile("preview.exportCv")}
             </button>
-            <Link href="/worker/my-jobs" className={portalOutlineButtonClass}>
-              {tProfile("preview.viewMyJobs")}
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link href="/worker/my-jobs" className={portalOutlineButtonClass}>
+                {tProfile("preview.viewMyJobs")}
+              </Link>
+              <Link
+                href="/worker/jobs/new"
+                className={cn(buttonClassName("primary"), "inline-flex gap-2")}
+              >
+                <IconPlus className="size-4" />
+                {tProfile("preview.postJob")}
+              </Link>
+            </div>
           </div>
         </div>
       ) : null}
 
       <article className={cn(portalCardClass(), "w-full px-5 py-6 text-sm leading-6 text-[var(--joballa-fg)] sm:px-8 sm:py-8 lg:px-14 lg:py-12")}>
-        <div className="flex flex-col gap-5 border-b border-[var(--joballa-border)] pb-6 md:flex-row md:items-center md:justify-between">
+        {applicationNote?.trim() ? (
+          <section className="mb-6 border-b border-[var(--joballa-border)] pb-6">
+            <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.applicationNoteLabel")}</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--joballa-fg-subtle)]">{applicationNote}</p>
+          </section>
+        ) : null}
+
+        <div className={cn("flex flex-col gap-5 border-b border-[var(--joballa-border)] pb-6 sm:flex-row sm:items-start sm:justify-between", compactHeader && "pb-4")}>
           <div className="flex min-w-0 items-start gap-3 text-left sm:gap-4">
             <div className="relative size-16 shrink-0 overflow-hidden rounded-full bg-[var(--joballa-avatar-bg)] min-[480px]:size-24 sm:size-28">
               {avatarUrl ? (
                 <Image src={avatarUrl} alt="" fill className="object-cover" sizes="112px" unoptimized />
               ) : (
                 <div className="flex size-full items-center justify-center text-xl font-bold text-[var(--joballa-muted)] min-[480px]:text-2xl">
-                  {(name.trim().charAt(0) || "?").toUpperCase()}
+                  {profileInitials(name || profile.professionalTitle || "?")}
                 </div>
               )}
             </div>
@@ -145,7 +189,20 @@ export function WorkerProfilePublic({
                       {tProfile("preview.verificationTooltip")}
                     </span>
                   </span>
-                ) : null}
+                ) : kycPending ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--joballa-border)] px-2 py-0.5 text-[10px] font-semibold text-[var(--joballa-muted)]">
+                    <IconShieldCheck className="size-3" />
+                    {tProfile("preview.underReview")}
+                  </span>
+                ) : (
+                  <Link
+                    href="/worker/profile/edit?section=verification"
+                    className="inline-flex items-center gap-1 rounded-full border border-dashed border-[var(--joballa-primary)] px-2 py-0.5 text-[10px] font-semibold text-[var(--joballa-primary)] transition hover:bg-[var(--joballa-jade-3)]"
+                  >
+                    <IconShieldCheck className="size-3" />
+                    {tProfile("preview.verifyKyc")}
+                  </Link>
+                )}
               </div>
               {profileHeadline(profile) ? (
                 <p className="mt-0.5 text-xs font-medium leading-5 text-[var(--joballa-fg-subtle)] min-[480px]:text-sm">{profileHeadline(profile)}</p>
@@ -166,26 +223,17 @@ export function WorkerProfilePublic({
                   </Link>
                 ) : null}
               </div>
-              {!verified ? (
-                <Link
-                  href="/worker/profile/edit?section=verification"
-                  className="mt-3 inline-flex min-h-7 items-center justify-center gap-1 rounded-[10px] border border-dashed border-[var(--joballa-primary)] bg-transparent px-2.5 text-xs font-semibold text-[var(--joballa-primary)] outline-none ring-[var(--joballa-primary)] transition hover:bg-[var(--joballa-jade-3)] focus-visible:ring-2"
-                >
-                  <IconShieldCheck className="size-3.5" />
-                  {tProfile("preview.verifyKyc")}
-                </Link>
-              ) : null}
             </div>
           </div>
-          <div className="shrink-0 space-y-2 border-t border-[var(--joballa-border)] pt-4 text-sm leading-6 text-[var(--joballa-fg-subtle)] md:min-w-64 lg:border-t-0 lg:pt-0">
+          <div className="shrink-0 space-y-2 text-sm leading-6 text-[var(--joballa-fg-subtle)] sm:min-w-56 sm:text-right">
             {profileLocationLine(profile) ? (
-              <p className="flex items-center gap-2"><IconPin className="size-4" />{profileLocationLine(profile)}</p>
+              <p className="flex items-center gap-2 sm:justify-end"><IconPin className="size-4 shrink-0" />{profileLocationLine(profile)}</p>
             ) : null}
-            {profile.mobileMoneyNumber?.trim() ? (
-              <p className="flex items-center gap-2"><IconPhone className="size-4" />{profile.mobileMoneyNumber}</p>
+            {contactPhone ? (
+              <p className="flex items-center gap-2 sm:justify-end"><IconPhone className="size-4 shrink-0" />{contactPhone}</p>
             ) : null}
             {profileLanguagesLine(profile) ? (
-              <p className="flex items-center gap-2"><IconGlobe className="size-4" />{profileLanguagesLine(profile)}</p>
+              <p className="flex items-center gap-2 sm:justify-end"><IconGlobe className="size-4 shrink-0" />{profileLanguagesLine(profile)}</p>
             ) : null}
           </div>
         </div>
@@ -217,15 +265,19 @@ export function WorkerProfilePublic({
         <section className="grid gap-4 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
           <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.workLabel")}</p>
           <div className="space-y-8 text-[var(--joballa-fg)]">
-            {(profile.workHistories ?? []).length === 0 ? (
-              <p className="text-sm text-[var(--joballa-fg-subtle)]">{tProfile("preview.emptyWork")}</p>
+            {workHistories.length === 0 ? (
+              <ProfileSectionEmpty
+                message={tProfile("preview.emptyWork")}
+                actionLabel={tProfile("preview.addWork")}
+                actionHref="/worker/profile/edit?section=work"
+              />
             ) : (
-              (profile.workHistories ?? []).map((entry) => (
+              workHistories.map((entry) => (
                 <div key={entry.id}>
-                  {entry.companyName?.trim() ? (
-                    <p className="text-base font-bold leading-6">{entry.companyName}</p>
+                  {entry.jobTitle?.trim() ? (
+                    <p className="text-base font-bold leading-6 text-[var(--joballa-primary)]">{entry.jobTitle}</p>
                   ) : null}
-                  {entry.jobTitle?.trim() ? <p className="mt-1 text-sm leading-6">{entry.jobTitle}</p> : null}
+                  {entry.companyName?.trim() ? <p className="mt-1 text-sm leading-6">{entry.companyName}</p> : null}
                   {entry.description ? (
                     <p className="mt-1.5 max-w-4xl text-sm leading-6 text-[var(--joballa-fg-subtle)]">{entry.description}</p>
                   ) : null}
@@ -239,18 +291,23 @@ export function WorkerProfilePublic({
         <section className="grid gap-4 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
           <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.educationLabel")}</p>
           <div className="space-y-6 text-[var(--joballa-fg)]">
-            {(profile.educations ?? []).length === 0 ? (
-              <p className="text-sm text-[var(--joballa-fg-subtle)]">{tProfile("preview.emptyEducation")}</p>
+            {educations.length === 0 ? (
+              <ProfileSectionEmpty
+                message={tProfile("preview.emptyEducation")}
+                actionLabel={tProfile("preview.addEducation")}
+                actionHref="/worker/profile/edit?section=education"
+              />
             ) : (
-              (profile.educations ?? []).map((entry) => (
+              educations.map((entry) => (
                 <div key={entry.id}>
-                  {entry.institution?.trim() ? (
-                    <p className="text-base font-bold leading-6">{entry.institution}</p>
+                  {entry.degree?.trim() ? (
+                    <p className="text-base font-bold leading-6 text-[var(--joballa-primary)]">{entry.degree}</p>
                   ) : null}
-                  {[entry.degree, entry.fieldOfStudy].filter(Boolean).length > 0 ? (
-                    <p className="mt-1 text-sm leading-6 text-[var(--joballa-fg-subtle)]">
-                      {[entry.degree, entry.fieldOfStudy].filter(Boolean).join(" · ")}
-                    </p>
+                  {entry.institution?.trim() ? (
+                    <p className="mt-1 text-sm leading-6">{entry.institution}</p>
+                  ) : null}
+                  {entry.fieldOfStudy?.trim() ? (
+                    <p className="mt-1 text-sm leading-6 text-[var(--joballa-fg-subtle)]">{entry.fieldOfStudy}</p>
                   ) : null}
                   {formatEducationMeta(entry) ? (
                     <p className="mt-1.5 text-sm leading-6 text-[var(--joballa-fg-subtle)]">{formatEducationMeta(entry)}</p>
@@ -264,12 +321,29 @@ export function WorkerProfilePublic({
         <section className="grid gap-4 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
           <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.certificationsLabel")}</p>
           <div className="space-y-6 text-[var(--joballa-fg)]">
-            {(profile.certifications ?? []).length === 0 ? (
-              <p className="text-sm text-[var(--joballa-fg-subtle)]">{tProfile("preview.emptyCertifications")}</p>
+            {certifications.length === 0 ? (
+              <ProfileSectionEmpty
+                message={tProfile("preview.emptyCertifications")}
+                actionLabel={tProfile("preview.addCertification")}
+                actionHref="/worker/profile/edit?section=certifications"
+              />
             ) : (
-              (profile.certifications ?? []).map((entry) => (
+              certifications.map((entry) => (
                 <div key={entry.id}>
-                  {entry.name?.trim() ? <p className="text-base font-bold leading-6">{entry.name}</p> : null}
+                  {entry.name?.trim() ? (
+                    entry.credentialUrl?.trim() ? (
+                      <a
+                        href={entry.credentialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base font-bold leading-6 text-[var(--joballa-primary)] underline-offset-2 hover:underline"
+                      >
+                        {entry.name}
+                      </a>
+                    ) : (
+                      <p className="text-base font-bold leading-6 text-[var(--joballa-primary)]">{entry.name}</p>
+                    )
+                  ) : null}
                   {formatCertificationMeta(entry) ? (
                     <p className="mt-1.5 text-sm leading-6 text-[var(--joballa-fg-subtle)]">{formatCertificationMeta(entry)}</p>
                   ) : null}
@@ -279,37 +353,80 @@ export function WorkerProfilePublic({
           </div>
         </section>
 
-        <section className="grid gap-4 pt-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
+        <section className="grid gap-4 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr] md:items-start">
           <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.documentsLabel")}</p>
-          <div className="space-y-3">
+          <div className="min-w-0 space-y-3">
             {documents.length === 0 ? (
-              <p className="text-sm text-[var(--joballa-fg-subtle)]">{tProfile("preview.emptyDocuments")}</p>
+              <ProfileSectionEmpty
+                message={tProfile("preview.emptyDocuments")}
+                actionLabel={tProfile("preview.addDocument")}
+                actionHref="/worker/profile/edit?section=verification"
+              />
             ) : (
-              documents.map((doc) => (
-                <div key={doc.id} className="flex min-w-0 items-center gap-3">
-                  <span className="flex size-12 shrink-0 items-end justify-center overflow-hidden rounded-[8px] bg-[#e5e5e5]">
-                    <span className="flex h-7 w-full items-center justify-center bg-[#d42ba3] text-sm font-bold text-white">
-                      {(doc.fileName ?? "DOC").split(".").pop()?.slice(0, 3).toUpperCase() ?? "DOC"}
+              documents.map((doc) => {
+                const url = doc.url ?? (doc as { fileUrl?: string }).fileUrl;
+                const label = documentFileLabel(doc);
+                const typeLabel = (doc.fileName ?? doc.type ?? "DOC").toString().split(".").pop()?.slice(0, 3).toUpperCase() ?? "DOC";
+                const fileIcon = (
+                  <span
+                    className="flex size-12 shrink-0 flex-col overflow-hidden rounded-[8px] bg-[#e5e5e5]"
+                    aria-hidden
+                  >
+                    <span className="flex-1" />
+                    <span className="flex h-5 items-center justify-center bg-[#d42ba3] text-[9px] font-bold uppercase tracking-wide text-white">
+                      {typeLabel}
                     </span>
                   </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-[var(--joballa-fg)]">{documentFileLabel(doc)}</p>
+                );
+                return (
+                  <div key={doc.id} className="flex min-w-0 items-center gap-3">
+                    {url ? (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex min-w-0 flex-1 items-center gap-3 underline-offset-2 hover:underline"
+                      >
+                        {fileIcon}
+                        <span className="min-w-0 truncate text-sm font-bold text-[var(--joballa-primary)]">{label}</span>
+                      </a>
+                    ) : (
+                      <>
+                        {fileIcon}
+                        <p className="min-w-0 truncate text-sm font-bold text-[var(--joballa-fg)]">{label}</p>
+                      </>
+                    )}
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </section>
+
+        {paymentMethods.length > 0 ? (
+          <section className="grid gap-4 py-6 md:grid-cols-[minmax(10rem,28%)_1fr] md:items-start">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.paymentLabel")}</p>
+              <p className="mt-1 text-xs italic text-[var(--joballa-muted)]">{tProfile("preview.paymentPrivate")}</p>
+            </div>
+            <div className="flex flex-wrap gap-6">
+              {paymentMethods.map((method) => {
+                const phone = method.phoneNumber ?? method.phone;
+                const provider = String(method.provider ?? "").includes("ORANGE") ? "Orange Money" : "MTN MoMo";
+                return (
+                  <div key={method.id}>
+                    <p className="text-sm font-semibold text-[var(--joballa-fg)]">{phone}</p>
+                    <p className="text-xs text-[var(--joballa-muted)]">
+                      {provider}
+                      {method.isPrimary ? ` · ${tProfile("preview.primaryPayment")}` : ""}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
       </article>
-      {showEditProfileButton ? (
-        <Link
-          href="/worker/jobs/new"
-          className="absolute bottom-4 right-3 z-30 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--joballa-primary)] px-6 text-sm font-semibold text-[var(--joballa-on-primary)] shadow-[var(--joballa-shadow-elevated)] outline-none ring-[var(--joballa-primary)] transition hover:opacity-[0.96] focus-visible:ring-2 min-[600px]:bottom-5 min-[600px]:right-5 min-[600px]:px-7"
-        >
-          <IconPlus className="size-4" />
-          {tNav("postJob")}
-        </Link>
-      ) : null}
     </div>
   );
 }

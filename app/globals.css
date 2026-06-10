@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+input[type="checkbox"] {
+  accent-color: var(--joballa-primary);
+}
+
 :root {
   --background: #fafafa;
   --foreground: #0a0a0a;
@@ -190,7 +194,102 @@
   --auth-outline-hover: var(--figma-gray-3);
   --auth-topbar-fg-hover: var(--figma-foreground);
 
+  /* Marketing landing (light fallbacks — page forces dark via .landing-page) */
+  --landing-page-bg: #fafafa;
+  --landing-section-alt: #f0f0f0;
+  --landing-section-muted: #e8e8e8;
+  --landing-fg: #171717;
+  --landing-fg-secondary: #404040;
+  --landing-fg-muted: #737373;
+  --landing-kicker: #0d7377;
+  --landing-accent: #56ba9f;
+  --landing-border: #e5e5e5;
+  --landing-border-muted: #d4d4d4;
+  --landing-card: #ffffff;
+  --landing-card-elevated: #f9f9f9;
+  --landing-mockup-bg: #fafafa;
+  --landing-mockup-input-bg: #ffffff;
+  --landing-mockup-fg: #171717;
+  --landing-step-bg: #d4d4d4;
+  --landing-step-fg: #525252;
+  --landing-pill-workers-text: #0d7377;
+  --landing-pill-employers-text: #183537;
+  --landing-problem-card-bg: #f9f9f9;
+  --landing-problem-card-border: #e5e5e5;
+  --landing-problem-card-highlight: #f4a621;
+  --landing-dept-card-bg: #f5f5f5;
+  --landing-dept-icon-bg: rgba(13, 115, 119, 0.12);
+  --landing-footer-bg: #f5f5f5;
+  --landing-trust-gradient: linear-gradient(
+    90deg,
+    #f4a621 0%,
+    #628152 28.365%,
+    #0e6c6f 61.058%,
+    #c0d3c9 100%
+  );
+  --landing-pill-workers-gradient: linear-gradient(
+    90deg,
+    #f4a621 32.692%,
+    #628152 26.64%,
+    #c0d3c9 90.571%
+  );
+  --landing-pill-employers-gradient: linear-gradient(
+    90.1deg,
+    #c0d3c9 15.253%,
+    #0e6c6f 88.539%,
+    #f4a621 148.43%
+  );
+
   color-scheme: light;
+}
+
+/* Marketing landing page — always uses dark palette (Figma 921-10532). */
+.landing-page {
+  --landing-page-bg: #131313;
+  --landing-section-alt: #181c1d;
+  --landing-section-muted: #1c2021;
+  --landing-fg: #e0e3e3;
+  --landing-fg-secondary: #bec9c9;
+  --landing-fg-muted: #a3a3a3;
+  --landing-kicker: #acdec8;
+  --landing-accent: #56ba9f;
+  --landing-border: #3e4949;
+  --landing-border-muted: #404040;
+  --landing-card: #171717;
+  --landing-card-elevated: #272b2b;
+  --landing-mockup-bg: #171717;
+  --landing-mockup-input-bg: #0a0a0a;
+  --landing-mockup-fg: #fafafa;
+  --landing-step-bg: #314e50;
+  --landing-step-fg: #a0bec0;
+  --landing-pill-workers-text: #0d7377;
+  --landing-pill-employers-text: #183537;
+  --landing-problem-card-bg: #1c2021;
+  --landing-problem-card-border: #3e4949;
+  --landing-problem-card-highlight: #f4a621;
+  --landing-dept-card-bg: #272b2b;
+  --landing-dept-icon-bg: rgba(13, 115, 119, 0.2);
+  --landing-footer-bg: #181c1d;
+  --landing-trust-gradient: linear-gradient(
+    90deg,
+    #f4a621 0%,
+    #628152 28.365%,
+    #0e6c6f 61.058%,
+    #c0d3c9 100%
+  );
+  --landing-pill-workers-gradient: linear-gradient(
+    90deg,
+    #f4a621 32.692%,
+    #628152 26.64%,
+    #c0d3c9 90.571%
+  );
+  --landing-pill-employers-gradient: linear-gradient(
+    90.1deg,
+    #c0d3c9 15.253%,
+    #0e6c6f 88.539%,
+    #f4a621 148.43%
+  );
+  color-scheme: dark;
 }
 
 /*

@@ -106,7 +106,9 @@ export function JobPostingCard({
   onCardClick,
 }: JobPostingCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const pills = pillTags.length >= 2 ? [pillTags[0], pillTags[1]] : [pillTags[0] ?? "", pillTags[1] ?? ""];
+  const pills = (pillTags.length >= 2 ? [pillTags[0], pillTags[1]] : [pillTags[0] ?? "", pillTags[1] ?? ""]).filter(
+    (pill) => Boolean(pill && String(pill).trim()),
+  );
 
   const titleContent = <h3 className="text-lg font-semibold leading-7 text-[var(--joballa-fg)]">{title}</h3>;
 
@@ -235,10 +237,13 @@ export function JobPostingCard({
             </>
           ) : null}
         </div>
-        <div className="flex flex-wrap gap-2.5 pt-0.5">
-          <PillTag>{formatJobCardText(pills[0])}</PillTag>
-          <PillTag>{formatJobCardText(pills[1])}</PillTag>
-        </div>
+        {pills.length > 0 ? (
+          <div className="flex flex-wrap gap-2.5 pt-0.5">
+            {pills.map((pill) => (
+              <PillTag key={String(pill)}>{formatJobCardText(pill)}</PillTag>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="flex w-full shrink-0 items-end justify-between gap-3">

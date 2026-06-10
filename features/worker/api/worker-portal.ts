@@ -110,6 +110,19 @@ export const customizeJobApplicationProfile = (
     () => live.customizeJobApplicationProfile(jobId, body),
     () => demo.customizeJobApplicationProfile(jobId, body),
   );
+export const getJobApplicationProfileDraft = (jobId: string) =>
+  withDemo(
+    () => live.getJobApplicationProfileDraft(jobId),
+    () => demo.getJobApplicationProfileDraft(jobId),
+  );
+export const putJobApplicationProfileDraft = (
+  jobId: string,
+  body: Parameters<typeof live.putJobApplicationProfileDraft>[1],
+) =>
+  withDemo(
+    () => live.putJobApplicationProfileDraft(jobId, body),
+    () => demo.putJobApplicationProfileDraft(jobId, body),
+  );
 export const applyToWorkerJob = (jobId: string, body?: Parameters<typeof live.applyToWorkerJob>[1]) =>
   withDemo(() => live.applyToWorkerJob(jobId, body), () => demo.applyToWorkerJob(jobId, body));
 export const getWorkerApplications = (params?: Parameters<typeof live.getWorkerApplications>[0]) =>
@@ -137,6 +150,10 @@ export const getWorkerEngagement = (engagementId: string) =>
   withDemo(() => live.getWorkerEngagement(engagementId), () => demo.getWorkerEngagement(engagementId));
 export const getWorkerNotifications = (params?: Parameters<typeof live.getWorkerNotifications>[0]) =>
   withDemo(() => live.getWorkerNotifications(params), () => demo.getWorkerNotifications(params));
+export const getWorkerNotificationsUnreadCount = () =>
+  withDemo(() => live.getWorkerNotificationsUnreadCount(), () => demo.getWorkerNotificationsUnreadCount());
+export const patchWorkerNotificationsReadAll = () =>
+  withDemo(() => live.patchWorkerNotificationsReadAll(), () => demo.patchWorkerNotificationsReadAll());
 export const getWorkerNotificationSettings = () =>
   withDemo(() => live.getWorkerNotificationSettings(), () => demo.getWorkerNotificationSettings());
 export const patchWorkerNotificationRead = (notificationId: string) =>

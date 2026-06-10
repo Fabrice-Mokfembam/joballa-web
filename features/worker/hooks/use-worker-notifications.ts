@@ -4,8 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getWorkerNotificationSettings,
   getWorkerNotifications,
+  getWorkerNotificationsUnreadCount,
   patchWorkerNotificationRead,
   patchWorkerNotificationSettings,
+  patchWorkerNotificationsReadAll,
 } from "@/features/worker/api";
 import { toastApiError } from "@/features/employer/lib/mutation-feedback";
 import { workerKeys } from "@/features/worker/query-keys";
@@ -30,12 +32,34 @@ export function useWorkerNotificationSettings() {
   });
 }
 
+export function useWorkerNotificationsUnreadCount() {
+  const sessionReady = useAuthSessionReady();
+  return useQuery({
+    queryKey: workerKeys.notificationsUnreadCount(),
+    queryFn: getWorkerNotificationsUnreadCount,
+    enabled: sessionReady,
+  });
+}
+
+export function usePatchWorkerNotificationsReadAll() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: patchWorkerNotificationsReadAll,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: workerKeys.notifications() });
+      void qc.invalidateQueries({ queryKey: workerKeys.notificationsUnreadCount() });
+    },
+    onError: (e) => toastApiError(e, "Could not mark notifications as read."),
+  });
+}
+
 export function usePatchWorkerNotificationRead() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (notificationId: string) => patchWorkerNotificationRead(notificationId),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: workerKeys.notifications() });
+      void qc.invalidateQueries({ queryKey: workerKeys.notificationsUnreadCount() });
     },
     onError: (e) => toastApiError(e, "Could not mark notification as read."),
   });

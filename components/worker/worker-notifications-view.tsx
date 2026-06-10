@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import {
   usePatchWorkerNotificationRead,
+  usePatchWorkerNotificationsReadAll,
   useWorkerNotifications,
 } from "@/features/worker/hooks";
 import { workerNotificationsFromApi } from "@/features/shared/lib/notification-mappers";
@@ -42,11 +43,13 @@ export function WorkerNotificationsView() {
     limit: 50,
   });
   const markRead = usePatchWorkerNotificationRead();
+  const markAllRead = usePatchWorkerNotificationsReadAll();
 
   const items = useMemo(
     () => workerNotificationsFromApi(notificationsQuery.data?.items ?? []),
     [notificationsQuery.data?.items],
   );
+  const hasUnread = items.some((item) => !item.read);
 
   if (notificationsQuery.isLoading) return <WorkerApplicationsPageSkeleton />;
 
@@ -57,21 +60,33 @@ export function WorkerNotificationsView() {
         <p>{t("description")}</p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {FILTERS.map((filter) => (
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-2">
+          {FILTERS.map((filter) => (
+            <button
+              key={filter}
+              type="button"
+              onClick={() => setActiveFilter(filter)}
+              className={
+                activeFilter === filter
+                  ? "inline-flex h-9 items-center rounded-full border border-[var(--joballa-primary)] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white"
+                  : "inline-flex h-9 items-center rounded-full border border-[var(--joballa-border)] bg-white px-4 text-sm font-medium text-[var(--joballa-muted)]"
+              }
+            >
+              {t(`filters.${filter}`)}
+            </button>
+          ))}
+        </div>
+        {hasUnread ? (
           <button
-            key={filter}
             type="button"
-            onClick={() => setActiveFilter(filter)}
-            className={
-              activeFilter === filter
-                ? "inline-flex h-9 items-center rounded-full border border-[var(--joballa-primary)] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white"
-                : "inline-flex h-9 items-center rounded-full border border-[var(--joballa-border)] bg-white px-4 text-sm font-medium text-[var(--joballa-muted)]"
-            }
+            disabled={markAllRead.isPending}
+            onClick={() => markAllRead.mutate()}
+            className="text-sm font-medium text-[var(--joballa-primary)] hover:underline disabled:opacity-50"
           >
-            {t(`filters.${filter}`)}
+            {t("markAllRead")}
           </button>
-        ))}
+        ) : null}
       </div>
 
       {items.length === 0 ? (

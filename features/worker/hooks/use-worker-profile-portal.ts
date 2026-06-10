@@ -28,6 +28,13 @@ import {
   postWorkerWorkHistory,
 } from "@/features/worker/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
+import {
+  buildWorkerCvFileName,
+  buildWorkerCvPdfBlob,
+  validateProfileForCvExport,
+} from "@/features/worker/lib/worker-cv-pdf";
+import { JoballaApiError } from "@/lib/joballa/request";
+import { joballaAxios } from "@/lib/http/axios-instance";
 import { workerKeys } from "@/features/worker/query-keys";
 import type {
   CreateCertificationBody,
@@ -147,7 +154,26 @@ export function useWorkerCvExportStatus() {
 export function useGenerateWorkerCvExport() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: postWorkerCvExport,
+    mutationFn: async () => {
+      const profile = await getWorkerFullProfile();
+      const validationError = validateProfileForCvExport(profile);
+      if (validationError) {
+        throw new JoballaApiError(validationError, 422);
+      }
+
+      try {
+        return await postWorkerCvExport();
+      } catch {
+        const me = qc.getQueryData<{ email?: string | null; phone?: string | null }>(workerKeys.me());
+        return {
+          blob: buildWorkerCvPdfBlob(profile, {
+            email: me?.email ?? undefined,
+            phone: me?.phone ?? undefined,
+          }),
+          fileName: buildWorkerCvFileName(profile),
+        };
+      }
+    },
     onSuccess: (download) => {
       downloadWorkerCv(download);
       toastSuccess("CV exported.");
@@ -159,7 +185,23 @@ export function useGenerateWorkerCvExport() {
 
 export function useDownloadWorkerCvExport() {
   return useMutation({
-    mutationFn: getWorkerCvExport,
+    mutationFn: async () => {
+      const status = await getWorkerCvExportStatus();
+      if (status.downloadUrl?.trim()) {
+        const path = status.downloadUrl.startsWith("http")
+          ? status.downloadUrl.replace(/^https?:\/\/[^/]+/, "")
+          : status.downloadUrl;
+        const response = await joballaAxios.get<Blob>(path, {
+          responseType: "blob",
+          headers: { Accept: "application/pdf" },
+        });
+        return {
+          blob: response.data,
+          fileName: status.fileName ?? "joballa-cv.pdf",
+        };
+      }
+      return getWorkerCvExport();
+    },
     onSuccess: downloadWorkerCv,
     onError: (error) => toastApiError(error, "Could not download your CV."),
   });

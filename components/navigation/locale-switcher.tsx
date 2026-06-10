@@ -39,17 +39,16 @@ export function LocaleSwitcher({ variant = "dark", align = "end", className }: P
     };
   }, [open]);
 
-  const triggerBase = isLight
-    ? "inline-flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-remixa font-medium leading-none outline-none transition focus-visible:ring-2"
-    : "inline-flex shrink-0 items-center gap-1.5 text-sm font-remixa font-medium leading-none outline-none transition focus-visible:ring-2";
+  const triggerBase =
+    "inline-flex h-11 shrink-0 items-center gap-4 rounded-full text-sm font-remixa font-medium leading-none outline-none transition focus-visible:ring-2";
 
   const triggerTone = isLight
     ? cn(
-        "border-[color:var(--auth-border)] bg-[color:var(--auth-surface)] text-[color:var(--auth-fg)] shadow-[var(--auth-shadow-button)]",
+        "border border-[color:var(--auth-border)] bg-[color:var(--auth-surface)] px-4 text-[color:var(--auth-fg)] shadow-[var(--auth-shadow-button)]",
         "hover:bg-[color:var(--auth-outline-hover)] focus-visible:ring-[color:var(--auth-focus-ring)]",
       )
     : cn(
-        "text-[var(--joballa-fg)]",
+        "px-1 text-[var(--joballa-fg)]",
         "hover:opacity-90 focus-visible:ring-[var(--joballa-primary)]/35",
       );
 
@@ -82,10 +81,14 @@ export function LocaleSwitcher({ variant = "dark", align = "end", className }: P
         onClick={() => setOpen((o) => !o)}
       >
         <Globe2 className="size-[18px] shrink-0 opacity-90" aria-hidden strokeWidth={1.7} />
-        <span className="min-w-[5.25rem] text-left" translate="no">
+        <span className="whitespace-nowrap" translate="no">
           {t(`localeNames.${locale}`)}
         </span>
-        <ChevronDown className={cn("size-3.5 shrink-0 opacity-75 transition-transform", open && "rotate-180")} aria-hidden strokeWidth={2} />
+        <ChevronDown
+          className={cn("size-3.5 shrink-0 opacity-75 transition-transform", open && "rotate-180")}
+          aria-hidden
+          strokeWidth={2}
+        />
         <span className="sr-only">{t("chooseLanguage")}</span>
       </button>
 
@@ -95,7 +98,7 @@ export function LocaleSwitcher({ variant = "dark", align = "end", className }: P
           role="menu"
           aria-labelledby={`${menuId}-trigger`}
           className={cn(
-            "absolute top-full z-[100] mt-1.5 min-w-[calc(100%+1.5rem)] overflow-hidden rounded-[14px] border p-1",
+            "absolute top-full z-[100] mt-1.5 min-w-full overflow-hidden rounded-[14px] border p-1",
             align === "end" ? "right-0" : "left-0",
             panelTone,
           )}

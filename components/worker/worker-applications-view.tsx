@@ -2,7 +2,6 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import type { MouseEvent } from "react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
@@ -10,60 +9,36 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useArchiveWorkerApplication, useWorkerApplications, useWorkerIncomingApplications } from "@/features/worker/hooks";
 import type { WorkerIncomingApplicationListItem } from "@/features/worker/types/worker-portal";
 import { workerApplicationRowsFromApi } from "@/features/worker/lib/application-mappers";
+import { applicantMatchText, formatAppliedAgo } from "@/features/employer/lib/applicant-profile";
+import { workerIncomingToApplicantListItem } from "@/features/worker/lib/incoming-applicant-mappers";
 import { useConfirmAction } from "@/lib/hooks/use-confirm-action";
 import type { WorkerApplicationRow, WorkerApplicationStatus } from "@/lib/worker-applications-data";
 import { JoballaApiError } from "@/lib/joballa/request";
 import { WorkerApplicationsPageSkeleton } from "@/components/worker/worker-loading-skeletons";
+import { WorkerOutgoingApplicationCard } from "@/components/worker/worker-outgoing-application-card";
+import {
+  WorkerIncomingApplicantListCard,
+  workerIncomingApplicationId,
+} from "@/components/worker/worker-incoming-applicant-list-card";
+import { WorkerIncomingApplicantDetailPanel } from "@/components/worker/worker-incoming-applicant-detail-panel";
 import {
   portalPageShellClass,
   portalSegmentButtonClass,
   portalSegmentGroupClass,
 } from "@/components/portal/portal-ui";
 import { IconGrid, IconList, IconSearch } from "@/components/worker/icons";
+import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
 type TabKey = "all" | WorkerApplicationStatus;
 type ContextMenuState = { slug: string; x: number; y: number } | null;
 type ApplicationMode = "outgoing" | "incoming";
 
-function formatRelativeTime(iso?: string): string {
-  if (!iso) return "now";
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "now";
-  const diffMs = Date.now() - date.getTime();
-  const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-  if (days === 0) return "today";
-  if (days < 7) return `${days}d`;
-  if (days < 30) return `${Math.floor(days / 7)}w`;
-  if (days < 365) return `${Math.floor(days / 30)}mo`;
-  return `${Math.floor(days / 365)}yr`;
-}
-
 function mapIncomingStatus(status?: string): WorkerApplicationStatus {
   const normalized = String(status ?? "").toLowerCase();
   if (normalized === "shortlisted" || normalized === "hired") return "shortlisted";
   if (normalized === "rejected") return "rejected";
   return "pending";
-}
-
-function incomingApplicationRowFromApi(app: WorkerIncomingApplicationListItem): WorkerApplicationRow {
-  const applicantName = String(app.applicantName ?? "Applicant");
-  const match = typeof app.matchPercent === "number" ? app.matchPercent : null;
-  return {
-    slug: String(app.applicationId ?? app.id ?? ""),
-    jobTitle: app.jobTitle ?? "",
-    company: applicantName,
-    companyInitial: applicantName.trim().charAt(0).toUpperCase(),
-    companyColor: "bg-teal-600",
-    companyLogoUrl: typeof app.applicantAvatarUrl === "string" ? app.applicantAvatarUrl : null,
-    status: mapIncomingStatus(String(app.status ?? "")),
-    appliedTime: formatRelativeTime(app.appliedAt),
-    pay: "",
-    jobType: "",
-    location: "",
-    matchPct: match,
-    linkedJobSlug: app.jobId,
-  };
 }
 
 function statusBadgeClass(status: WorkerApplicationStatus) {
@@ -79,10 +54,8 @@ function statusBadgeClass(status: WorkerApplicationStatus) {
   }
 }
 
-function applicationHref(app: WorkerApplicationRow, mode: ApplicationMode) {
-  return mode === "incoming"
-    ? `/worker/applications?mode=incoming&applicationId=${encodeURIComponent(app.slug)}`
-    : `/worker/applications/${app.slug}`;
+function outgoingHref(slug: string) {
+  return `/worker/applications/${slug}`;
 }
 
 function footerLine(app: WorkerApplicationRow, t: ReturnType<typeof useTranslations>) {
@@ -91,38 +64,23 @@ function footerLine(app: WorkerApplicationRow, t: ReturnType<typeof useTranslati
   return t("applied", { time: app.appliedTime });
 }
 
-function incomingFooterLine(app: WorkerApplicationRow, t: ReturnType<typeof useTranslations>) {
-  return t("incomingApplied", { time: app.appliedTime });
-}
-
-function CompanyMark({ app, size = "md" }: { app: WorkerApplicationRow; size?: "sm" | "md" }) {
-  const pixelSize = size === "sm" ? 24 : 32;
-  const sizeClass = size === "sm" ? "size-6" : "size-8";
-
-  if (app.companyLogoUrl) {
-    return (
-      <Image
-        src={app.companyLogoUrl}
-        alt=""
-        width={pixelSize}
-        height={pixelSize}
-        unoptimized={app.companyLogoUrl.startsWith("http")}
-        className={cn(sizeClass, "shrink-0 rounded-full object-cover")}
-      />
-    );
+function filterIncomingItems(
+  items: WorkerIncomingApplicationListItem[],
+  tab: TabKey,
+  submittedQuery: string,
+): WorkerIncomingApplicationListItem[] {
+  let rows = items;
+  if (tab !== "all") {
+    rows = rows.filter((item) => mapIncomingStatus(String(item.status ?? "")) === tab);
   }
-
-  return (
-    <span
-      className={cn(
-        "grid shrink-0 place-items-center rounded-full bg-black text-[10px] font-bold text-white",
-        sizeClass,
-        size === "md" && "text-xs",
-      )}
-    >
-      {app.companyInitial || "J"}
-    </span>
-  );
+  if (submittedQuery) {
+    rows = rows.filter((item) => {
+      const applicant = String(item.applicantName ?? "").toLowerCase();
+      const jobTitle = String(item.jobTitle ?? "").toLowerCase();
+      return applicant.includes(submittedQuery) || jobTitle.includes(submittedQuery);
+    });
+  }
+  return rows;
 }
 
 function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: boolean }) {
@@ -131,10 +89,13 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
   const { requestConfirm, dialogProps } = useConfirmAction();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isLg = useMediaQuery("(min-width: 1024px)");
   const queryParam = searchParams.get("q") ?? "";
+  const modeParam = searchParams.get("mode");
+  const applicationIdParam = searchParams.get("applicationId");
+  const mode: ApplicationMode = modeParam === "incoming" ? "incoming" : "outgoing";
   const [q, setQ] = useState(() => queryParam);
   const [tab, setTab] = useState<TabKey>("all");
-  const [mode, setMode] = useState<ApplicationMode>("outgoing");
   const [grid, setGrid] = useState(true);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
 
@@ -146,43 +107,37 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
   });
   const archiveApp = useArchiveWorkerApplication();
 
-  const allRows = useMemo(
+  const outgoingRows = useMemo(
     () => workerApplicationRowsFromApi(appsQuery.data?.items ?? []),
     [appsQuery.data?.items],
   );
-  const incomingRows = useMemo(
-    () => (incomingQuery.data?.items ?? []).map(incomingApplicationRowFromApi).filter((row) => row.slug),
-    [incomingQuery.data?.items],
-  );
-  const activeRows = mode === "outgoing" ? allRows : incomingRows;
+  const incomingItems = useMemo(() => incomingQuery.data?.items ?? [], [incomingQuery.data?.items]);
 
-  const counts = useMemo(
+  const outgoingCounts = useMemo(
     () => ({
-      all: activeRows.length,
-      shortlisted: activeRows.filter((a) => a.status === "shortlisted").length,
-      pending: activeRows.filter((a) => a.status === "pending").length,
-      rejected: activeRows.filter((a) => a.status === "rejected").length,
+      all: outgoingRows.length,
+      shortlisted: outgoingRows.filter((a) => a.status === "shortlisted").length,
+      pending: outgoingRows.filter((a) => a.status === "pending").length,
+      rejected: outgoingRows.filter((a) => a.status === "rejected").length,
     }),
-    [activeRows],
+    [outgoingRows],
   );
 
+  const incomingCounts = useMemo(
+    () => ({
+      all: incomingItems.length,
+      shortlisted: incomingItems.filter((a) => mapIncomingStatus(String(a.status ?? "")) === "shortlisted").length,
+      pending: incomingItems.filter((a) => mapIncomingStatus(String(a.status ?? "")) === "pending").length,
+      rejected: incomingItems.filter((a) => mapIncomingStatus(String(a.status ?? "")) === "rejected").length,
+    }),
+    [incomingItems],
+  );
+
+  const counts = mode === "outgoing" ? outgoingCounts : incomingCounts;
   const submittedQuery = searchMode ? queryParam.trim().toLowerCase() : "";
 
-  const submitSearch = useCallback(() => {
-    const term = q.trim();
-    if (!term) {
-      router.push("/worker/applications");
-      return;
-    }
-    router.push(`/worker/applications/search?q=${encodeURIComponent(term)}`);
-  }, [q, router]);
-
-  useEffect(() => {
-    setQ(queryParam);
-  }, [queryParam]);
-
-  const filtered = useMemo(() => {
-    let rows = activeRows;
+  const filteredOutgoing = useMemo(() => {
+    let rows = outgoingRows;
     if (tab !== "all") rows = rows.filter((a) => a.status === tab);
     if (submittedQuery) {
       rows = rows.filter(
@@ -193,9 +148,89 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
       );
     }
     return rows;
-  }, [activeRows, tab, submittedQuery]);
+  }, [outgoingRows, tab, submittedQuery]);
 
-  const contextApp = contextMenu ? filtered.find((app) => app.slug === contextMenu.slug) : undefined;
+  const filteredIncoming = useMemo(
+    () => filterIncomingItems(incomingItems, tab, submittedQuery),
+    [incomingItems, tab, submittedQuery],
+  );
+
+  const selectedIncoming = useMemo(
+    () =>
+      incomingItems.find((item) => workerIncomingApplicationId(item) === applicationIdParam) ?? null,
+    [applicationIdParam, incomingItems],
+  );
+
+  const useSplit = isLg === true;
+  const showIncomingPanel = mode === "incoming" && useSplit && applicationIdParam != null;
+
+  const submitSearch = useCallback(() => {
+    const term = q.trim();
+    if (!term) {
+      router.push(mode === "incoming" ? "/worker/applications?mode=incoming" : "/worker/applications");
+      return;
+    }
+    const modeQuery = mode === "incoming" ? "&mode=incoming" : "";
+    router.push(`/worker/applications/search?q=${encodeURIComponent(term)}${modeQuery}`);
+  }, [mode, q, router]);
+
+  const setMode = useCallback(
+    (nextMode: ApplicationMode) => {
+      setTab("all");
+      setContextMenu(null);
+      router.replace(nextMode === "incoming" ? "/worker/applications?mode=incoming" : "/worker/applications");
+    },
+    [router],
+  );
+
+  const selectIncomingApplicant = useCallback(
+    (id: string) => {
+      router.replace(`/worker/applications?mode=incoming&applicationId=${encodeURIComponent(id)}`);
+    },
+    [router],
+  );
+
+  const closeIncomingPanel = useCallback(() => {
+    router.replace("/worker/applications?mode=incoming");
+  }, [router]);
+
+  const openIncomingApplicant = useCallback(
+    (id: string) => {
+      if (useSplit) {
+        selectIncomingApplicant(id);
+        return;
+      }
+      router.push(`/worker/applications/incoming/${encodeURIComponent(id)}`);
+    },
+    [router, selectIncomingApplicant, useSplit],
+  );
+
+  useEffect(() => {
+    setQ(queryParam);
+  }, [queryParam]);
+
+  useEffect(() => {
+    if (isLg !== true || mode !== "incoming" || !applicationIdParam || incomingQuery.isLoading) return;
+    if (incomingQuery.isSuccess && !selectedIncoming) {
+      closeIncomingPanel();
+    }
+  }, [
+    applicationIdParam,
+    closeIncomingPanel,
+    incomingQuery.isLoading,
+    incomingQuery.isSuccess,
+    isLg,
+    mode,
+    selectedIncoming,
+  ]);
+
+  useEffect(() => {
+    if (isLg === null || isLg) return;
+    if (mode !== "incoming" || !applicationIdParam) return;
+    router.replace(`/worker/applications/incoming/${encodeURIComponent(applicationIdParam)}`);
+  }, [applicationIdParam, isLg, mode, router]);
+
+  const contextApp = contextMenu ? filteredOutgoing.find((app) => app.slug === contextMenu.slug) : undefined;
 
   const openContextMenu = useCallback((event: MouseEvent, app: WorkerApplicationRow) => {
     event.preventDefault();
@@ -223,6 +258,8 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
   );
 
   const activeQuery = mode === "outgoing" ? appsQuery : incomingQuery;
+  const isEmpty =
+    mode === "outgoing" ? filteredOutgoing.length === 0 : filteredIncoming.length === 0;
 
   if (activeQuery.isLoading) {
     return <WorkerApplicationsPageSkeleton />;
@@ -237,11 +274,7 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
           <button
             key={nextMode}
             type="button"
-            onClick={() => {
-              setMode(nextMode);
-              setTab("all");
-              setContextMenu(null);
-            }}
+            onClick={() => setMode(nextMode)}
             className={cn(
               "inline-flex h-9 flex-1 items-center justify-center rounded-full px-4 text-sm font-medium transition min-[520px]:flex-none",
               mode === nextMode
@@ -338,33 +371,121 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
             <p className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-6 py-10 text-center text-sm text-[var(--joballa-muted)] shadow-[var(--joballa-shadow-card)]">
               {activeQuery.error instanceof JoballaApiError ? activeQuery.error.message : t("loadError")}
             </p>
-          ) : filtered.length === 0 ? (
+          ) : isEmpty ? (
             <p className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-6 py-10 text-center text-sm text-[var(--joballa-muted)] shadow-[var(--joballa-shadow-card)]">
               {mode === "outgoing" ? t("empty") : t("incomingEmpty")}
             </p>
+          ) : mode === "incoming" ? (
+            <div
+              className={cn(
+                "flex min-h-0 w-full flex-1 flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6",
+                showIncomingPanel &&
+                  "lg:grid lg:h-[calc(100dvh-8.5rem)] lg:grid-cols-[minmax(340px,0.78fr)_minmax(0,1.22fr)] lg:gap-6 lg:overflow-hidden",
+              )}
+            >
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 lg:overflow-y-auto lg:pr-1">
+                {grid ? (
+                  <div
+                    className={cn(
+                      "grid gap-3 sm:grid-cols-2 sm:gap-4",
+                      showIncomingPanel ? "lg:grid-cols-1 xl:grid-cols-1" : "lg:grid-cols-2 xl:grid-cols-3",
+                    )}
+                  >
+                    {filteredIncoming.map((application) => {
+                      const id = workerIncomingApplicationId(application);
+                      return (
+                        <WorkerIncomingApplicantListCard
+                          key={id}
+                          application={application}
+                          appliedLabel={t("incomingApplied", {
+                            time: application.appliedAt ? formatAppliedAgo(application.appliedAt) : "—",
+                          })}
+                          isActive={showIncomingPanel && id === applicationIdParam}
+                          onSelect={() => openIncomingApplicant(id)}
+                          moreAriaLabel={t("moreActions")}
+                        />
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] shadow-[var(--joballa-shadow-card)]">
+                    <table className="w-full min-w-[960px] text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-[var(--joballa-border)] text-xs font-semibold text-[var(--joballa-muted)]">
+                          <th className="px-4 py-3">{t("table.applied")}</th>
+                          <th className="px-4 py-3">{t("table.applicant")}</th>
+                          <th className="px-4 py-3">{t("table.jobTitle")}</th>
+                          <th className="px-4 py-3">{t("table.match")}</th>
+                          <th className="px-4 py-3 text-right">{t("table.status")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredIncoming.map((application) => {
+                          const id = workerIncomingApplicationId(application);
+                          const applicant = workerIncomingToApplicantListItem(application);
+                          const status = mapIncomingStatus(String(application.status ?? ""));
+                          const match = applicantMatchText(applicant);
+                          const isActive = useSplit && id === applicationIdParam;
+
+                          return (
+                            <tr
+                              key={id}
+                              onClick={() => openIncomingApplicant(id)}
+                              className={cn(
+                                "cursor-pointer border-b border-[var(--joballa-border)] text-[var(--joballa-fg)] last:border-0 hover:bg-[var(--joballa-row-hover)]",
+                                isActive && "bg-[var(--joballa-row-selected)]",
+                              )}
+                            >
+                              <td className="whitespace-nowrap px-4 py-3 text-[var(--joballa-muted)]">
+                                {t("incomingApplied", {
+                                  time: application.appliedAt ? formatAppliedAgo(application.appliedAt) : "—",
+                                })}
+                              </td>
+                              <td className="px-4 py-3 font-medium">{application.applicantName ?? "—"}</td>
+                              <td className="max-w-[210px] truncate px-4 py-3 font-semibold">{application.jobTitle}</td>
+                              <td className="whitespace-nowrap px-4 py-3">{match ?? ""}</td>
+                              <td className="px-4 py-3 text-right">
+                                <span
+                                  className={cn(
+                                    "inline-flex rounded-[26px] px-2 py-0.5 text-xs font-semibold leading-4",
+                                    statusBadgeClass(status),
+                                  )}
+                                >
+                                  {t(`status.${status}`)}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {showIncomingPanel && applicationIdParam ? (
+                <aside className="hidden min-h-0 w-full lg:flex lg:max-h-[min(88vh,calc(100dvh-6.5rem))] lg:flex-col lg:overflow-hidden">
+                  <WorkerIncomingApplicantDetailPanel
+                    applicationId={applicationIdParam}
+                    variant="panel"
+                    onClose={closeIncomingPanel}
+                  />
+                </aside>
+              ) : null}
+            </div>
           ) : grid ? (
             <div className="grid gap-3.5 lg:grid-cols-2">
-              {filtered.map((app) => (
+              {filteredOutgoing.map((app) => (
                 <Link
                   key={app.slug}
-                  href={applicationHref(app, mode)}
-                  className="flex min-w-0 flex-col gap-2 rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-[14px] shadow-[var(--joballa-shadow-card)] transition hover:border-[color-mix(in_srgb,var(--joballa-primary)_35%,var(--joballa-border))]"
+                  href={outgoingHref(app.slug)}
+                  className="block transition hover:opacity-95"
                 >
-                  <div className="flex items-start justify-between gap-3.5">
-                    <h2 className="min-w-0 text-lg font-semibold leading-7 text-[var(--joballa-fg)]">{app.jobTitle}</h2>
-                    <span className={cn("shrink-0 rounded-[26px] px-2 py-0.5 text-xs font-semibold leading-4", statusBadgeClass(app.status))}>
-                      {t(`status.${app.status}`)}
-                    </span>
-                  </div>
-                  <div className="flex h-7 items-center justify-between gap-2">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <CompanyMark app={app} size="sm" />
-                      <span className="truncate text-sm font-semibold leading-5 text-[var(--joballa-muted)]">{app.company}</span>
-                    </div>
-                    <span className="shrink-0 text-xs font-normal leading-4 text-[var(--joballa-muted)]">
-                      {mode === "outgoing" ? footerLine(app, t) : incomingFooterLine(app, t)}
-                    </span>
-                  </div>
+                  <WorkerOutgoingApplicationCard
+                    app={app}
+                    statusLabel={t(`status.${app.status}`)}
+                    appliedLabel={footerLine(app, t)}
+                  />
                 </Link>
               ))}
             </div>
@@ -374,7 +495,7 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
                 <thead>
                   <tr className="border-b border-[var(--joballa-border)] text-xs font-semibold text-[var(--joballa-muted)]">
                     <th className="px-4 py-3">{t("table.applied")}</th>
-                    <th className="px-4 py-3">{mode === "outgoing" ? t("table.employer") : t("table.applicant")}</th>
+                    <th className="px-4 py-3">{t("table.employer")}</th>
                     <th className="px-4 py-3">{t("table.jobTitle")}</th>
                     <th className="px-4 py-3">{t("table.pay")}</th>
                     <th className="px-4 py-3">{t("table.jobType")}</th>
@@ -384,10 +505,10 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((app) => (
+                  {filteredOutgoing.map((app) => (
                     <tr
                       key={app.slug}
-                      onClick={() => router.push(applicationHref(app, mode))}
+                      onClick={() => router.push(outgoingHref(app.slug))}
                       onContextMenu={(event) => openContextMenu(event, app)}
                       className={cn(
                         "cursor-pointer border-b border-[var(--joballa-border)] text-[var(--joballa-fg)] last:border-0 hover:bg-[var(--joballa-row-hover)]",
@@ -395,17 +516,12 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
                       )}
                     >
                       <td className="whitespace-nowrap px-4 py-3 text-[var(--joballa-muted)]">
-                        {mode === "outgoing"
-                          ? app.timelineNoteKey
-                            ? footerLine(app, t)
-                            : t("table.appliedShort", { time: app.appliedTime })
-                          : incomingFooterLine(app, t)}
+                        {app.timelineNoteKey
+                          ? footerLine(app, t)
+                          : t("table.appliedShort", { time: app.appliedTime })}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex min-w-0 items-center gap-2">
-                          <CompanyMark app={app} size="sm" />
-                          <span className="truncate font-medium">{app.company}</span>
-                        </div>
+                        <span className="truncate font-medium">{app.company}</span>
                       </td>
                       <td className="max-w-[210px] truncate px-4 py-3 font-semibold">{app.jobTitle}</td>
                       <td className="whitespace-nowrap px-4 py-3">
@@ -416,7 +532,12 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
                       <td className="whitespace-nowrap px-4 py-3">{app.location}</td>
                       <td className="whitespace-nowrap px-4 py-3">{app.matchPct != null ? app.matchPct : ""}</td>
                       <td className="px-4 py-3 text-right">
-                        <span className={cn("inline-flex rounded-[26px] px-2 py-0.5 text-xs font-semibold leading-4", statusBadgeClass(app.status))}>
+                        <span
+                          className={cn(
+                            "inline-flex rounded-[26px] px-2 py-0.5 text-xs font-semibold leading-4",
+                            statusBadgeClass(app.status),
+                          )}
+                        >
                           {t(`status.${app.status}`)}
                         </span>
                       </td>
@@ -439,7 +560,7 @@ function WorkerApplicationsViewInner({ searchMode = false }: { searchMode?: bool
             <button
               type="button"
               className="block w-full px-4 py-2 text-left hover:bg-[var(--joballa-row-hover)]"
-              onClick={() => router.push(applicationHref(contextApp, mode))}
+              onClick={() => router.push(outgoingHref(contextApp.slug))}
             >
               {t("rowMenu.open")}
             </button>

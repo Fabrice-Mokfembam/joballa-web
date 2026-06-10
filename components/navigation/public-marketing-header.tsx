@@ -10,23 +10,40 @@ import { authOutlineButtonClassName, authPrimaryButtonClassName } from "@/lib/au
 import { cn } from "@/lib/utils";
 
 type Surface = "marketing" | "auth";
+type Layout = "default" | "landing";
 
-const navKeys = ["findJobs", "forEmployers", "resources", "about"] as const;
-const navHrefs = ["/sign-up/role", "/sign-up/role", "/sign-up/role", "/"] as const;
+const defaultNavKeys = ["findJobs", "forEmployers", "resources", "about"] as const;
+const defaultNavHrefs = ["/sign-up/role", "/sign-up/role", "/sign-up/role", "/"] as const;
 
-export function PublicMarketingHeader({ surface }: { surface: Surface }) {
+const landingNavKeys = ["forWorkers", "forEmployers"] as const;
+const landingNavHrefs = ["#for-workers", "#for-employers"] as const;
+
+export function PublicMarketingHeader({
+  surface,
+  layout = "default",
+  tone = "light",
+}: {
+  surface: Surface;
+  layout?: Layout;
+  /** Landing dark theme uses light nav text on #131313 background. */
+  tone?: "light" | "dark";
+}) {
   const t = useTranslations("public");
   const isAuth = surface === "auth";
   const [menuOpen, setMenuOpen] = useState(false);
 
   const ghostNavMarketing =
-    "rounded-xl px-4 py-2 text-sm font-remixa font-medium text-[var(--joballa-muted)] transition hover:bg-[var(--joballa-row-hover)] hover:text-[var(--joballa-fg)]";
+    tone === "dark"
+      ? "rounded-xl px-4 py-2 text-sm font-remixa font-medium text-[#bec9c9] transition hover:bg-white/5 hover:text-[#e0e3e3]"
+      : "rounded-xl px-4 py-2 text-sm font-remixa font-medium text-[var(--joballa-muted)] transition hover:bg-[var(--joballa-row-hover)] hover:text-[var(--joballa-fg)]";
 
   const ghostNavAuth =
     "rounded-xl px-4 py-2 text-sm font-remixa font-medium text-[color:var(--auth-fg-muted)] transition hover:bg-[color:var(--auth-outline-hover)] hover:text-[color:var(--auth-fg)]";
 
   const drawerNavMarketing =
-    "block rounded-xl px-3 py-3 text-base font-remixa font-medium text-[var(--joballa-fg)] transition hover:bg-[var(--joballa-row-hover)]";
+    tone === "dark"
+      ? "block rounded-xl px-3 py-3 text-base font-remixa font-medium text-[#e0e3e3] transition hover:bg-white/5"
+      : "block rounded-xl px-3 py-3 text-base font-remixa font-medium text-[var(--joballa-fg)] transition hover:bg-[var(--joballa-row-hover)]";
 
   const drawerNavAuth =
     "block rounded-xl px-3 py-3 text-base font-remixa font-medium text-[color:var(--auth-fg)] transition hover:bg-[color:var(--auth-outline-hover)]";
@@ -36,7 +53,9 @@ export function PublicMarketingHeader({ surface }: { surface: Surface }) {
 
   const ghostHeaderBtnMarketing = cn(
     navBtnBase,
-    "border border-[var(--joballa-border)] bg-transparent text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
+    tone === "dark"
+      ? "border-2 border-[#3e4949] bg-transparent text-[#e0e3e3] hover:bg-white/5"
+      : "border border-[var(--joballa-border)] bg-transparent text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
   );
 
   const ghostHeaderBtnAuth = cn(authOutlineButtonClassName, navBtnBase, "w-auto shadow-none");
@@ -44,9 +63,8 @@ export function PublicMarketingHeader({ surface }: { surface: Surface }) {
   const primaryCtaAuth = cn(authPrimaryButtonClassName, navBtnBase, "w-auto");
 
   const primaryCtaMarketing = cn(
-    authPrimaryButtonClassName,
     navBtnBase,
-    "bg-[var(--joballa-primary)] text-white",
+    "border-0 bg-[var(--joballa-primary)] text-[var(--joballa-on-primary)] shadow-[0_4px_14px_rgba(13,115,119,0.25)] hover:opacity-[0.96] focus:outline-none focus:ring-2 focus:ring-[var(--joballa-primary)]/40",
   );
 
   const drawerBtnOutlineMarketing = cn(
@@ -80,25 +98,74 @@ export function PublicMarketingHeader({ surface }: { surface: Surface }) {
 
   const navLinkClass = isAuth ? ghostNavAuth : ghostNavMarketing;
   const drawerNavClass = isAuth ? drawerNavAuth : drawerNavMarketing;
+  const isLanding = layout === "landing" && !isAuth;
+  const navKeys = isLanding ? landingNavKeys : defaultNavKeys;
+  const navHrefs = isLanding ? landingNavHrefs : defaultNavHrefs;
+
+  const navLinks = navKeys.map((key, i) => {
+    const href = navHrefs[i];
+    const label = t(`nav.${key}`);
+    if (href.startsWith("#")) {
+      return (
+        <a key={key} href={href} className={navLinkClass}>
+          {label}
+        </a>
+      );
+    }
+    return (
+      <Link key={key} href={href} className={navLinkClass}>
+        {label}
+      </Link>
+    );
+  });
+
+  const drawerNavLinks = navKeys.map((key, i) => {
+    const href = navHrefs[i];
+    const label = t(`nav.${key}`);
+    if (href.startsWith("#")) {
+      return (
+        <a key={key} href={href} className={drawerNavClass} onClick={closeMenu}>
+          {label}
+        </a>
+      );
+    }
+    return (
+      <Link key={key} href={href} className={drawerNavClass} onClick={closeMenu}>
+        {label}
+      </Link>
+    );
+  });
 
   return (
     <>
-      <header className="flex w-full items-center justify-between gap-3">
-        <JoballaAuthNavLogo variant={isAuth ? "auth" : "marketing"} />
+      <header
+        className={cn(
+          "flex w-full items-center justify-between gap-3",
+          isLanding && "lg:gap-10",
+        )}
+      >
+        <div className={cn("flex shrink-0 items-center gap-6 lg:gap-10", isLanding && "min-w-0")}>
+          <JoballaAuthNavLogo variant={isAuth || tone === "dark" ? "auth" : "marketing"} />
+          {isLanding ? (
+            <nav className="hidden items-center gap-6 lg:flex" aria-label={t("nav.navAria")}>
+              {navLinks}
+            </nav>
+          ) : null}
+        </div>
 
-        <nav
-          className="hidden flex-1 flex-nowrap items-center justify-center gap-1 lg:flex"
-          aria-label={t("nav.navAria")}
-        >
-          {navKeys.map((key, i) => (
-            <Link key={key} href={navHrefs[i]} className={navLinkClass}>
-              {t(`nav.${key}`)}
-            </Link>
-          ))}
-        </nav>
+        {!isLanding ? (
+          <nav
+            className="hidden flex-1 flex-nowrap items-center justify-center gap-1 lg:flex"
+            aria-label={t("nav.navAria")}
+          >
+            {navLinks}
+          </nav>
+        ) : (
+          <div className="hidden flex-1 lg:block" aria-hidden />
+        )}
 
         <div className="hidden shrink-0 items-center gap-2 sm:gap-3 lg:flex">
-          <LocaleSwitcher variant={isAuth ? "light" : "dark"} />
+          <LocaleSwitcher variant={isAuth || tone === "dark" ? "light" : "dark"} />
           <Link href="/sign-in" className={isAuth ? ghostHeaderBtnAuth : ghostHeaderBtnMarketing}>
             {t("nav.logIn")}
           </Link>
@@ -113,7 +180,9 @@ export function PublicMarketingHeader({ surface }: { surface: Surface }) {
             "inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-xl transition lg:hidden",
             isAuth
               ? "text-[color:var(--auth-fg)] hover:bg-[color:var(--auth-outline-hover)]"
-              : "text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
+              : tone === "dark"
+                ? "text-[#e0e3e3] hover:bg-white/5"
+                : "text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
           )}
           aria-expanded={menuOpen}
           aria-controls="marketing-mobile-menu"
@@ -176,11 +245,7 @@ export function PublicMarketingHeader({ surface }: { surface: Surface }) {
             </div>
 
             <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4" aria-label={t("nav.navAria")}>
-              {navKeys.map((key, i) => (
-                <Link key={key} href={navHrefs[i]} className={drawerNavClass} onClick={closeMenu}>
-                  {t(`nav.${key}`)}
-                </Link>
-              ))}
+              {drawerNavLinks}
             </nav>
 
             <div
@@ -189,9 +254,7 @@ export function PublicMarketingHeader({ surface }: { surface: Surface }) {
                 isAuth ? "border-[color:var(--auth-border)]" : "border-[var(--joballa-border)]",
               )}
             >
-              <div className="w-full [&_button]:w-full [&_button]:justify-between">
-                <LocaleSwitcher variant={isAuth ? "light" : "dark"} className="w-full" />
-              </div>
+              <LocaleSwitcher variant={isAuth ? "light" : "dark"} />
               <Link
                 href="/sign-in"
                 className={isAuth ? drawerBtnOutlineAuth : drawerBtnOutlineMarketing}

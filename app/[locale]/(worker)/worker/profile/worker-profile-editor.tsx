@@ -17,6 +17,9 @@ import {
   postWorkerEducation,
   postWorkerPaymentAccount,
   patchWorkerPaymentAccount,
+  patchWorkerWorkHistory,
+  patchWorkerEducation,
+  patchWorkerCertification,
   deleteWorkerWorkHistory,
   deleteWorkerEducation,
   deleteWorkerCertification,
@@ -25,6 +28,7 @@ import {
   uploadVerificationDoc,
 } from "@/features/worker/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
+import { toast } from "@/lib/toast";
 import {
   useWorkerDocuments,
   useWorkerFullProfile,
@@ -32,7 +36,15 @@ import {
 } from "@/features/worker/hooks";
 import { workerKeys } from "@/features/worker/query-keys";
 import { useQueryClient } from "@tanstack/react-query";
-import { profileSectionCompletion } from "@/features/worker/lib/profile-display";
+import {
+  profileDisplayName,
+  profileInitials,
+  profileSectionCompletion,
+  sortedCertifications,
+  sortedEducations,
+  sortedWorkHistories,
+} from "@/features/worker/lib/profile-display";
+import { ProfileRecordCard } from "@/components/worker/profile-record-card";
 import {
   sanitizeEducationForPut,
   sanitizeWorkHistoryForPut,
@@ -40,7 +52,10 @@ import {
 } from "@/features/worker/lib/profile-payload";
 import { getVerificationStatus, isRejectedStatus, isVerifiedStatus, verificationStatusLabel } from "@/features/worker/lib/verification";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { KycUploadField } from "@/components/worker/kyc-upload-field";
+import { SupportingDocumentPicker } from "@/components/worker/supporting-document-picker";
 import { WorkerProfilePageSkeleton } from "@/components/worker/worker-loading-skeletons";
+import { fieldMaxLength, type FieldLimitKey } from "@/lib/form-field-limits";
 import { useConfirmAction } from "@/lib/hooks/use-confirm-action";
 import {
   CAMEROON_REGION_IDS,
@@ -49,6 +64,14 @@ import {
   type CameroonRegionId,
 } from "@/lib/cameroon-region-cities";
 import { JoballaApiError } from "@/lib/joballa/request";
+import {
+  activePaymentSlot,
+  paymentMethodsFromProfile,
+  switchPaymentProvider,
+  updateActivePaymentSlot,
+  type MomoProviderTab,
+  type PaymentMethodsFormState,
+} from "@/features/worker/lib/payment-methods";
 import type { WorkerDocument, WorkerFullProfile } from "@/features/worker/types/worker-portal";
 import { cn } from "@/lib/utils";
 
@@ -92,6 +115,7 @@ function Field({
   as = "input",
   type = "text",
   disabled,
+  limitKey,
 }: {
   label: string;
   value: string;
@@ -101,7 +125,9 @@ function Field({
   as?: "input" | "textarea";
   type?: "text" | "date";
   disabled?: boolean;
+  limitKey?: FieldLimitKey;
 }) {
+  const maxLength = limitKey ? fieldMaxLength(limitKey) : undefined;
   return (
     <label className={cn("block min-w-0 text-[11px] font-medium text-[var(--joballa-muted)]", wide && "sm:col-span-2")}>
       {label}
@@ -112,6 +138,7 @@ function Field({
           placeholder={placeholder}
           rows={4}
           disabled={disabled}
+          maxLength={maxLength}
           className="mt-1 w-full resize-none rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 py-2 text-sm text-[var(--joballa-fg)] outline-none ring-[var(--joballa-primary)] placeholder:text-[var(--joballa-muted)] focus:border-[var(--joballa-primary)] focus:ring-2 disabled:opacity-50"
         />
       ) : (
@@ -121,6 +148,7 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
+          maxLength={type === "date" ? undefined : maxLength}
           className="mt-1 h-10 w-full rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 text-sm text-[var(--joballa-fg)] outline-none ring-[var(--joballa-primary)] placeholder:text-[var(--joballa-muted)] focus:border-[var(--joballa-primary)] focus:ring-2 disabled:opacity-50"
         />
       )}
@@ -184,9 +212,18 @@ export function WorkerProfileEditor() {
   const verificationRef = useRef<HTMLDivElement>(null);
   const hydratedRef = useRef(false);
   const [savingSection, setSavingSection] = useState<string | null>(null);
+  const [personalBaseline, setPersonalBaseline] = useState<{
+    fullName: string;
+    city: string;
+    region: CameroonRegionId;
+    languages: string;
+    available: boolean;
+  } | null>(null);
+  const [summaryBaseline, setSummaryBaseline] = useState<{ title: string; summary: string } | null>(null);
+  const [skillsBaseline, setSkillsBaseline] = useState<string | null>(null);
+  const [paymentBaseline, setPaymentBaseline] = useState<PaymentMethodsFormState | null>(null);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [city, setCity] = useState("");
   const [region, setRegion] = useState<CameroonRegionId>(DEFAULT_CAMEROON_REGION);
   const [languages, setLanguages] = useState("");
@@ -196,9 +233,9 @@ export function WorkerProfileEditor() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [skillsText, setSkillsText] = useState("");
-  const [momoProvider, setMomoProvider] = useState<"MTN_MOMO" | "ORANGE_MONEY">("MTN_MOMO");
-  const [momoNumber, setMomoNumber] = useState("");
-  const [paymentAccountId, setPaymentAccountId] = useState<string | null>(null);
+  const [paymentForm, setPaymentForm] = useState<PaymentMethodsFormState>(() =>
+    paymentMethodsFromProfile([]),
+  );
   const [workJobTitle, setWorkJobTitle] = useState("");
   const [workCompany, setWorkCompany] = useState("");
   const [workStart, setWorkStart] = useState("");
@@ -213,17 +250,25 @@ export function WorkerProfileEditor() {
   const [certName, setCertName] = useState("");
   const [certIssuer, setCertIssuer] = useState("");
   const [certIssueDate, setCertIssueDate] = useState("");
+  const [certCredentialUrl, setCertCredentialUrl] = useState("");
+  const [editingWorkId, setEditingWorkId] = useState<string | null>(null);
+  const [editingEducationId, setEditingEducationId] = useState<string | null>(null);
+  const [editingCertId, setEditingCertId] = useState<string | null>(null);
   const [kycDocumentType, setKycDocumentType] = useState<"NATIONAL_ID" | "PASSPORT" | "DRIVERS_LICENSE">("NATIONAL_ID");
   const [kycFrontFile, setKycFrontFile] = useState<File | null>(null);
   const [kycBackFile, setKycBackFile] = useState<File | null>(null);
   const [kycSelfieFile, setKycSelfieFile] = useState<File | null>(null);
+  const [pendingSupportingDoc, setPendingSupportingDoc] = useState<{
+    file: File;
+    kind: "CV" | "OTHER";
+  } | null>(null);
+  const [pendingDocKind, setPendingDocKind] = useState<"CV" | "OTHER">("OTHER");
 
   useEffect(() => {
     const p = profileQuery.data;
     if (!p || hydratedRef.current) return;
     hydratedRef.current = true;
-    setFirstName(p.firstName ?? "");
-    setLastName(p.lastName ?? "");
+    setFullName(profileDisplayName(p));
     const nextRegion = normalizeRegion(p.region);
     setRegion(nextRegion);
     const regionCities = getCitiesForRegion(nextRegion);
@@ -233,16 +278,20 @@ export function WorkerProfileEditor() {
     setTitle(p.professionalTitle ?? "");
     setSummary(p.summary ?? "");
     setSkillsText((p.skills ?? []).join(", "));
-    setMomoProvider((p.mobileMoneyProvider as "MTN_MOMO" | "ORANGE_MONEY") ?? "MTN_MOMO");
-    setMomoNumber(p.mobileMoneyNumber ?? "");
-    const primary =
-      p.paymentAccounts?.find((a) => a.isPrimary) ?? p.paymentAccounts?.[0] ?? null;
-    setPaymentAccountId(primary?.id ?? null);
-    if (primary?.phone) setMomoNumber(primary.phone);
-    if (primary?.provider) {
-      const prov = String(primary.provider).toLowerCase();
-      setMomoProvider(prov.includes("orange") ? "ORANGE_MONEY" : "MTN_MOMO");
-    }
+    const nextCity =
+      p.city && regionCities.includes(p.city) ? p.city : (regionCities[0] ?? "");
+    const nextPaymentForm = paymentMethodsFromProfile(p.paymentAccounts ?? p.paymentMethods ?? []);
+    setPaymentForm(nextPaymentForm);
+    setPersonalBaseline({
+      fullName: profileDisplayName(p),
+      city: nextCity,
+      region: nextRegion,
+      languages: (p.languages ?? []).join(", "),
+      available: String(p.availabilityStatus ?? "AVAILABLE") === "AVAILABLE",
+    });
+    setSummaryBaseline({ title: p.professionalTitle ?? "", summary: p.summary ?? "" });
+    setSkillsBaseline((p.skills ?? []).join(", "));
+    setPaymentBaseline(nextPaymentForm);
   }, [profileQuery.data]);
 
   useEffect(() => {
@@ -281,6 +330,40 @@ export function WorkerProfileEditor() {
     [region],
   );
 
+  const personalDirty = useMemo(() => {
+    if (!personalBaseline) return false;
+    if (avatarFile) return true;
+    return (
+      fullName !== personalBaseline.fullName ||
+      city !== personalBaseline.city ||
+      region !== personalBaseline.region ||
+      languages !== personalBaseline.languages ||
+      available !== personalBaseline.available
+    );
+  }, [avatarFile, available, city, fullName, languages, personalBaseline, region]);
+
+  const summaryDirty = useMemo(() => {
+    if (!summaryBaseline) return false;
+    return title !== summaryBaseline.title || summary !== summaryBaseline.summary;
+  }, [summary, summaryBaseline, title]);
+
+  const skillsDirty = useMemo(() => {
+    if (skillsBaseline == null) return false;
+    return skillsText !== skillsBaseline;
+  }, [skillsBaseline, skillsText]);
+
+  const paymentDirty = useMemo(() => {
+    if (!paymentBaseline) return false;
+    return JSON.stringify(paymentForm) !== JSON.stringify(paymentBaseline);
+  }, [paymentBaseline, paymentForm]);
+
+  const activePayment = activePaymentSlot(paymentForm);
+
+  function sectionSaveLabel(section: string, dirty: boolean) {
+    if (savingSection === section) return t("editor.saving");
+    return dirty ? t("editor.saveChanges") : t("editor.save");
+  }
+
   if (profileQuery.isLoading) {
     return <WorkerProfilePageSkeleton />;
   }
@@ -298,6 +381,13 @@ export function WorkerProfileEditor() {
   const profile = profileQuery.data;
   const documents = documentsQuery.data ?? profile.documents ?? [];
   const avatarUrl = avatarPreviewUrl ?? profile.avatarUrl ?? meQuery.data?.workerProfile?.avatarUrl;
+  const avatarInitials = profileInitials(
+    fullName.trim() ||
+      profileDisplayName(profile) ||
+      profile.professionalTitle?.trim() ||
+      meQuery.data?.email ||
+      "?",
+  );
   const latestKyc = profile.kycSubmissions?.[0];
   const latestKycStatus = latestKyc?.status ? String(latestKyc.status).toUpperCase() : null;
   const profileVerified = isVerifiedStatus(getVerificationStatus(profile));
@@ -369,8 +459,7 @@ export function WorkerProfileEditor() {
     e.preventDefault();
     await runSectionSave("personal", async () => {
       const profile = await patchWorkerPersonalInfo({
-        firstName: firstName.trim() || undefined,
-        lastName: lastName.trim() || undefined,
+        fullName: fullName.trim() || undefined,
         city: city.trim() || undefined,
         region: regionLabel(region),
         languages: languages
@@ -386,6 +475,13 @@ export function WorkerProfileEditor() {
         setAvatarFile(null);
       }
       void qc.invalidateQueries({ queryKey: workerKeys.me() });
+      setPersonalBaseline({
+        fullName,
+        city,
+        region,
+        languages,
+        available,
+      });
     });
   }
 
@@ -397,6 +493,7 @@ export function WorkerProfileEditor() {
         summary: summary.trim() || undefined,
       });
       setProfileCache(profile);
+      setSummaryBaseline({ title, summary });
     });
   }
 
@@ -410,34 +507,73 @@ export function WorkerProfileEditor() {
           .filter(Boolean),
       });
       setProfileCache(profile);
+      setSkillsBaseline(skillsText);
     });
+  }
+
+  function selectPaymentProvider(provider: MomoProviderTab) {
+    setPaymentForm((prev) => switchPaymentProvider(prev, provider, activePaymentSlot(prev).phone));
   }
 
   async function savePayment(e: React.SyntheticEvent) {
     e.preventDefault();
-    const phone = momoNumber.trim();
+    const slot = activePaymentSlot(paymentForm);
+    const phone = slot.phone.trim();
     if (!phone) return;
+    const provider = paymentForm.activeProvider;
+    const makePrimary = slot.isPrimary;
     await runSectionSave("payment", async () => {
-      if (paymentAccountId) {
-        await patchWorkerPaymentAccount(paymentAccountId, {
-          provider: momoProvider,
+      let nextAccountId = slot.accountId;
+      if (slot.accountId) {
+        await patchWorkerPaymentAccount(slot.accountId, {
+          provider,
           phone,
-          isPrimary: true,
+          isPrimary: makePrimary,
         });
       } else {
         const account = await postWorkerPaymentAccount({
-          provider: momoProvider,
+          provider,
           phone,
-          isPrimary: true,
+          isPrimary: makePrimary,
         });
-        setPaymentAccountId(account.id);
+        nextAccountId = account.id;
       }
-      const profile = await refreshProfileCache();
-      setMomoNumber(profile.mobileMoneyNumber ?? phone);
+      if (makePrimary && nextAccountId) {
+        const others = (profile.paymentAccounts ?? profile.paymentMethods ?? []).filter((a) => a.id !== nextAccountId);
+        await Promise.all(
+          others.filter((a) => a.isPrimary).map((a) => patchWorkerPaymentAccount(a.id, { isPrimary: false })),
+        );
+      }
+      const refreshed = await refreshProfileCache();
+      const nextForm = paymentMethodsFromProfile(refreshed.paymentAccounts ?? refreshed.paymentMethods ?? []);
+      setPaymentForm(nextForm);
+      setPaymentBaseline(nextForm);
     });
   }
 
-  async function addWorkHistory(e: React.FormEvent) {
+  function resetWorkForm() {
+    setEditingWorkId(null);
+    setWorkJobTitle("");
+    setWorkCompany("");
+    setWorkStart("");
+    setWorkEnd("");
+    setWorkCurrent(false);
+    setWorkDescription("");
+  }
+
+  function startEditWorkHistory(workId: string) {
+    const entry = profile.workHistories?.find((w) => w.id === workId);
+    if (!entry) return;
+    setEditingWorkId(workId);
+    setWorkJobTitle(entry.jobTitle ?? "");
+    setWorkCompany(entry.companyName ?? "");
+    setWorkStart(toIsoDateOnly(entry.startDate) ?? "");
+    setWorkEnd(entry.isCurrent ? "" : toIsoDateOnly(entry.endDate) ?? "");
+    setWorkCurrent(!!entry.isCurrent);
+    setWorkDescription(entry.description ?? "");
+  }
+
+  async function saveWorkHistory(e: React.FormEvent) {
     e.preventDefault();
     const startDate = toIsoDateOnly(workStart);
     const endDate = workCurrent ? undefined : toIsoDateOnly(workEnd);
@@ -448,7 +584,7 @@ export function WorkerProfileEditor() {
     }
     await runSectionSave("work", async () => {
       const payload = sanitizeWorkHistoryForPut({
-        id: "",
+        id: editingWorkId ?? "",
         jobTitle: workJobTitle.trim(),
         companyName: workCompany.trim(),
         startDate,
@@ -456,18 +592,37 @@ export function WorkerProfileEditor() {
         isCurrent: workCurrent,
         description: workDescription.trim() || undefined,
       });
-      await postWorkerWorkHistory(payload as Parameters<typeof postWorkerWorkHistory>[0]);
+      if (editingWorkId) {
+        await patchWorkerWorkHistory(editingWorkId, payload as Parameters<typeof patchWorkerWorkHistory>[1]);
+      } else {
+        await postWorkerWorkHistory(payload as Parameters<typeof postWorkerWorkHistory>[0]);
+      }
       await refreshProfileCache();
-      setWorkJobTitle("");
-      setWorkCompany("");
-      setWorkStart("");
-      setWorkEnd("");
-      setWorkCurrent(false);
-      setWorkDescription("");
+      resetWorkForm();
     });
   }
 
-  async function addEducation(e: React.FormEvent) {
+  function resetEducationForm() {
+    setEditingEducationId(null);
+    setEducationInstitution("");
+    setEducationDegree("");
+    setEducationStart("");
+    setEducationEnd("");
+    setEducationCurrent(false);
+  }
+
+  function startEditEducation(educationId: string) {
+    const entry = profile.educations?.find((e) => e.id === educationId);
+    if (!entry) return;
+    setEditingEducationId(educationId);
+    setEducationInstitution(entry.institution ?? "");
+    setEducationDegree(entry.degree ?? "");
+    setEducationStart(toIsoDateOnly(entry.startDate) ?? "");
+    setEducationEnd(entry.isCurrent ? "" : toIsoDateOnly(entry.endDate) ?? "");
+    setEducationCurrent(!!entry.isCurrent);
+  }
+
+  async function saveEducation(e: React.FormEvent) {
     e.preventDefault();
     const startDate = toIsoDateOnly(educationStart);
     const endDate = educationCurrent ? undefined : toIsoDateOnly(educationEnd);
@@ -478,20 +633,20 @@ export function WorkerProfileEditor() {
     }
     await runSectionSave("education", async () => {
       const payload = sanitizeEducationForPut({
-        id: "",
+        id: editingEducationId ?? "",
         institution: educationInstitution.trim(),
         degree: educationDegree.trim(),
         startDate,
         endDate: educationCurrent ? null : endDate ?? null,
         isCurrent: educationCurrent,
       });
-      await postWorkerEducation(payload as Parameters<typeof postWorkerEducation>[0]);
+      if (editingEducationId) {
+        await patchWorkerEducation(editingEducationId, payload as Parameters<typeof patchWorkerEducation>[1]);
+      } else {
+        await postWorkerEducation(payload as Parameters<typeof postWorkerEducation>[0]);
+      }
       await refreshProfileCache();
-      setEducationInstitution("");
-      setEducationDegree("");
-      setEducationStart("");
-      setEducationEnd("");
-      setEducationCurrent(false);
+      resetEducationForm();
     });
   }
 
@@ -511,19 +666,58 @@ export function WorkerProfileEditor() {
     });
   }
 
-  async function addCertification(e: React.FormEvent) {
+  function resetCertForm() {
+    setEditingCertId(null);
+    setCertName("");
+    setCertIssuer("");
+    setCertIssueDate("");
+    setCertCredentialUrl("");
+  }
+
+  function startEditCertification(certId: string) {
+    const entry = profile.certifications?.find((c) => c.id === certId);
+    if (!entry) return;
+    setEditingCertId(certId);
+    setCertName(entry.name ?? "");
+    setCertIssuer(entry.issuer ?? "");
+    setCertIssueDate(toIsoDateOnly(entry.issueDate) ?? "");
+    setCertCredentialUrl(entry.credentialUrl ?? "");
+  }
+
+  function validateCredentialUrl(url: string): string | null {
+    const trimmed = url.trim();
+    if (!trimmed) return null;
+    try {
+      const parsed = new URL(trimmed);
+      if (parsed.protocol !== "https:") return "Credential URL must use HTTPS.";
+      return null;
+    } catch {
+      return "Enter a valid credential URL.";
+    }
+  }
+
+  async function saveCertification(e: React.FormEvent) {
     e.preventDefault();
     if (!certName.trim()) return;
+    const urlError = validateCredentialUrl(certCredentialUrl);
+    if (urlError) {
+      toastApiError(new Error(urlError), urlError);
+      return;
+    }
     await runSectionSave("certifications", async () => {
-      await postWorkerCertification({
+      const body = {
         name: certName.trim(),
         issuer: certIssuer.trim() || undefined,
         issueDate: toIsoDateOnly(certIssueDate),
-      });
+        credentialUrl: certCredentialUrl.trim() || undefined,
+      };
+      if (editingCertId) {
+        await patchWorkerCertification(editingCertId, body);
+      } else {
+        await postWorkerCertification(body);
+      }
       await refreshProfileCache();
-      setCertName("");
-      setCertIssuer("");
-      setCertIssueDate("");
+      resetCertForm();
     });
   }
 
@@ -546,6 +740,10 @@ export function WorkerProfileEditor() {
     return url;
   }
 
+  function queueSupportingDocument(file: File, kind: "CV" | "OTHER") {
+    setPendingSupportingDoc({ file, kind });
+  }
+
   async function uploadSupportingDocument(file: File, type: "CV" | "OTHER" = "OTHER") {
     setSavingSection("documents");
     try {
@@ -562,12 +760,20 @@ export function WorkerProfileEditor() {
         const doc = await postWorkerDocument(file, type);
         appendDocument(doc);
       }
+      await refreshProfileCache();
+      void qc.invalidateQueries({ queryKey: workerKeys.me() });
       toastSuccess(t("editor.documentUploaded"));
+      setPendingSupportingDoc(null);
     } catch (err) {
       toastApiError(err, t("editor.documentUploadError"));
     } finally {
       setSavingSection(null);
     }
+  }
+
+  async function savePendingSupportingDocument() {
+    if (!pendingSupportingDoc) return;
+    await uploadSupportingDocument(pendingSupportingDoc.file, pendingSupportingDoc.kind);
   }
 
   async function removeSupportingDocument(documentId: string) {
@@ -606,7 +812,10 @@ export function WorkerProfileEditor() {
       <div className="mx-auto mb-5 flex w-full max-w-[76rem] justify-center">
         <button
           type="button"
-          onClick={() => docInputRef.current?.click()}
+          onClick={() => {
+            setPendingDocKind("CV");
+            docInputRef.current?.click();
+          }}
           className="inline-flex min-h-10 max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-full bg-[#e6fff5] px-4 py-2 text-center text-xs font-medium leading-5 text-[var(--joballa-primary)] sm:px-5"
         >
           <span className="text-[var(--joballa-fg)]">To build your profile faster, upload your CV or resume.</span>
@@ -649,18 +858,25 @@ export function WorkerProfileEditor() {
                       <Image src={avatarUrl} alt="" fill className="object-cover" sizes="96px" unoptimized />
                     ) : (
                       <div className="flex size-full items-center justify-center text-xl font-bold text-[#737373]">
-                        {(firstName || "?").charAt(0).toUpperCase()}
+                        {avatarInitials}
                       </div>
                     )}
                   </div>
                   <input
                     ref={avatarInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,.jpg,.jpeg,.png"
                     className="sr-only"
                     onChange={(e) => {
                       const f = e.target.files?.[0];
-                      if (f) setAvatarFile(f);
+                      if (!f) return;
+                      const allowed = ["image/jpeg", "image/png"];
+                      if (!allowed.includes(f.type)) {
+                        toast.error(t("editor.avatarFormatError"));
+                        e.target.value = "";
+                        return;
+                      }
+                      setAvatarFile(f);
                     }}
                   />
                   <button
@@ -672,8 +888,7 @@ export function WorkerProfileEditor() {
                   </button>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label={t("editor.firstName")} value={firstName} onChange={setFirstName} />
-                  <Field label={t("editor.lastName")} value={lastName} onChange={setLastName} />
+                  <Field label={t("editor.fullName")} value={fullName} onChange={setFullName} wide limitKey="fullName" />
                   <SelectField
                     label={t("editor.region")}
                     value={region}
@@ -685,7 +900,7 @@ export function WorkerProfileEditor() {
                     options={regionOptions}
                   />
                   <SelectField label={t("editor.city")} value={city} onChange={setCity} options={cityOptions} />
-                  <Field label={t("editor.languages")} value={languages} onChange={setLanguages} wide />
+                  <Field label={t("editor.languages")} value={languages} onChange={setLanguages} wide limitKey="languages" />
                   <button
                     type="button"
                     onClick={() => setAvailable((x) => !x)}
@@ -697,8 +912,13 @@ export function WorkerProfileEditor() {
                 </div>
               </div>
               <div className="mt-6 flex justify-end">
-                <button type="button" disabled={savingSection === "personal"} onClick={(e) => void savePersonal(e)} className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:opacity-50">
-                  {savingSection === "personal" ? t("editor.saving") : t("editor.save")}
+                <button
+                  type="button"
+                  disabled={savingSection === "personal" || !personalDirty}
+                  onClick={(e) => void savePersonal(e)}
+                  className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {sectionSaveLabel("personal", personalDirty)}
                 </button>
               </div>
           </Card>
@@ -706,19 +926,24 @@ export function WorkerProfileEditor() {
           <Card>
               <p className="text-xs font-semibold uppercase text-[var(--joballa-label-fg)]">{t("strength.sections.summary")}</p>
               <div className="mt-5 grid gap-5">
-                <Field label={t("editor.yourTitle")} value={title} onChange={setTitle} wide />
-                <Field label={t("editor.shortBio")} value={summary} onChange={setSummary} as="textarea" wide />
+                <Field label={t("editor.yourTitle")} value={title} onChange={setTitle} wide limitKey="professionalTitle" />
+                <Field label={t("editor.shortBio")} value={summary} onChange={setSummary} as="textarea" wide limitKey="bio" />
               </div>
               <div className="mt-6 flex justify-end">
-                <button type="button" disabled={savingSection === "summary"} onClick={(e) => void saveSummary(e)} className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:opacity-50">
-                  {savingSection === "summary" ? t("editor.saving") : t("editor.save")}
+                <button
+                  type="button"
+                  disabled={savingSection === "summary" || !summaryDirty}
+                  onClick={(e) => void saveSummary(e)}
+                  className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {sectionSaveLabel("summary", summaryDirty)}
                 </button>
               </div>
           </Card>
 
           <Card>
               <p className="text-xs font-semibold uppercase text-[var(--joballa-label-fg)]">{t("strength.sections.skills")}</p>
-              <Field label={t("editor.skillsHint")} value={skillsText} onChange={setSkillsText} wide />
+              <Field label={t("editor.skillsHint")} value={skillsText} onChange={setSkillsText} wide limitKey="skillsList" />
               {skillPills.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {skillPills.map((skill) => (
@@ -740,46 +965,45 @@ export function WorkerProfileEditor() {
                 </div>
               ) : null}
               <div className="mt-6 flex justify-end">
-                <button type="button" disabled={savingSection === "skills"} onClick={(e) => void saveSkills(e)} className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:opacity-50">
-                  {savingSection === "skills" ? t("editor.saving") : t("editor.save")}
+                <button
+                  type="button"
+                  disabled={savingSection === "skills" || !skillsDirty}
+                  onClick={(e) => void saveSkills(e)}
+                  className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {sectionSaveLabel("skills", skillsDirty)}
                 </button>
               </div>
           </Card>
 
           <Card>
             <p className="text-xs font-semibold uppercase text-[var(--joballa-label-fg)]">{t("strength.sections.education")}</p>
-            <div className="mt-5 space-y-4">
-              {(profile.educations ?? []).map((education) => (
-                <div key={education.id} className="flex flex-col items-start justify-between gap-3 rounded-[12px] border border-[var(--joballa-border)] p-4 min-[480px]:flex-row">
-                  <div className="min-w-0">
-                    <p className="font-bold">{education.institution}</p>
-                    <p className="text-sm text-[var(--joballa-muted)]">{[education.degree, education.fieldOfStudy].filter(Boolean).join(" · ")}</p>
-                    <p className="mt-1 text-xs text-[var(--joballa-muted)]">
-                      {[toIsoDateOnly(education.startDate), education.isCurrent ? "Present" : toIsoDateOnly(education.endDate)].filter(Boolean).join(" – ")}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="text-sm text-red-600"
-                    onClick={() =>
-                      requestConfirm({
-                        title: tc("delete.title"),
-                        description: tc("delete.description"),
-                        confirmLabel: tc("delete.confirm"),
-                        cancelLabel: tc("cancel"),
-                        destructive: true,
-                        onConfirm: () => void removeEducation(education.id),
-                      })
-                    }
-                  >
-                    {t("editor.delete")}
-                  </button>
-                </div>
+            <div className="mt-5">
+              {sortedEducations(profile).map((education) => (
+                <ProfileRecordCard
+                  key={education.id}
+                  title={education.degree ?? education.institution ?? ""}
+                  subtitle={education.institution}
+                  meta={[toIsoDateOnly(education.startDate), education.isCurrent ? "Present" : toIsoDateOnly(education.endDate)].filter(Boolean).join(" – ")}
+                  editLabel={t("editor.edit")}
+                  removeLabel={t("editor.delete")}
+                  onEdit={() => startEditEducation(education.id)}
+                  onRemove={() =>
+                    requestConfirm({
+                      title: t("editor.confirmRemoveEducation"),
+                      description: t("editor.confirmRemoveEducationDesc"),
+                      confirmLabel: t("editor.delete"),
+                      cancelLabel: tc("cancel"),
+                      destructive: true,
+                      onConfirm: () => void removeEducation(education.id),
+                    })
+                  }
+                />
               ))}
             </div>
-            <form onSubmit={addEducation} className="mt-5 grid gap-4 sm:grid-cols-2">
-              <Field label={t("editor.institution")} value={educationInstitution} onChange={setEducationInstitution} />
-              <Field label={t("editor.degree")} value={educationDegree} onChange={setEducationDegree} />
+            <form onSubmit={saveEducation} className="mt-5 grid gap-4 sm:grid-cols-2">
+              <Field label={t("editor.institution")} value={educationInstitution} onChange={setEducationInstitution} limitKey="institution" />
+              <Field label={t("editor.degree")} value={educationDegree} onChange={setEducationDegree} limitKey="degree" />
               <Field label={t("editor.startDate")} value={educationStart} onChange={setEducationStart} type="date" />
               <Field label={t("editor.endDate")} value={educationEnd} onChange={setEducationEnd} type="date" disabled={educationCurrent} />
               <label className="flex items-center gap-2 text-sm text-[var(--joballa-fg)] sm:col-span-2">
@@ -790,13 +1014,18 @@ export function WorkerProfileEditor() {
                     setEducationCurrent(e.target.checked);
                     if (e.target.checked) setEducationEnd("");
                   }}
-                  className="size-4 rounded border-[var(--joballa-border)]"
+                  className="size-4 shrink-0 rounded border-[var(--joballa-border)] accent-[var(--joballa-primary)]"
                 />
                 {t("editor.currentStudy")}
               </label>
-              <div className="flex justify-end sm:col-span-2">
+              <div className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                {editingEducationId ? (
+                  <button type="button" onClick={resetEducationForm} className="h-10 rounded-[12px] px-4 text-sm font-medium text-[var(--joballa-muted)]">
+                    {t("editor.cancelEdit")}
+                  </button>
+                ) : null}
                 <button type="submit" disabled={savingSection === "education"} className="h-10 w-full rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:opacity-50 min-[480px]:w-auto">
-                  {t("editor.addEducation")}
+                  {editingEducationId ? t("editor.editEducation") : t("editor.addEducation")}
                 </button>
               </div>
             </form>
@@ -804,46 +1033,46 @@ export function WorkerProfileEditor() {
 
           <Card>
             <p className="text-xs font-semibold uppercase text-[var(--joballa-label-fg)]">{t("editor.certificationsTitle")}</p>
-            <div className="mt-5 space-y-4">
-              {(profile.certifications ?? []).map((cert) => (
-                <div key={cert.id} className="flex flex-col items-start justify-between gap-3 rounded-[12px] border border-[var(--joballa-border)] p-4 min-[480px]:flex-row">
-                  <div className="min-w-0">
-                    <p className="font-bold">{cert.name}</p>
-                    {cert.issuer?.trim() ? <p className="text-sm text-[var(--joballa-muted)]">{cert.issuer}</p> : null}
-                    {cert.issueDate ? (
-                      <p className="mt-1 text-xs text-[var(--joballa-muted)]">{toIsoDateOnly(cert.issueDate)}</p>
-                    ) : null}
-                  </div>
-                  <button
-                    type="button"
-                    className="text-sm text-red-600"
-                    onClick={() =>
-                      requestConfirm({
-                        title: tc("delete.title"),
-                        description: tc("delete.description"),
-                        confirmLabel: tc("delete.confirm"),
-                        cancelLabel: tc("cancel"),
-                        destructive: true,
-                        onConfirm: () => void removeCertification(cert.id),
-                      })
-                    }
-                  >
-                    {t("editor.delete")}
-                  </button>
-                </div>
+            <div className="mt-5">
+              {sortedCertifications(profile).map((cert) => (
+                <ProfileRecordCard
+                  key={cert.id}
+                  title={cert.name ?? ""}
+                  subtitle={cert.issuer}
+                  meta={cert.issueDate ? toIsoDateOnly(cert.issueDate) : undefined}
+                  editLabel={t("editor.edit")}
+                  removeLabel={t("editor.delete")}
+                  onEdit={() => startEditCertification(cert.id)}
+                  onRemove={() =>
+                    requestConfirm({
+                      title: t("editor.confirmRemoveCertification"),
+                      description: t("editor.confirmRemoveCertificationDesc"),
+                      confirmLabel: t("editor.delete"),
+                      cancelLabel: tc("cancel"),
+                      destructive: true,
+                      onConfirm: () => void removeCertification(cert.id),
+                    })
+                  }
+                />
               ))}
             </div>
-            <form onSubmit={addCertification} className="mt-5 grid gap-4 sm:grid-cols-2">
-              <Field label={t("editor.certificationName")} value={certName} onChange={setCertName} wide />
-              <Field label={t("editor.certificationIssuer")} value={certIssuer} onChange={setCertIssuer} />
+            <form onSubmit={saveCertification} className="mt-5 grid gap-4 sm:grid-cols-2">
+              <Field label={t("editor.certificationName")} value={certName} onChange={setCertName} wide limitKey="certificationName" />
+              <Field label={t("editor.certificationIssuer")} value={certIssuer} onChange={setCertIssuer} limitKey="issuer" />
               <Field label={t("editor.issueDate")} value={certIssueDate} onChange={setCertIssueDate} type="date" />
-              <div className="flex justify-end sm:col-span-2">
+              <Field label={t("editor.credentialUrl")} value={certCredentialUrl} onChange={setCertCredentialUrl} wide placeholder="https://" />
+              <div className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                {editingCertId ? (
+                  <button type="button" onClick={resetCertForm} className="h-10 rounded-[12px] px-4 text-sm font-medium text-[var(--joballa-muted)]">
+                    {t("editor.cancelEdit")}
+                  </button>
+                ) : null}
                 <button
                   type="submit"
                   disabled={savingSection === "certifications"}
                   className="h-10 w-full rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:opacity-50 min-[480px]:w-auto"
                 >
-                  {t("editor.addCertification")}
+                  {editingCertId ? t("editor.editCertification") : t("editor.addCertification")}
                 </button>
               </div>
             </form>
@@ -851,38 +1080,33 @@ export function WorkerProfileEditor() {
 
           <Card>
             <p className="text-xs font-semibold uppercase text-[var(--joballa-label-fg)]">{t("strength.sections.work")}</p>
-            <div className="mt-5 space-y-4">
-              {(profile.workHistories ?? []).map((w) => (
-                <div key={w.id} className="flex flex-col items-start justify-between gap-3 rounded-[12px] border border-[var(--joballa-border)] p-4 min-[480px]:flex-row">
-                  <div className="min-w-0">
-                    <p className="font-bold">{w.jobTitle}</p>
-                    <p className="text-sm text-[var(--joballa-muted)]">{w.companyName}</p>
-                    <p className="mt-1 text-xs text-[var(--joballa-muted)]">
-                      {[toIsoDateOnly(w.startDate), w.isCurrent ? "Present" : toIsoDateOnly(w.endDate)].filter(Boolean).join(" – ")}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="text-sm text-red-600"
-                    onClick={() =>
-                      requestConfirm({
-                        title: tc("delete.title"),
-                        description: tc("delete.description"),
-                        confirmLabel: tc("delete.confirm"),
-                        cancelLabel: tc("cancel"),
-                        destructive: true,
-                        onConfirm: () => void removeWorkHistory(w.id),
-                      })
-                    }
-                  >
-                    {t("editor.delete")}
-                  </button>
-                </div>
+            <div className="mt-5">
+              {sortedWorkHistories(profile).map((w) => (
+                <ProfileRecordCard
+                  key={w.id}
+                  title={w.jobTitle ?? ""}
+                  subtitle={w.companyName}
+                  meta={[toIsoDateOnly(w.startDate), w.isCurrent ? "Present" : toIsoDateOnly(w.endDate)].filter(Boolean).join(" – ")}
+                  badge={w.isCurrent ? t("editor.currentRoleBadge") : undefined}
+                  editLabel={t("editor.edit")}
+                  removeLabel={t("editor.delete")}
+                  onEdit={() => startEditWorkHistory(w.id)}
+                  onRemove={() =>
+                    requestConfirm({
+                      title: t("editor.confirmRemoveWork"),
+                      description: t("editor.confirmRemoveWorkDesc"),
+                      confirmLabel: t("editor.delete"),
+                      cancelLabel: tc("cancel"),
+                      destructive: true,
+                      onConfirm: () => void removeWorkHistory(w.id),
+                    })
+                  }
+                />
               ))}
             </div>
-            <form onSubmit={addWorkHistory} className="mt-5 grid gap-4 sm:grid-cols-2">
-              <Field label={t("editor.jobTitle")} value={workJobTitle} onChange={setWorkJobTitle} />
-              <Field label={t("editor.company")} value={workCompany} onChange={setWorkCompany} />
+            <form onSubmit={saveWorkHistory} className="mt-5 grid gap-4 sm:grid-cols-2">
+              <Field label={t("editor.jobTitle")} value={workJobTitle} onChange={setWorkJobTitle} limitKey="jobTitle" />
+              <Field label={t("editor.company")} value={workCompany} onChange={setWorkCompany} limitKey="companyName" />
               <Field label={t("editor.startDate")} value={workStart} onChange={setWorkStart} type="date" />
               <Field label={t("editor.endDate")} value={workEnd} onChange={setWorkEnd} type="date" disabled={workCurrent} />
               <label className="flex items-center gap-2 text-sm text-[var(--joballa-fg)] sm:col-span-2">
@@ -893,14 +1117,19 @@ export function WorkerProfileEditor() {
                     setWorkCurrent(e.target.checked);
                     if (e.target.checked) setWorkEnd("");
                   }}
-                  className="size-4 rounded border-[var(--joballa-border)]"
+                  className="size-4 shrink-0 rounded border-[var(--joballa-border)] accent-[var(--joballa-primary)]"
                 />
                 {t("editor.currentRole")}
               </label>
-              <Field label={t("editor.description")} value={workDescription} onChange={setWorkDescription} as="textarea" wide />
-              <div className="flex justify-end sm:col-span-2">
+              <Field label={t("editor.description")} value={workDescription} onChange={setWorkDescription} as="textarea" wide limitKey="description" />
+              <div className="flex flex-wrap justify-end gap-2 sm:col-span-2">
+                {editingWorkId ? (
+                  <button type="button" onClick={resetWorkForm} className="h-10 rounded-[12px] px-4 text-sm font-medium text-[var(--joballa-muted)]">
+                    {t("editor.cancelEdit")}
+                  </button>
+                ) : null}
                 <button type="submit" disabled={savingSection === "work"} className="h-10 w-full rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:opacity-50 min-[480px]:w-auto">
-                  {t("editor.addExperience")}
+                  {editingWorkId ? t("editor.editWorkExperience") : t("editor.addExperience")}
                 </button>
               </div>
             </form>
@@ -923,7 +1152,7 @@ export function WorkerProfileEditor() {
             </div>
             {!kycLocked ? (
               <form onSubmit={submitKyc} className="mt-5 space-y-4">
-                <label className="block text-[11px] font-medium text-[var(--joballa-muted)]">
+                <label className="block max-w-xs text-[11px] font-medium text-[var(--joballa-muted)]">
                   {t("editor.documentType")}
                   <select
                     value={kycDocumentType}
@@ -931,7 +1160,7 @@ export function WorkerProfileEditor() {
                       setKycDocumentType(e.target.value as "NATIONAL_ID" | "PASSPORT" | "DRIVERS_LICENSE");
                       setKycBackFile(null);
                     }}
-                    className="mt-1 h-10 w-full rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 text-sm text-[var(--joballa-fg)] outline-none focus:border-[var(--joballa-primary)] focus:ring-2 focus:ring-[var(--joballa-primary)]"
+                    className="mt-1 h-10 w-full max-w-xs rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 text-sm text-[var(--joballa-fg)] outline-none focus:border-[var(--joballa-primary)] focus:ring-2 focus:ring-[var(--joballa-primary)]"
                   >
                     <option value="NATIONAL_ID">{t("editor.nationalId")}</option>
                     <option value="PASSPORT">{t("editor.passport")}</option>
@@ -939,23 +1168,29 @@ export function WorkerProfileEditor() {
                   </select>
                 </label>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  <label className="block rounded-[12px] border border-dashed border-[var(--joballa-border)] p-4 text-sm text-[var(--joballa-muted)]">
-                    <span className="font-semibold text-[var(--joballa-fg)]">{kycDocumentType === "PASSPORT" ? t("editor.passportDocument") : t("editor.idFront")}</span>
-                    <input className="mt-3 block w-full text-xs" type="file" accept="image/*,.pdf" capture="environment" onChange={(e) => setKycFrontFile(e.target.files?.[0] ?? null)} />
-                    {kycFrontFile ? <span className="mt-2 block truncate text-xs">{kycFrontFile.name}</span> : null}
-                  </label>
+                  <KycUploadField
+                    label={kycDocumentType === "PASSPORT" ? t("editor.passportDocument") : t("editor.idFront")}
+                    file={kycFrontFile}
+                    onFileChange={setKycFrontFile}
+                    accept="image/*,.pdf"
+                    capture="environment"
+                  />
                   {kycDocumentType !== "PASSPORT" ? (
-                    <label className="block rounded-[12px] border border-dashed border-[var(--joballa-border)] p-4 text-sm text-[var(--joballa-muted)]">
-                      <span className="font-semibold text-[var(--joballa-fg)]">{t("editor.idBack")}</span>
-                      <input className="mt-3 block w-full text-xs" type="file" accept="image/*,.pdf" capture="environment" onChange={(e) => setKycBackFile(e.target.files?.[0] ?? null)} />
-                      {kycBackFile ? <span className="mt-2 block truncate text-xs">{kycBackFile.name}</span> : null}
-                    </label>
+                    <KycUploadField
+                      label={t("editor.idBack")}
+                      file={kycBackFile}
+                      onFileChange={setKycBackFile}
+                      accept="image/*,.pdf"
+                      capture="environment"
+                    />
                   ) : null}
-                  <label className="block rounded-[12px] border border-dashed border-[var(--joballa-border)] p-4 text-sm text-[var(--joballa-muted)]">
-                    <span className="font-semibold text-[var(--joballa-fg)]">{t("editor.selfie")}</span>
-                    <input className="mt-3 block w-full text-xs" type="file" accept="image/*" capture="user" onChange={(e) => setKycSelfieFile(e.target.files?.[0] ?? null)} />
-                    {kycSelfieFile ? <span className="mt-2 block truncate text-xs">{kycSelfieFile.name}</span> : null}
-                  </label>
+                  <KycUploadField
+                    label={t("editor.selfie")}
+                    file={kycSelfieFile}
+                    onFileChange={setKycSelfieFile}
+                    accept="image/*"
+                    capture="user"
+                  />
                 </div>
                 <div className="flex justify-end">
                   <button type="submit" disabled={savingSection === "verification"} className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:opacity-50">
@@ -972,7 +1207,7 @@ export function WorkerProfileEditor() {
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 e.target.value = "";
-                if (f) void uploadSupportingDocument(f, "CV");
+                if (f) queueSupportingDocument(f, pendingDocKind);
               }}
             />
             <div className="mt-6 border-t border-[var(--joballa-border)] pt-5">
@@ -980,54 +1215,140 @@ export function WorkerProfileEditor() {
               <p className="mt-1 text-xs text-[var(--joballa-muted)]">Add certificates, portfolio files, and other documents.</p>
             </div>
             <div className="mt-4 space-y-3">
-              {documents.map((doc) => (
-                <div key={doc.id} className="flex flex-col items-start justify-between gap-3 rounded-[12px] border border-[var(--joballa-border)] p-3 min-[480px]:flex-row min-[480px]:items-center">
-                  <p className="truncate text-sm font-semibold">{doc.fileName ?? doc.id}</p>
-                  <button
-                    type="button"
-                    className="text-sm text-red-600"
-                    onClick={() =>
-                      requestConfirm({
-                        title: tc("delete.title"),
-                        description: tc("delete.description"),
-                        confirmLabel: tc("delete.confirm"),
-                        cancelLabel: tc("cancel"),
-                        destructive: true,
-                        onConfirm: () => void removeSupportingDocument(doc.id),
-                      })
-                    }
-                  >
-                    {t("editor.delete")}
-                  </button>
-                </div>
-              ))}
+              {documents.map((doc) => {
+                const url = documentUrl(doc);
+                const label = doc.fileName ?? doc.id;
+                return (
+                  <div key={doc.id} className="flex flex-col items-start justify-between gap-3 rounded-[12px] border border-[var(--joballa-border)] p-3 min-[480px]:flex-row min-[480px]:items-center">
+                    {url ? (
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="truncate text-sm font-semibold text-[var(--joballa-primary)] hover:underline">
+                        {label}
+                      </a>
+                    ) : (
+                      <p className="truncate text-sm font-semibold">{label}</p>
+                    )}
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-[var(--joballa-danger-fg)]"
+                      onClick={() =>
+                        requestConfirm({
+                          title: t("editor.confirmRemoveDocument"),
+                          description: t("editor.confirmRemoveDocumentDesc"),
+                          confirmLabel: t("editor.delete"),
+                          cancelLabel: tc("cancel"),
+                          destructive: true,
+                          onConfirm: () => void removeSupportingDocument(doc.id),
+                        })
+                      }
+                    >
+                      {t("editor.delete")}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-            <button type="button" className="mt-4 rounded-[10px] border border-[var(--joballa-border)] px-4 py-2 text-sm" onClick={() => docInputRef.current?.click()}>
-              {t("editor.uploadDocument")}
-            </button>
+            {pendingSupportingDoc ? (
+              <SupportingDocumentPicker
+                className="mt-4"
+                file={pendingSupportingDoc.file}
+                saving={savingSection === "documents"}
+                saveLabel={t("editor.saveDocument")}
+                savingLabel={t("editor.savingDocument")}
+                cancelLabel={t("editor.cancelDocument")}
+                onSave={() => void savePendingSupportingDocument()}
+                onCancel={() => setPendingSupportingDoc(null)}
+              />
+            ) : (
+              <button
+                type="button"
+                className="mt-4 rounded-[10px] border border-[var(--joballa-border)] px-4 py-2 text-sm"
+                onClick={() => {
+                  setPendingDocKind("OTHER");
+                  docInputRef.current?.click();
+                }}
+              >
+                {t("editor.uploadDocument")}
+              </button>
+            )}
           </Card>
 
           <Card>
               <p className="text-xs font-semibold uppercase text-[var(--joballa-label-fg)]">{t("strength.sections.payment")}</p>
-              <p className="mt-1 text-xs text-[var(--joballa-muted)]">Ensure the name on this account matches your National ID.</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" className={cn("rounded-[10px] px-4 py-2 text-sm", momoProvider === "MTN_MOMO" ? "bg-[#ecfff8] text-[var(--joballa-primary)] ring-1 ring-[#92dfc8]" : "bg-[var(--joballa-tag-bg)]")} onClick={() => setMomoProvider("MTN_MOMO")}>
+              <p className="mt-1 text-xs text-[var(--joballa-muted)]">{t("editor.paymentHint")}</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[12px] border border-[var(--joballa-border)] bg-[var(--joballa-page-tint)] p-3">
+                  <p className="text-xs font-semibold text-[var(--joballa-muted)]">MTN MoMo</p>
+                  <p className="mt-1 text-sm font-semibold text-[var(--joballa-fg)]">
+                    {paymentForm.mtn.phone.trim() || "—"}
+                  </p>
+                  {paymentForm.mtn.isPrimary ? (
+                    <p className="mt-1 text-xs text-[var(--joballa-primary)]">{t("editor.primaryAccount")}</p>
+                  ) : null}
+                </div>
+                <div className="rounded-[12px] border border-[var(--joballa-border)] bg-[var(--joballa-page-tint)] p-3">
+                  <p className="text-xs font-semibold text-[var(--joballa-muted)]">Orange Money</p>
+                  <p className="mt-1 text-sm font-semibold text-[var(--joballa-fg)]">
+                    {paymentForm.orange.phone.trim() || "—"}
+                  </p>
+                  {paymentForm.orange.isPrimary ? (
+                    <p className="mt-1 text-xs text-[var(--joballa-primary)]">{t("editor.primaryAccount")}</p>
+                  ) : null}
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className={cn(
+                    "rounded-[10px] px-4 py-2 text-sm",
+                    paymentForm.activeProvider === "MTN_MOMO"
+                      ? "bg-[#ecfff8] text-[var(--joballa-primary)] ring-1 ring-[#92dfc8]"
+                      : "bg-[var(--joballa-tag-bg)]",
+                  )}
+                  onClick={() => selectPaymentProvider("MTN_MOMO")}
+                >
                   MTN MoMo
                 </button>
-                <button type="button" className={cn("rounded-[10px] px-4 py-2 text-sm", momoProvider === "ORANGE_MONEY" ? "bg-[#ecfff8] text-[var(--joballa-primary)] ring-1 ring-[#92dfc8]" : "bg-[var(--joballa-tag-bg)]")} onClick={() => setMomoProvider("ORANGE_MONEY")}>
+                <button
+                  type="button"
+                  className={cn(
+                    "rounded-[10px] px-4 py-2 text-sm",
+                    paymentForm.activeProvider === "ORANGE_MONEY"
+                      ? "bg-[#ecfff8] text-[var(--joballa-primary)] ring-1 ring-[#92dfc8]"
+                      : "bg-[var(--joballa-tag-bg)]",
+                  )}
+                  onClick={() => selectPaymentProvider("ORANGE_MONEY")}
+                >
                   Orange Money
                 </button>
               </div>
               <div className="mt-4">
-                <Field label={t("editor.phone")} value={momoNumber} onChange={setMomoNumber} wide />
+                <Field
+                  label={t("editor.phone")}
+                  value={activePayment.phone}
+                  onChange={(phone) => setPaymentForm((prev) => updateActivePaymentSlot(prev, { phone }))}
+                  wide
+                  limitKey="phone"
+                />
               </div>
               <label className="mt-3 flex items-center gap-2 text-sm text-[var(--joballa-muted)]">
-                <input type="checkbox" className="size-4 rounded border-[var(--joballa-border)]" />
-                Set as primary account
+                <input
+                  type="checkbox"
+                  className="size-4 shrink-0 rounded border-[var(--joballa-border)] accent-[var(--joballa-primary)]"
+                  checked={activePayment.isPrimary}
+                  onChange={(e) =>
+                    setPaymentForm((prev) => updateActivePaymentSlot(prev, { isPrimary: e.target.checked }))
+                  }
+                />
+                {t("editor.primaryAccount")}
               </label>
               <div className="mt-6 flex justify-end">
-                <button type="button" disabled={savingSection === "payment"} onClick={(e) => void savePayment(e)} className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:opacity-50">
-                  {savingSection === "payment" ? t("editor.saving") : t("editor.save")}
+                <button
+                  type="button"
+                  disabled={savingSection === "payment" || !paymentDirty}
+                  onClick={(e) => void savePayment(e)}
+                  className="h-10 rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {sectionSaveLabel("payment", paymentDirty)}
                 </button>
               </div>
           </Card>

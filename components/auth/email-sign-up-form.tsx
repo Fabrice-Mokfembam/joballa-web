@@ -30,6 +30,7 @@ export function EmailSignUpForm() {
   const initialRole = useMemo<JoballaRole>(() => peekPendingSignupRole() ?? "WORKER", []);
 
   const [contact, setContact] = useState<"email" | "phone">("email");
+  const [name, setName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -55,12 +56,14 @@ export function EmailSignUpForm() {
               email: emailAddress.trim().toLowerCase(),
               password,
               role,
+              fullName: name.trim(),
               preferredLanguage: lang,
             }
           : {
               phone: phone.trim(),
               password,
               role,
+              fullName: name.trim(),
               preferredLanguage: lang,
             };
       const res = await postRegister(body);
@@ -163,6 +166,19 @@ export function EmailSignUpForm() {
               >
                 {t("contact.phone")}
               </button>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <div className={authLabelClassName}>{t("fields.name")}</div>
+              <input
+                type="text"
+                autoComplete="name"
+                required
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className={authInputClassName}
+                placeholder={t("placeholders.name")}
+              />
             </div>
 
             {contact === "email" ? (

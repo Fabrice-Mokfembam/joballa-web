@@ -7,7 +7,9 @@ import type {
   CreateWorkerJobBody,
   CreateWorkerJobResponse,
   CreateWorkerPaymentAccountBody,
+  ApplicationProfileDraft,
   CustomizeProfileBody,
+  JobSaveResponse,
   EarningTransaction,
   EarningsSummary,
   EarningsTransactionsParams,
@@ -44,6 +46,7 @@ import type {
   WorkerJobListItem,
   WorkerMe,
   WorkerNotificationItem,
+  WorkerNotificationUnreadCount,
   WorkerNotificationSettings,
   WorkerOwnedJobDetail,
   WorkerOwnedJobListItem,
@@ -76,6 +79,7 @@ type WorkerDemoState = {
   profile: WorkerFullProfile;
   hiddenJobIds: Set<string>;
   notificationSettings: WorkerNotificationSettings;
+  applicationProfileDrafts: Map<string, CustomizeProfileBody>;
 };
 
 function initialState(): WorkerDemoState {
@@ -107,12 +111,49 @@ function initialState(): WorkerDemoState {
     incomingApplications: [
       {
         applicationId: "demo-incoming-1",
-        applicantName: "Marie N.",
+        applicantName: "Marie Nguema",
+        applicantAvatarUrl: null,
+        jobTitle: "Home Tutor",
+        jobId: "demo-worker-job-1",
+        status: "shortlisted",
+        matchPercent: 82,
+        appliedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+        profileSnapshot: {
+          fullName: "Marie Nguema",
+          professionalTitle: "Mathematics Tutor",
+          headline: "Mathematics Tutor",
+          location: "Douala, Littoral",
+          city: "Douala",
+          region: "Littoral",
+          skills: ["Algebra", "Calculus", "French"],
+          professionalSummary:
+            "Experienced tutor helping secondary students improve grades in mathematics and exam preparation.",
+          verificationStatus: "VERIFIED",
+          workHistory: [
+            {
+              company: "Bright Minds Academy",
+              role: "Private Tutor",
+              period: "2022 - Present",
+              location: "Douala",
+            },
+          ],
+        },
+      },
+      {
+        applicationId: "demo-incoming-2",
+        applicantName: "Paul Atangana",
         jobTitle: "Home Tutor",
         jobId: "demo-worker-job-1",
         status: "pending",
-        matchPercent: 82,
-        appliedAt: new Date(Date.now() - 86400000).toISOString(),
+        matchPercent: 74,
+        appliedAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+        profileSnapshot: {
+          fullName: "Paul Atangana",
+          professionalTitle: "Science & Math Tutor",
+          location: "Yaoundé, Centre",
+          skills: ["Physics", "Chemistry", "Exam prep"],
+          verificationStatus: "VERIFIED",
+        },
       },
     ],
     applications: createDemoApplications(jobs),
@@ -126,6 +167,7 @@ function initialState(): WorkerDemoState {
       jobsEnabled: true,
       messagesEnabled: false,
     },
+    applicationProfileDrafts: new Map(),
   };
 }
 
@@ -263,6 +305,7 @@ export async function getWorkerCvExportStatus(): Promise<WorkerCvExportStatus> {
     generatedAt: demoCvGeneratedAt,
     sourceProfileUpdatedAt: demoCvGeneratedAt,
     isOutdated: false,
+    downloadUrl: demoCvGeneratedAt ? "/worker/profile/cv-export" : null,
   };
 }
 
@@ -428,17 +471,24 @@ export async function getWorkerJob(jobId: string): Promise<WorkerJobDetail> {
   return jobToDetail(job);
 }
 
-export async function saveWorkerJob(jobId: string): Promise<unknown> {
+export async function saveWorkerJob(jobId: string): Promise<JobSaveResponse> {
   await demoDelay(60);
   const job = state.jobs.find((j) => j.id === jobId);
-  if (job) job.isSaved = true;
-  return { ok: true };
+  if (job) {
+    job.isSaved = true;
+    job.saved = true;
+  }
+  return { jobId, saved: true };
 }
 
-export async function unsaveWorkerJob(jobId: string): Promise<void> {
+export async function unsaveWorkerJob(jobId: string): Promise<JobSaveResponse> {
   await demoDelay(60);
   const job = state.jobs.find((j) => j.id === jobId);
-  if (job) job.isSaved = false;
+  if (job) {
+    job.isSaved = false;
+    job.saved = false;
+  }
+  return { jobId, saved: false };
 }
 
 export async function hideWorkerJob(jobId: string): Promise<unknown> {
@@ -461,9 +511,30 @@ export async function getWorkerJobShareLink(jobId: string): Promise<JobShareResp
   return { url: `https://joballa.test/jobs/${jobId}` };
 }
 
-export async function customizeJobApplicationProfile(_jobId: string, _body: CustomizeProfileBody): Promise<unknown> {
+export async function getJobApplicationProfileDraft(jobId: string): Promise<ApplicationProfileDraft> {
+  await demoDelay(40);
+  const customizedData = state.applicationProfileDrafts.get(jobId) ?? null;
+  return {
+    applicationId: null,
+    jobId,
+    customizedData,
+  };
+}
+
+export async function putJobApplicationProfileDraft(
+  jobId: string,
+  body: CustomizeProfileBody,
+): Promise<ApplicationProfileDraft> {
   await demoDelay(60);
-  return { ok: true };
+  state.applicationProfileDrafts.set(jobId, body);
+  return getJobApplicationProfileDraft(jobId);
+}
+
+export async function customizeJobApplicationProfile(
+  jobId: string,
+  body: CustomizeProfileBody,
+): Promise<ApplicationProfileDraft> {
+  return putJobApplicationProfileDraft(jobId, body);
 }
 
 export async function applyToWorkerJob(jobId: string, body?: ApplyToJobBody): Promise<WorkerApplicationDetail> {
@@ -611,23 +682,26 @@ export async function uploadVerificationDoc(_file: File): Promise<VerificationDo
 
 export async function createWorkerJob(body: CreateWorkerJobBody): Promise<CreateWorkerJobResponse> {
   await demoDelay(120);
-  const jobId = `demo-worker-request-${state.ownedJobs.length + 1}`;
-  const title = String(body.formData.title ?? "Informal request");
+  const jobId = `demo-worker-job-${state.ownedJobs.length + 1}`;
+  const formData = body.formData ?? {};
+  const title = String(formData.title ?? "Untitled job");
+  const asDraft = Boolean(formData.asDraft);
   state.ownedJobs.unshift({
     jobId,
-    department: { id: body.departmentId, name: body.departmentCategory, category: body.departmentCategory },
+    department: { id: body.departmentId, name: body.departmentId, category: body.departmentCategory },
     title,
-    location: typeof body.formData.city === "string" ? body.formData.city : undefined,
-    jobType: typeof body.formData.employmentType === "string" ? body.formData.employmentType : undefined,
-    salary:
-      typeof body.formData.payAmount === "number"
-        ? `${body.formData.payAmount} ${String(body.formData.payCurrency ?? "XAF")}/${String(body.formData.payStructure ?? "fixed")}`
-        : undefined,
-    status: "submitted",
+    location: [formData.neighbourhood, formData.city, formData.region].filter(Boolean).join(", "),
+    jobType: String(formData.employmentType ?? "full_time"),
+    salary: `${formData.payAmount} ${String(formData.payCurrency ?? "XAF")}/${String(formData.payStructure ?? "monthly")}`,
+    status: asDraft ? "draft" : "under_review",
     applicantsCount: 0,
     postedAt: new Date().toISOString(),
   });
-  return { id: jobId, status: "submitted", assignedJobId: null, message: "Informal request submitted (demo)." };
+  return {
+    id: jobId,
+    status: asDraft ? "submitted" : "under_review",
+    message: asDraft ? "Job saved as draft (demo)." : "Job submitted for review (demo).",
+  };
 }
 
 export async function getWorkerOwnedJobs(params?: {
@@ -691,7 +765,13 @@ export async function getWorkerIncomingApplication(applicationId: string): Promi
   await demoDelay();
   const app = state.incomingApplications.find((a) => (a.applicationId ?? a.id) === applicationId);
   if (!app) throw new Error("Application not found");
-  return { ...app, profileSnapshot: {} };
+  return {
+    ...app,
+    profileSnapshot:
+      app.profileSnapshot && typeof app.profileSnapshot === "object"
+        ? (app.profileSnapshot as Record<string, unknown>)
+        : {},
+  };
 }
 
 export async function getEarningsTransaction(transactionId: string): Promise<EarningTransaction> {
@@ -718,6 +798,18 @@ export async function getWorkerNotifications(params?: {
     deepLink: n.href ?? null,
   }));
   return paginate(items, params);
+}
+
+export async function getWorkerNotificationsUnreadCount(): Promise<WorkerNotificationUnreadCount> {
+  await demoDelay(40);
+  const count = WORKER_NOTIFICATIONS.filter((n) => !n.read).length;
+  return { count };
+}
+
+export async function patchWorkerNotificationsReadAll(): Promise<{ ok: boolean }> {
+  await demoDelay(40);
+  for (const n of WORKER_NOTIFICATIONS) n.read = true;
+  return { ok: true };
 }
 
 export async function patchWorkerNotificationRead(notificationId: string): Promise<WorkerNotificationItem> {

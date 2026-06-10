@@ -1,6 +1,7 @@
 /**
  * Worker portal API types — `docs/FRONTEND_WORKER_PORTAL_API_GUIDE_MAY_2026.md`
  */
+import type { CreateInformalJobRequest, CreateInformalJobResponse } from "@/features/employer/types/employer-portal";
 import type {
   ApplicationStatus,
   AvailabilityStatus,
@@ -35,7 +36,18 @@ export type KycDocumentType = "NATIONAL_ID" | "PASSPORT" | "DRIVERS_LICENSE";
 
 export type ProfileDocumentType = "CV" | "CERTIFICATE" | "PORTFOLIO" | "OTHER";
 
-export type ProfileStrengthBreakdown = Record<string, boolean>;
+export type ProfileStrengthBreakdown = Record<string, boolean | number>;
+
+export type ProfileCompletenessBreakdown = {
+  personalInfo?: number;
+  summary?: number;
+  skills?: number;
+  experience?: number;
+  education?: number;
+  certifications?: number;
+  verification?: number;
+  languages?: number;
+};
 
 export type WorkerMeProfile = {
   id: string;
@@ -47,6 +59,7 @@ export type WorkerMeProfile = {
   profileStrengthBreakdown?: ProfileStrengthBreakdown;
   profileViews?: number;
   availabilityStatus?: AvailabilityStatus;
+  availableForHire?: boolean;
   verificationStatus?: VerificationStatus;
   avatarUrl?: string | null;
   [key: string]: unknown;
@@ -69,6 +82,8 @@ export type WorkerCvExportStatus = {
   generatedAt: string | null;
   sourceProfileUpdatedAt: string | null;
   isOutdated: boolean;
+  /** Direct API download URL — preferred over raw storage URLs. */
+  downloadUrl?: string | null;
 };
 
 export type WorkerCvDownload = {
@@ -104,6 +119,8 @@ export type WorkerCertification = {
   issuer?: string;
   issueDate?: string;
   expiryDate?: string | null;
+  credentialUrl?: string | null;
+  createdAt?: string;
   [key: string]: unknown;
 };
 
@@ -112,6 +129,8 @@ export type WorkerDocument = {
   type?: ProfileDocumentType | string;
   fileName?: string;
   url?: string;
+  mimeType?: string;
+  fileType?: "pdf" | "image";
   createdAt?: string;
   [key: string]: unknown;
 };
@@ -134,9 +153,13 @@ export type WorkerPaymentAccount = {
   id: string;
   provider: MomoProvider | string;
   phone: string;
+  phoneNumber?: string;
   isPrimary?: boolean;
+  createdAt?: string;
   [key: string]: unknown;
 };
+
+export type WorkerPaymentMethod = WorkerPaymentAccount;
 
 export type WorkerFullProfile = {
   id: string;
@@ -149,6 +172,8 @@ export type WorkerFullProfile = {
   country?: string | null;
   languages?: string[];
   availabilityStatus?: AvailabilityStatus;
+  /** Server-derived from availabilityStatus — read-only. */
+  availableForHire?: boolean;
   professionalTitle?: string | null;
   summary?: string | null;
   industries?: string[];
@@ -158,8 +183,10 @@ export type WorkerFullProfile = {
   photoUrl?: string | null;
   verificationStatus?: VerificationStatus | string | null;
   profileCompleteness?: number;
-  profileStrengthBreakdown?: ProfileStrengthBreakdown;
+  profileStrengthBreakdown?: ProfileStrengthBreakdown | ProfileCompletenessBreakdown;
+  profileCompletenessBreakdown?: ProfileCompletenessBreakdown;
   profileViews?: number;
+  paymentMethods?: WorkerPaymentMethod[];
   workHistories?: WorkerWorkHistory[];
   educations?: WorkerEducation[];
   certifications?: WorkerCertification[];
@@ -179,6 +206,7 @@ export type WorkerPublicProfile = Omit<
 >;
 
 export type PatchPersonalInfoBody = {
+  fullName?: string;
   firstName?: string;
   lastName?: string;
   city?: string;
@@ -294,21 +322,11 @@ export type WorkerOwnedJobDetail = WorkerOwnedJobListItem & {
   [key: string]: unknown;
 };
 
-export type CreateWorkerJobBody = {
-  departmentId: string;
-  departmentCategory: DepartmentCategory;
-  formData: Record<string, unknown>;
-  paymentManagedByJoballa: boolean;
-};
+export type CreateWorkerJobBody = CreateInformalJobRequest;
 
 export type UpdateWorkerJobBody = Partial<CreateWorkerJobBody>;
 
-export type CreateWorkerJobResponse = {
-  id: string;
-  status: InformalRequestStatus | string;
-  assignedJobId?: string | null;
-  message: string;
-};
+export type CreateWorkerJobResponse = CreateInformalJobResponse;
 
 export type WorkerIncomingApplicationListItem = {
   applicationId?: string;
@@ -331,15 +349,39 @@ export type WorkerIncomingApplicationDetail = WorkerIncomingApplicationListItem 
 
 export type WorkerNotificationFilter = "all" | "jobs" | "payments";
 
+export type WorkerNotificationType =
+  | "APPLICATION_SUBMITTED"
+  | "APPLICATION_SHORTLISTED"
+  | "APPLICATION_REJECTED"
+  | "APPLICATION_ACCEPTED"
+  | "HIRED"
+  | "CONTRACT_STARTED"
+  | "CONTRACT_COMPLETED"
+  | "CONTRACT_TERMINATED"
+  | "KYC_SUBMITTED"
+  | "KYC_APPROVED"
+  | "KYC_REJECTED"
+  | "PAYMENT_RECEIVED"
+  | "PAYMENT_SENT"
+  | "JOB_MATCH_FOUND"
+  | "SAVED_JOB_UPDATED"
+  | string;
+
 export type WorkerNotificationItem = {
   id: string;
-  type?: string;
+  type?: WorkerNotificationType;
   title?: string;
   body?: string;
   read: boolean;
+  isRead?: boolean;
   createdAt?: string;
   deepLink?: string | null;
+  metadata?: Record<string, unknown>;
   [key: string]: unknown;
+};
+
+export type WorkerNotificationUnreadCount = {
+  count: number;
 };
 
 export type WorkerNotificationSettings = {
@@ -370,6 +412,7 @@ export type CreateCertificationBody = {
   issuer?: string;
   issueDate?: string;
   expiryDate?: string | null;
+  credentialUrl?: string;
 };
 
 export type SubmitKycBody = {
@@ -450,15 +493,52 @@ export type JobReportBody = {
   description?: string;
 };
 
-export type CustomizeProfileBody = {
+export type ApplicationProfileDraft = {
+  id?: string;
+  applicationId?: string | null;
+  jobId: string;
+  profileId?: string;
+  customizedData?: ApplicationProfileCustomization | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type JobSaveResponse = {
+  jobId: string;
+  saved: boolean;
+};
+
+export type ApplicationProfileCustomization = {
+  professionalTitle?: string;
   professionalSummary?: string;
+  bio?: string;
   skills?: string[];
+  languages?: string[];
+  region?: string;
+  city?: string;
+  detachedWorkHistoryIds?: string[];
+  detachedEducationIds?: string[];
+  detachedCertificationIds?: string[];
+  detachedDocumentIds?: string[];
+};
+
+/** @deprecated Prefer ApplicationProfileCustomization */
+export type CustomizeProfileBody = ApplicationProfileCustomization & {
   workHistoryIds?: string[];
+};
+
+export type ApplicationProfileSnapshot = {
+  id?: string;
+  applicationId?: string;
+  profileId?: string;
+  customizedData?: CustomizeProfileBody;
+  createdAt?: string;
 };
 
 export type ApplyToJobBody = {
   jobSpecificNote?: string;
   coverNote?: string;
+  source?: "web" | "mobile_app" | "mobile";
   attachedDocuments?: Array<{
     requestedDocumentKey?: string;
     supportingDocumentId?: string;

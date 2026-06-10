@@ -29,12 +29,14 @@ export type AuthRegisterBody =
       email: string;
       password: string;
       role: SignupRole;
+      fullName: string;
       preferredLanguage?: Language;
     }
   | {
       phone: string;
       password: string;
       role: SignupRole;
+      fullName: string;
       preferredLanguage?: Language;
     };
 

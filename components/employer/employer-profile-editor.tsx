@@ -13,6 +13,7 @@ import {
   useUploadEmployerCompanyLogo,
 } from "@/features/employer/hooks";
 import { buttonClassName } from "@/components/ui/button";
+import { fieldMaxLength } from "@/lib/form-field-limits";
 import { cn } from "@/lib/utils";
 
 export function EmployerProfileEditor() {
@@ -85,24 +86,24 @@ export function EmployerProfileEditor() {
             <div className="grid gap-5 md:grid-cols-2">
               <label className="flex flex-col gap-2 text-sm font-semibold text-[var(--joballa-fg)]">
                 {t("fields.companyName")}
-                <input className={portalInputClass} value={name} onChange={(e) => setName(e.target.value)} />
+                <input className={portalInputClass} value={name} onChange={(e) => setName(e.target.value)} maxLength={fieldMaxLength("companyName")} />
               </label>
               <label className="flex flex-col gap-2 text-sm font-semibold text-[var(--joballa-fg)]">
                 {t("fields.industry")}
-                <input className={portalInputClass} value={industry} onChange={(e) => setIndustry(e.target.value)} />
+                <input className={portalInputClass} value={industry} onChange={(e) => setIndustry(e.target.value)} maxLength={fieldMaxLength("industry")} />
               </label>
               <label className="flex flex-col gap-2 text-sm font-semibold text-[var(--joballa-fg)] md:col-span-2">
                 {t("fields.location")}
-                <input className={portalInputClass} value={city} onChange={(e) => setCity(e.target.value)} />
+                <input className={portalInputClass} value={city} onChange={(e) => setCity(e.target.value)} maxLength={fieldMaxLength("city")} />
               </label>
               <label className="flex flex-col gap-2 text-sm font-semibold text-[var(--joballa-fg)] md:col-span-2">
                 {t("fields.website")}
-                <input className={portalInputClass} value={website} onChange={(e) => setWebsite(e.target.value)} />
+                <input className={portalInputClass} value={website} onChange={(e) => setWebsite(e.target.value)} maxLength={fieldMaxLength("url")} />
               </label>
             </div>
             <label className="flex flex-col gap-2 text-sm font-semibold text-[var(--joballa-fg)]">
               {t("fields.about")}
-              <textarea className={portalTextareaClass} value={bio} onChange={(e) => setBio(e.target.value)} rows={4} />
+              <textarea className={portalTextareaClass} value={bio} onChange={(e) => setBio(e.target.value)} rows={4} maxLength={fieldMaxLength("bio")} />
             </label>
             <label className="flex flex-col gap-2 text-sm font-semibold text-[var(--joballa-fg)]">
               {t("fields.logo")}

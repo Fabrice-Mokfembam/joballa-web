@@ -128,6 +128,8 @@ export function WorkerSavedJobsView() {
         r.job.title.toLowerCase().includes(needle) ||
         r.job.company.toLowerCase().includes(needle) ||
         r.job.subtitle.toLowerCase().includes(needle) ||
+        r.job.department.toLowerCase().includes(needle) ||
+        r.job.employmentType.toLowerCase().includes(needle) ||
         r.job.seniority.toLowerCase().includes(needle),
     );
   }, [rows, q]);

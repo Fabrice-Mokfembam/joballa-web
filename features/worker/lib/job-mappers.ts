@@ -37,6 +37,33 @@ function formatJobType(jobType?: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+const EXPERIENCE_LEVEL_LABELS: Record<string, string> = {
+  entry: "Entry",
+  junior: "Junior",
+  mid: "Mid",
+  senior: "Senior",
+  lead: "Lead",
+  tutor: "Tutor",
+  not_required: "Not required",
+};
+
+function formatExperienceLevel(raw?: string | null): string {
+  if (!raw) return "";
+  const key = String(raw).trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return EXPERIENCE_LEVEL_LABELS[key] ?? formatJobType(raw);
+}
+
+function departmentLabel(job: WorkerJobListItem): string {
+  const raw = job as Record<string, unknown>;
+  const dept = raw.department;
+  if (dept && typeof dept === "object" && dept !== null && "name" in dept) {
+    return String((dept as { name?: string }).name ?? "").trim();
+  }
+  if (typeof raw.departmentName === "string") return raw.departmentName.trim();
+  if (job.category) return formatJobType(String(job.category));
+  return "";
+}
+
 function formatPay(job: WorkerJobListItem): string {
   const raw = job as Record<string, unknown>;
   const rate =
@@ -117,12 +144,20 @@ export function workerJobCardFromApi(
   );
   const company = employerName(job);
   const initial = company.trim() ? company.trim().charAt(0).toUpperCase() : "";
+  const raw = job as Record<string, unknown>;
+  const experienceLevel = raw.experienceLevel ?? raw.requiredLevel ?? raw.experience_level;
   return {
     id: job.id,
     slug: job.slug ?? job.id,
     title: job.title,
     subtitle: formatSubtitle(job),
-    seniority: formatJobType(String(job.category ?? job.jobType ?? "")),
+    department: departmentLabel(job),
+    employmentType: formatJobType(String(job.jobType ?? raw.employmentType ?? "")),
+    seniority: formatExperienceLevel(
+      typeof experienceLevel === "string" || typeof experienceLevel === "number"
+        ? String(experienceLevel)
+        : "",
+    ),
     pay: formatPay(job),
     posted: formatPosted(job.createdAt ?? job.postedAt),
     match: options?.match,
@@ -130,6 +165,8 @@ export function workerJobCardFromApi(
     companyInitial: initial,
     companyColor: hashColor(company || job.id),
     companyLogoUrl: employerLogo(job),
+    isSaved: !!(job.saved ?? job.isSaved),
+    hasApplied: !!job.hasApplied,
   };
 }
 

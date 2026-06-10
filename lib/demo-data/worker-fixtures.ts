@@ -63,6 +63,14 @@ const TITLES = [
 const CITIES = ["Yaoundé", "Douala", "Buea", "Limbe", "Bamenda", "Garoua", "Kribi", "Maroua"];
 const JOB_TYPES = ["FULL_TIME", "PART_TIME", "CONTRACT", "TEMPORARY"] as const;
 const WORK_MODES = ["ON_SITE", "REMOTE", "HYBRID"] as const;
+const EXPERIENCE_LEVELS = ["entry", "junior", "mid", "senior", "lead"] as const;
+const DEPARTMENTS = [
+  { id: "dept-education", name: "joballa Education", category: "education" },
+  { id: "dept-domestic", name: "joballa Domestic", category: "domestic" },
+  { id: "dept-logistics", name: "joballa Logistics", category: "logistics" },
+  { id: "dept-events", name: "joballa Events", category: "events" },
+  { id: "dept-tech", name: "Software & technology", category: "software_tech" },
+] as const;
 const APP_STATUSES = ["PENDING", "SHORTLISTED", "REJECTED", "HIRED"] as const;
 
 function daysAgo(n: number): string {
@@ -77,12 +85,15 @@ function buildJob(index: number): WorkerJobListItem {
   const jobType = JOB_TYPES[index % JOB_TYPES.length]!;
   const workMode = WORK_MODES[index % WORK_MODES.length]!;
   const payRate = 35000 + (index % 12) * 15000;
+  const department = DEPARTMENTS[index % DEPARTMENTS.length]!;
   return {
     id: `demo-job-${index + 1}`,
     title: TITLES[index % TITLES.length]!,
     description: `Demo role #${index + 1} at ${company.companyName}. Clear objectives, weekly check-ins, and professional workplace standards.`,
     city,
-    category: ["Administration", "Marketing", "Technology", "Education", "Logistics"][index % 5],
+    category: department.category,
+    department,
+    experienceLevel: EXPERIENCE_LEVELS[index % EXPERIENCE_LEVELS.length],
     jobType,
     workMode,
     payStructure: index % 3 === 0 ? "HOURLY" : "MONTHLY",

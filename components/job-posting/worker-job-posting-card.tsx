@@ -79,7 +79,7 @@ export function WorkerJobPostingCard({
       title={job.title}
       scheduleLabel={schedule}
       locationLabel={location}
-      pillTags={[job.seniority, job.pay]}
+      pillTags={[job.seniority, job.pay].filter(Boolean)}
       companyName={job.company}
       companyLogoUrl={job.companyLogoUrl}
       companyInitial={job.companyInitial}

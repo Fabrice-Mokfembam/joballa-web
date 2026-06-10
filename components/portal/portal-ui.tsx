@@ -8,6 +8,10 @@ import { cn } from "@/lib/utils";
 export const portalPageShellClass =
   "flex w-full min-w-0 flex-1 flex-col gap-4 bg-[var(--joballa-page-tint)] sm:gap-5 md:gap-6 lg:min-h-0 lg:flex-1";
 
+/** Native checkbox with Joballa primary accent when checked. */
+export const portalCheckboxClass =
+  "size-4 shrink-0 rounded border-[var(--joballa-border)] accent-[var(--joballa-primary)]";
+
 /** Stat card grid — 2 cols on mobile, 4 on xl (worker dashboard pattern). */
 export const portalStatGridClass = "grid gap-2.5 min-[420px]:grid-cols-2 sm:gap-3 xl:grid-cols-4";
 

@@ -3,6 +3,11 @@ export type WorkerJobCard = {
   slug: string;
   title: string;
   subtitle: string;
+  /** Department label shown on the job card chip. */
+  department: string;
+  /** Employment type label (e.g. Full Time). */
+  employmentType: string;
+  /** @deprecated Use `employmentType` — kept for legacy search/demo fixtures. */
   seniority: string;
   pay: string;
   posted: string;
@@ -11,6 +16,8 @@ export type WorkerJobCard = {
   companyInitial: string;
   companyColor: string;
   companyLogoUrl?: string | null;
+  isSaved?: boolean;
+  hasApplied?: boolean;
 };
 
 export const WORKER_JOB_CARDS: WorkerJobCard[] = [
@@ -19,6 +26,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "admin-assistant-yde",
     title: "Admin Assistant",
     subtitle: "Part-time • Yaoundé",
+    department: "Software & technology",
+    employmentType: "Part-time",
     seniority: "Senior",
     pay: "45,000 XAF/m",
     posted: "1w",
@@ -32,6 +41,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "marketing-specialist-dla",
     title: "Marketing Specialist",
     subtitle: "Full-time • Douala",
+    department: "Education",
+    employmentType: "Full-time",
     seniority: "Lead",
     pay: "120,000 XAF/m",
     posted: "2d",
@@ -45,6 +56,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "graphic-designer-remote",
     title: "Graphic Designer",
     subtitle: "Contract • Remote",
+    department: "Software & technology",
+    employmentType: "Contract",
     seniority: "Junior",
     pay: "5,000 XAF/h",
     posted: "3d",
@@ -57,6 +70,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "home-tutor-math-english",
     title: "Home Tutor-Math & English",
     subtitle: "Part-time • Buea",
+    department: "Education",
+    employmentType: "Part-time",
     seniority: "Tutor",
     pay: "35,000 XAF/m",
     posted: "5d",
@@ -70,6 +85,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "software-engineer-dla",
     title: "Software Engineer",
     subtitle: "Full-time • Douala",
+    department: "Software & technology",
+    employmentType: "Full-time",
     seniority: "Senior",
     pay: "320,000 XAF/m",
     posted: "1w",
@@ -83,6 +100,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "logistics-coordinator",
     title: "Logistics Coordinator",
     subtitle: "Full-time • Limbe",
+    department: "Logistics",
+    employmentType: "Full-time",
     seniority: "Mid",
     pay: "95,000 XAF/m",
     posted: "4d",
@@ -95,6 +114,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "events-host",
     title: "Events Host",
     subtitle: "Part-time • Yaoundé",
+    department: "Events",
+    employmentType: "Part-time",
     seniority: "Junior",
     pay: "8,000 XAF/day",
     posted: "2w",
@@ -107,6 +128,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "caregiver-douala",
     title: "Caregiver",
     subtitle: "Part-time • Douala",
+    department: "Domestic",
+    employmentType: "Part-time",
     seniority: "Senior",
     pay: "55,000 XAF/m",
     posted: "6d",
@@ -120,6 +143,8 @@ export const WORKER_JOB_CARDS: WorkerJobCard[] = [
     slug: "delivery-rider",
     title: "Delivery Rider",
     subtitle: "Full-time • Buea",
+    department: "Logistics",
+    employmentType: "Full-time",
     seniority: "Entry",
     pay: "40,000 XAF/m",
     posted: "1d",

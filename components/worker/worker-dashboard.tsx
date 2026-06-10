@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
@@ -42,10 +42,12 @@ function DashboardJobCard({
   job,
   t,
   grid,
+  showApply = true,
 }: {
   job: WorkerJobCard;
   t: (key: string, values?: Record<string, string | number>) => string;
   grid: boolean;
+  showApply?: boolean;
 }) {
   const router = useRouter();
   const saveJob = useSaveWorkerJob();
@@ -81,6 +83,7 @@ function DashboardJobCard({
       matchTextOverride={job.match != null ? t("recommended.match", { pct: job.match }) : undefined}
       bookmarkLabel={t("recommended.bookmark")}
       applyLabel={t("recommended.apply")}
+      showApply={showApply}
       moreMenuAriaLabel={t("recommended.menu")}
       titleHref={null}
       applyHref={null}
@@ -147,6 +150,21 @@ export function WorkerDashboard() {
   const applicationRows = useMemo(() => {
     return workerApplicationRowsFromApi(dashboard?.applications ?? []).slice(0, 5);
   }, [dashboard?.applications]);
+
+  const appliedJobIds = useMemo(
+    () =>
+      new Set(
+        workerApplicationRowsFromApi(dashboard?.applications ?? [])
+          .map((app) => app.linkedJobSlug)
+          .filter(Boolean),
+      ),
+    [dashboard?.applications],
+  );
+
+  const isJobApplied = useCallback(
+    (job: WorkerJobCard) => appliedJobIds.has(job.slug) || appliedJobIds.has(job.id) || !!job.hasApplied,
+    [appliedJobIds],
+  );
 
   const earningsStats = useMemo(() => {
     const earnings = dashboard?.stats?.earnings;
@@ -260,7 +278,7 @@ export function WorkerDashboard() {
           {grid ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {recommendedGrid.map((job) => (
-                <DashboardJobCard key={job.id} job={job} t={t} grid />
+                <DashboardJobCard key={job.id} job={job} t={t} grid showApply={!isJobApplied(job)} />
               ))}
             </div>
           ) : (
@@ -308,12 +326,14 @@ export function WorkerDashboard() {
                       <td className="px-4 py-3">{job.subtitle.split("•")[1]?.trim()}</td>
                       <td className="px-4 py-3">{job.match != null ? `${job.match}%` : ""}</td>
                       <td className="px-4 py-3 text-right" data-card-stop>
-                        <Link
-                          href={`/worker/jobs/${job.slug}?apply=1`}
-                          className="font-semibold text-[var(--joballa-primary)] hover:underline"
-                        >
-                          {t("recommended.apply")}
-                        </Link>
+                        {!isJobApplied(job) ? (
+                          <Link
+                            href={`/worker/jobs/${job.slug}?apply=1`}
+                            className="font-semibold text-[var(--joballa-primary)] hover:underline"
+                          >
+                            {t("recommended.apply")}
+                          </Link>
+                        ) : null}
                       </td>
                     </tr>
                   ))}
