@@ -120,6 +120,14 @@ export async function saveEmployerJobDraft(
   return normalizeEmployerJobDetail(data as Parameters<typeof normalizeEmployerJobDetail>[0]);
 }
 
+export async function publishEmployerJob(
+  jobId: string,
+  body?: UpdateEmployerJobBody,
+): Promise<CreateEmployerJobResponse> {
+  const { data } = await joballaAxios.post<CreateEmployerJobResponse>(`${BASE}/jobs/${jobId}/publish`, body ?? {});
+  return data;
+}
+
 export async function deleteEmployerJob(jobId: string): Promise<void> {
   await joballaAxios.delete(`${BASE}/jobs/${jobId}`);
 }

@@ -20,6 +20,8 @@ export const patchEmployerJobStatus = (jobId: string, status: string) =>
   withDemo(() => live.patchEmployerJobStatus(jobId, status), () => demo.patchEmployerJobStatus(jobId, status));
 export const saveEmployerJobDraft = (jobId: string, body: Parameters<typeof live.saveEmployerJobDraft>[1]) =>
   withDemo(() => live.saveEmployerJobDraft(jobId, body), () => demo.saveEmployerJobDraft(jobId, body));
+export const publishEmployerJob = (jobId: string, body?: Parameters<typeof live.publishEmployerJob>[1]) =>
+  withDemo(() => live.publishEmployerJob(jobId, body), () => demo.publishEmployerJob(jobId, body));
 export const deleteEmployerJob = (jobId: string) =>
   withDemo(() => live.deleteEmployerJob(jobId), () => demo.deleteEmployerJob(jobId));
 export const getEmployerDepartments = (params?: Parameters<typeof live.getEmployerDepartments>[0]) =>

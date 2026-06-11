@@ -8,6 +8,7 @@ import {
   getEmployerJobs,
   patchEmployerJob,
   patchEmployerJobStatus,
+  publishEmployerJob,
   saveEmployerJobDraft,
 } from "@/features/employer/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
@@ -73,6 +74,20 @@ export function usePatchEmployerJobStatus(jobId: string) {
       void qc.invalidateQueries({ queryKey: employerKeys.dashboard() });
     },
     onError: (e) => toastApiError(e, "Could not update job status."),
+  });
+}
+
+export function usePublishEmployerJob(jobId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body?: UpdateEmployerJobBody) => publishEmployerJob(jobId, body),
+    onSuccess: (data) => {
+      if (data.message) toastSuccess(data.message);
+      void qc.invalidateQueries({ queryKey: employerKeys.job(jobId) });
+      void qc.invalidateQueries({ queryKey: employerKeys.jobs() });
+      void qc.invalidateQueries({ queryKey: employerKeys.dashboard() });
+    },
+    onError: (e) => toastApiError(e, "Could not publish job."),
   });
 }
 

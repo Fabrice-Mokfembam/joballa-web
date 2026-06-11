@@ -1,7 +1,7 @@
 "use client";
 
 import { FileText } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 function isImageFile(file: File) {
@@ -33,17 +33,15 @@ export function SupportingDocumentPicker({
   onCancel,
   className,
 }: SupportingDocumentPickerProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const previewUrl = useMemo(() => {
+    if (!isImageFile(file)) return null;
+    return URL.createObjectURL(file);
+  }, [file]);
 
   useEffect(() => {
-    if (!isImageFile(file)) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   return (
     <div className={cn("rounded-[12px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4", className)}>

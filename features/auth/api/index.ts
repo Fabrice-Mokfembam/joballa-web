@@ -2,6 +2,7 @@ export {
   getAuthMe,
   postForgotPassword,
   postLogin,
+  postAuthGoogle,
   postLogout,
   postRefresh,
   postRegister,

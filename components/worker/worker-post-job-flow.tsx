@@ -359,13 +359,13 @@ export function WorkerPostJobFlow() {
   const schedulePreview = [employmentLabel !== "—" ? employmentLabel : "", draft.schedule].filter(Boolean).join(" · ");
   const locationPreview = draft.location ? `Onsite, ${draft.location}` : "—";
 
-  function validateBasics(): boolean {
+  function validateBasics(asDraft: boolean): boolean {
     const payload = { ...draft, requirements, responsibilities };
-    if (departmentsLoading) {
+    if (!asDraft && departmentsLoading) {
       toast.error(t("errors.departmentsLoading"));
       return false;
     }
-    const validationError = validateWorkerPostJobDraft(payload);
+    const validationError = validateWorkerPostJobDraft(payload, { asDraft });
     if (validationError === "INVALID_DEPARTMENT") {
       toast.error(t("errors.department"));
       return false;
@@ -383,7 +383,7 @@ export function WorkerPostJobFlow() {
       return;
     }
     const payload = { ...draft, requirements, responsibilities };
-    if (!validateBasics()) {
+    if (!validateBasics(asDraft)) {
       setStep("basics");
       return;
     }
@@ -412,7 +412,7 @@ export function WorkerPostJobFlow() {
     update("duration", mergeDuration(amount, unit));
   }
 
-  const isSaving = createJob.isPending || departmentsLoading;
+  const isSaving = createJob.isPending;
 
   return (
     <div className={portalPageShellClass}>
@@ -603,7 +603,7 @@ export function WorkerPostJobFlow() {
             <button
               type="button"
               onClick={() => {
-                if (validateBasics()) setStep("details");
+                if (validateBasics(false)) setStep("details");
               }}
               className={cn(buttonClassName("primary"), "h-12 w-full")}
             >
@@ -667,7 +667,7 @@ export function WorkerPostJobFlow() {
             <button
               type="button"
               onClick={() => {
-                if (validateBasics()) setStep("preview");
+                if (validateBasics(false)) setStep("preview");
               }}
               className={cn(buttonClassName("primary"), "h-12 flex-1")}
             >

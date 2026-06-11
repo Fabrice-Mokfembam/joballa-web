@@ -184,6 +184,24 @@ export async function saveEmployerJobDraft(jobId: string, body: UpdateEmployerJo
   return jobToDetail(job);
 }
 
+export async function publishEmployerJob(
+  jobId: string,
+  body?: UpdateEmployerJobBody,
+): Promise<CreateEmployerJobResponse> {
+  await demoDelay(120);
+  if (body && Object.keys(body).length > 0) {
+    await patchEmployerJob(jobId, body);
+  }
+  const job = state.jobs.find((j) => j.jobId === jobId);
+  if (!job) throw new Error("Job not found");
+  job.status = "under_review";
+  return {
+    jobId,
+    status: "under_review",
+    message: "Job submitted for review. Joballa admin will review before it goes live.",
+  };
+}
+
 export async function deleteEmployerJob(jobId: string): Promise<void> {
   await demoDelay(80);
   state.jobs = state.jobs.filter((j) => j.jobId !== jobId);
@@ -479,7 +497,7 @@ export async function createEmployerInformalRequest(
   state.informalRequests.unshift({
     id,
     department: {
-      id: body.departmentId,
+      id: body.departmentId ?? body.departmentCategory,
       name: body.departmentCategory,
       category: body.departmentCategory,
     },

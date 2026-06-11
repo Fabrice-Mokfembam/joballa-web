@@ -40,7 +40,18 @@ export function normalizeWorkerApplication(raw: unknown): WorkerApplicationListI
 }
 
 export function normalizeWorkerApplicationDetail(raw: unknown): WorkerApplicationDetail {
-  return normalizeWorkerApplication(raw) as WorkerApplicationDetail;
+  const data = record(raw);
+  const base = normalizeWorkerApplication(raw);
+  const nestedProfile =
+    data.profileSnapshot && typeof data.profileSnapshot === "object"
+      ? record(data.profileSnapshot)
+      : undefined;
+  return {
+    ...base,
+    profileSnapshot: nestedProfile ?? data.profileSnapshot,
+    jobSpecificNote: optionalString(data.jobSpecificNote ?? data.coverNote),
+    coverNote: optionalString(data.coverNote ?? data.jobSpecificNote),
+  };
 }
 
 export function normalizeWorkerIncomingApplication(raw: unknown): WorkerIncomingApplicationListItem {

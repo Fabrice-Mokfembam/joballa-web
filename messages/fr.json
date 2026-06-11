@@ -421,6 +421,16 @@
     "layout": {
       "backHome": "Retour a l'accueil"
     },
+    "google": {
+      "errors": {
+        "noAccount": "Aucun compte Joballa pour ce compte Google. Inscrivez-vous d'abord.",
+        "conflict": "Cet e-mail est deja enregistre. Connectez-vous avec votre mot de passe ou utilisez Google sur la page de connexion.",
+        "invalid": "La connexion Google n'a pas pu aboutir. Reessayez.",
+        "suspended": "Ce compte est suspendu. Contactez le support.",
+        "generic": "La connexion Google a echoue. Reessayez.",
+        "cancelled": "La connexion Google a ete annulee ou a echoue."
+      }
+    },
     "mobile": {
       "back": "Retour"
     },
@@ -1119,6 +1129,8 @@
       "sidebarHint": "La candidature prend quelques minutes : verifiez votre profil et ajoutez une note optionnelle a l'employeur.",
       "applyNow": "Postuler",
       "applied": "Postule",
+      "ownJob": "Votre offre",
+      "ownJobApplyBlocked": "Vous ne pouvez pas postuler a une offre que vous avez publiee.",
       "saveJob": "Enregistrer",
       "savedJob": "Enregistre",
       "expand": "Ouvrir les details complets",
@@ -1667,7 +1679,8 @@
           "duration": "Duree",
           "applicants": "Candidatures"
         },
-        "emptyDescription": "Aucune description fournie pour ce poste."
+        "emptyDescription": "Aucune description fournie pour ce poste.",
+        "submittedProfileTitle": "Votre profil soumis"
       }
     },
     "earnings": {
@@ -2228,6 +2241,9 @@
         "listedFor": "pour {name}"
       },
       "profile": {
+        "applicationProfileTitle": "Profil de candidature",
+        "liveProfileTitle": "Profil actuel",
+        "downloadFailed": "Impossible de telecharger ce fichier. Reessayez.",
         "summaryTitle": "RESUME PROFESSIONNEL",
         "skillsTitle": "COMPETENCES",
         "workTitle": "EXPERIENCE",

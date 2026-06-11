@@ -114,17 +114,6 @@ export function WorkerProfilePublic({
             {tProfile("preview.editProfile")}
           </Link>
           <div className="flex flex-wrap items-center justify-end gap-2">
-            {cvStatus?.available && cvStatus.isOutdated ? (
-              <button
-                type="button"
-                disabled={cvBusy}
-                onClick={() => downloadCv.mutate()}
-                className={cn(portalOutlineButtonClass, "gap-2 disabled:cursor-wait disabled:opacity-60")}
-              >
-                <IconDownload className="size-4" />
-                {tProfile("preview.downloadPreviousCv")}
-              </button>
-            ) : null}
             <button
               type="button"
               disabled={cvBusy || cvStatusQuery.isLoading}

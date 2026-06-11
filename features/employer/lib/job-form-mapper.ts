@@ -154,12 +154,11 @@ export function mapDraftToCreateJobBody(
   const departmentId =
     draft.department.trim() || resolveDepartmentIdForCategory(draft.category, departments) || "";
 
-  if (!isDepartmentUuid(departmentId)) {
+  if (!asDraft && !isDepartmentUuid(departmentId)) {
     throw new Error("INVALID_DEPARTMENT");
   }
 
   const body: CreateEmployerJobBody = {
-    departmentId,
     title: draft.title.trim() || "Untitled job",
     workMode: normalizeWorkMode(draft.workMode),
     country: "Cameroon",
@@ -181,6 +180,10 @@ export function mapDraftToCreateJobBody(
     paymentManagedByJoballa: true,
     asDraft,
   };
+
+  if (isDepartmentUuid(departmentId)) {
+    body.departmentId = departmentId;
+  }
 
   if (!startNow && startDate) {
     body.startDate = startDate;
@@ -268,7 +271,14 @@ export function formatPostJobStartPreview(draft: PostJobDraft): string {
 export function validatePostJobDraft(
   draft: PostJobDraft,
   extraDepartments?: EmployerJobDepartment[],
+  options?: { asDraft?: boolean },
 ): string | null {
+  if (options?.asDraft) {
+    if (!draft.startNow && draft.startDate.trim() && !toApiStartDate(draft.startDate)) {
+      return "INVALID_START_DATE";
+    }
+    return null;
+  }
   if (!draft.category.trim()) return "CATEGORY_REQUIRED";
   if (draft.category === "other" && !draft.categoryCustom.trim()) return "CATEGORY_OTHER_REQUIRED";
   const departmentId =

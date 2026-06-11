@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
@@ -20,8 +21,12 @@ import { postRegister } from "@/features/auth/api/auth";
 import { JoballaApiError } from "@/lib/joballa/request";
 import { toLanguagePreference } from "@/lib/joballa/names";
 import { readOnboardingRole, writePendingSignUp, writeSignupDisplayName, type PendingSignUpState } from "@/lib/onboarding-signup-state";
-import { AuthGoogleButton } from "@/components/auth/auth-google-button";
 import { AuthMobileHeader } from "@/components/auth/auth-mobile-header";
+
+const AuthGoogleSignInButton = dynamic(
+  () => import("@/components/auth/auth-google-button").then((mod) => mod.AuthGoogleSignInButton),
+  { ssr: false },
+);
 
 export function SignUpPhoneForm() {
   const t = useTranslations("auth.signUpPhone");
@@ -142,7 +147,7 @@ export function SignUpPhoneForm() {
           <div className="h-px flex-1 bg-[color:var(--auth-divider)]" />
         </div>
 
-        <AuthGoogleButton label={t("google")} title={t("googleSoon")} />
+        <AuthGoogleSignInButton mode="signup" disabled={busy} onError={setError} />
 
         <Link href="/sign-up/email" className={cn(authOutlineButtonClassName, "text-center")}>
           {t("useEmail")}

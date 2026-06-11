@@ -1,33 +1,122 @@
 "use client";
 
-/** Decorative Google button (OAuth not wired). Figma / Google brand colors from `globals.css`. */
-export function AuthGoogleButton({ label, title }: { label: string; title: string }) {
+import { useCallback, useEffect, useRef, useState } from "react";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/lib/i18n/navigation";
+import { postAuthGoogle } from "@/features/auth/api/auth";
+import { mapGoogleAuthError } from "@/features/auth/lib/map-google-auth-error";
+import { establishSessionAndNavigate } from "@/lib/auth/establish-session";
+import { isGoogleSignInEnabled } from "@/lib/auth/google-client-id";
+import {
+  clearOnboardingRole,
+  clearPendingSignUp,
+  readOnboardingRole,
+} from "@/lib/onboarding-signup-state";
+import { toLanguagePreference } from "@/lib/joballa/names";
+import { cn } from "@/lib/utils";
+
+export type AuthGoogleSignInButtonProps = {
+  mode: "signup" | "signin";
+  disabled?: boolean;
+  onError?: (message: string) => void;
+  className?: string;
+  callbackUrl?: string | null;
+};
+
+export function AuthGoogleSignInButton({
+  mode,
+  disabled = false,
+  onError,
+  className,
+  callbackUrl = null,
+}: AuthGoogleSignInButtonProps) {
+  const t = useTranslations("auth.google");
+  const locale = useLocale();
+  const router = useRouter();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [buttonWidth, setButtonWidth] = useState(320);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const update = () => setButtonWidth(Math.max(240, Math.floor(el.offsetWidth)));
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleError = useCallback(
+    (message: string) => {
+      onError?.(message);
+    },
+    [onError],
+  );
+
+  const handleSuccess = useCallback(
+    async (response: CredentialResponse) => {
+      const idToken = response.credential;
+      if (!idToken || disabled || busy) return;
+
+      setBusy(true);
+      try {
+        if (mode === "signup") {
+          const role = readOnboardingRole();
+          if (!role) {
+            router.push("/sign-up/role");
+            return;
+          }
+
+          const tokens = await postAuthGoogle({
+            idToken,
+            mode: "signup",
+            role: role.toLowerCase() as "worker" | "employer",
+            preferredLanguage: toLanguagePreference(locale),
+          });
+
+          clearOnboardingRole();
+          clearPendingSignUp();
+          await establishSessionAndNavigate(router, tokens, { callbackUrl });
+          return;
+        }
+
+        const tokens = await postAuthGoogle({ idToken, mode: "signin" });
+        await establishSessionAndNavigate(router, tokens, { callbackUrl });
+      } catch (err) {
+        handleError(mapGoogleAuthError(err, (key) => t(`errors.${key}`)));
+      } finally {
+        setBusy(false);
+      }
+    },
+    [busy, callbackUrl, disabled, handleError, locale, mode, router, t],
+  );
+
+  if (!isGoogleSignInEnabled()) {
+    return null;
+  }
+
   return (
-    <button
-      type="button"
-      disabled
-      title={title}
-      className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-[color:var(--auth-border)] bg-[color:var(--auth-surface)] px-3 text-sm font-medium text-[color:var(--auth-fg)] opacity-90 shadow-[var(--auth-shadow-button)] disabled:cursor-not-allowed"
+    <div
+      ref={wrapperRef}
+      className={cn(
+        "flex w-full justify-center overflow-hidden",
+        (disabled || busy) && "pointer-events-none opacity-60",
+        className,
+      )}
+      aria-busy={busy}
     >
-      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
-        <path
-          fill="var(--figma-google-blue)"
-          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-        />
-        <path
-          fill="var(--figma-google-green)"
-          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-        />
-        <path
-          fill="var(--figma-google-yellow)"
-          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-        />
-        <path
-          fill="var(--figma-google-red)"
-          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-        />
-      </svg>
-      {label}
-    </button>
+      <GoogleLogin
+        onSuccess={(credential) => void handleSuccess(credential)}
+        onError={() => handleError(t("errors.cancelled"))}
+        text={mode === "signup" ? "signup_with" : "signin_with"}
+        shape="rectangular"
+        theme="outline"
+        size="large"
+        width={buttonWidth}
+      />
+    </div>
   );
 }
+

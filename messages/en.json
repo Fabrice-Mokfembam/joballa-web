@@ -421,6 +421,16 @@
     "layout": {
       "backHome": "Back to home"
     },
+    "google": {
+      "errors": {
+        "noAccount": "No Joballa account for this Google account. Please sign up first.",
+        "conflict": "This email is already registered. Sign in with your password or use Google on the sign-in page.",
+        "invalid": "Google sign-in could not be completed. Please try again.",
+        "suspended": "This account is suspended. Contact support.",
+        "generic": "Google Sign-In failed. Please try again.",
+        "cancelled": "Google Sign-In was cancelled or failed."
+      }
+    },
     "mobile": {
       "back": "Back"
     },
@@ -1119,6 +1129,8 @@
       "sidebarHint": "Applying takes a few minutes — review your profile and add an optional note to the hiring team.",
       "applyNow": "Apply Now",
       "applied": "Applied",
+      "ownJob": "Your job",
+      "ownJobApplyBlocked": "You cannot apply to a job you posted.",
       "saveJob": "Save Job",
       "savedJob": "Saved",
       "expand": "Open full job details",
@@ -1649,7 +1661,8 @@
           "duration": "Duration",
           "applicants": "Applications"
         },
-        "emptyDescription": "No description provided for this role."
+        "emptyDescription": "No description provided for this role.",
+        "submittedProfileTitle": "Your submitted profile"
       }
     },
     "earnings": {
@@ -2229,6 +2242,9 @@
         "listedFor": "for {name}"
       },
       "profile": {
+        "applicationProfileTitle": "Application profile",
+        "liveProfileTitle": "Current profile",
+        "downloadFailed": "Could not download this file. Try again.",
         "summaryTitle": "PROFESSIONAL SUMMARY",
         "skillsTitle": "SKILLS",
         "workTitle": "WORK HISTORY",

@@ -5,6 +5,10 @@ type RawWorkerJob = WorkerJobListItem & {
   payCurrency?: string;
   ownerName?: string;
   ownerVerified?: boolean;
+  ownerId?: string;
+  postedByWorkerId?: string;
+  isOwnJob?: boolean;
+  viewerIsOwner?: boolean;
   employmentType?: string;
 };
 
@@ -52,6 +56,8 @@ export function normalizeWorkerJobListItem(raw: RawWorkerJob): WorkerJobListItem
         ? String(input.companyName)
         : employer?.companyName ?? (ownerName || undefined),
     employer,
+    isOwnJob: !!(input.isOwnJob ?? input.viewerIsOwner),
+    ownerId: input.ownerId != null ? String(input.ownerId) : input.postedByWorkerId != null ? String(input.postedByWorkerId) : undefined,
   };
 }
 

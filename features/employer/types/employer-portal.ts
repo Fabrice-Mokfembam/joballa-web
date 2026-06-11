@@ -103,7 +103,7 @@ export type EmployerJobDetail = EmployerJobListItem & {
 };
 
 export type CreateEmployerJobBody = {
-  departmentId: string;
+  departmentId?: string;
   title: string;
   workMode: string;
   country: string;
@@ -238,11 +238,27 @@ export type EmployerApplicantListItem = {
   [key: string]: unknown;
 };
 
+export type LiveWorkerProfile = {
+  fullName?: string | null;
+  professionalTitle?: string | null;
+  shortBio?: string | null;
+  city?: string | null;
+  region?: string | null;
+  country?: string | null;
+  skills?: string[];
+  verificationStatus?: string;
+  photoUrl?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  [key: string]: unknown;
+};
+
 export type EmployerApplicantDetail = Omit<EmployerApplicantListItem, "profileSnapshot" | "submittedProfile"> & {
   coverNote?: string | null;
   employerNotes?: string | null;
   attachedDocuments?: ApplicantDocumentEntry[];
   profileSnapshot?: ApplicantProfileSnapshot;
+  liveProfile?: LiveWorkerProfile | null;
   job?: EmployerJobDetail;
   submittedProfile?: ApplicantProfileSnapshot | Record<string, unknown>;
   matchPercent?: number;
@@ -393,7 +409,7 @@ export type InformalJobRequestListItem = {
 };
 
 export type CreateInformalJobRequest = {
-  departmentId: string;
+  departmentId?: string;
   departmentCategory:
     | "education"
     | "domestic"

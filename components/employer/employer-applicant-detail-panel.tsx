@@ -11,7 +11,12 @@ import {
   usePatchEmployerApplicantNotes,
   usePatchEmployerApplicantStatus,
 } from "@/features/employer/hooks";
-import { parseApplicantDetailProfile, type ParsedApplicantProfile } from "@/features/employer/lib/applicant-profile";
+import {
+  parseApplicantDetailProfile,
+  parseLiveWorkerProfile,
+  type ParsedApplicantProfile,
+} from "@/features/employer/lib/applicant-profile";
+import { toast } from "@/lib/toast";
 import { employerJobDurationLabel, employerJobStartDateLabel } from "@/features/employer/lib/employer-job-fields";
 import {
   EmployerJobRequiredSkillsBlock,
@@ -35,7 +40,15 @@ function SectionLabel({ children, className }: { children: React.ReactNode; clas
   return <h3 className={cn(portalSectionLabelClass, className)}>{children}</h3>;
 }
 
-function DocumentFileRow({ doc }: { doc: ParsedApplicantProfile["documents"][number] }) {
+function DocumentFileRow({
+  doc,
+  allowDownload = true,
+}: {
+  doc: ParsedApplicantProfile["documents"][number];
+  allowDownload?: boolean;
+}) {
+  const t = useTranslations("employer.applicantDetail");
+  const [downloading, setDownloading] = useState(false);
   const typeLabel = doc.type.toUpperCase().slice(0, 3);
   const isPdf = typeLabel === "PDF";
 
@@ -57,17 +70,35 @@ function DocumentFileRow({ doc }: { doc: ParsedApplicantProfile["documents"][num
     </>
   );
 
-  if (doc.url) {
+  async function handleDownload() {
+    const path = doc.downloadUrl ?? doc.url;
+    if (!path) return;
+    if (doc.downloadUrl) {
+      setDownloading(true);
+      try {
+        const { downloadAuthenticatedFile } = await import("@/lib/http/download-authenticated-file");
+        await downloadAuthenticatedFile(doc.downloadUrl, doc.name);
+      } catch {
+        toast.error(t("profile.downloadFailed"));
+      } finally {
+        setDownloading(false);
+      }
+      return;
+    }
+    window.open(path, "_blank", "noopener,noreferrer");
+  }
+
+  if (allowDownload && (doc.downloadUrl || doc.url)) {
     return (
       <li>
-        <a
-          href={doc.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 transition hover:opacity-80"
+        <button
+          type="button"
+          disabled={downloading}
+          onClick={() => void handleDownload()}
+          className="flex w-full items-center gap-3 text-left transition hover:opacity-80 disabled:opacity-60"
         >
           {content}
-        </a>
+        </button>
       </li>
     );
   }
@@ -130,10 +161,12 @@ function ApplicantProfilePageCard({
   profile,
   coverNote,
   t,
+  allowDocumentDownload = true,
 }: {
   profile: ParsedApplicantProfile;
   coverNote?: string | null;
   t: ReturnType<typeof useTranslations>;
+  allowDocumentDownload?: boolean;
 }) {
   const speaksLine = profile.languages
     ? profile.languages.startsWith("Speaks")
@@ -250,7 +283,11 @@ function ApplicantProfilePageCard({
         {profile.documents.length > 0 ? (
           <ul className="flex flex-col gap-8">
             {profile.documents.map((doc) => (
-              <DocumentFileRow key={`${doc.url ?? ""}:${doc.name}`} doc={doc} />
+              <DocumentFileRow
+                key={`${doc.url ?? ""}:${doc.name}`}
+                doc={doc}
+                allowDownload={allowDocumentDownload}
+              />
             ))}
           </ul>
         ) : (
@@ -274,14 +311,23 @@ export function ProfileSections({
   t,
   variant = "panel",
   coverNote,
+  allowDocumentDownload = true,
 }: {
   profile: ParsedApplicantProfile;
   t: ReturnType<typeof useTranslations>;
   variant?: "panel" | "page";
   coverNote?: string | null;
+  allowDocumentDownload?: boolean;
 }) {
   if (variant === "page") {
-    return <ApplicantProfilePageCard profile={profile} coverNote={coverNote} t={t} />;
+    return (
+      <ApplicantProfilePageCard
+        profile={profile}
+        coverNote={coverNote}
+        t={t}
+        allowDocumentDownload={allowDocumentDownload}
+      />
+    );
   }
 
   return (
@@ -795,6 +841,7 @@ export function EmployerApplicantDetailPanel({
 
   const status = String(applicant.data?.status ?? "pending") as EmployerApplicantStatus;
   const profile = parseApplicantDetailProfile(applicant.data);
+  const liveProfile = status === "hired" ? parseLiveWorkerProfile(applicant.data) : null;
   const employerNotes = typeof applicant.data?.employerNotes === "string" ? applicant.data.employerNotes : null;
   const coverNote =
     typeof applicant.data?.coverNote === "string"
@@ -958,8 +1005,21 @@ export function EmployerApplicantDetailPanel({
                 ) : null}
               </div>
 
-              <section className={cn(portalDetailSectionClass, "p-6 xl:p-8")}>
-                <ProfileSections profile={profile} t={t} variant="page" coverNote={coverNote} />
+              <section className={cn(portalDetailSectionClass, "flex flex-col gap-8 p-6 xl:p-8")}>
+                <div>
+                  <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--joballa-muted)]">
+                    {t("profile.applicationProfileTitle")}
+                  </h3>
+                  <ProfileSections profile={profile} t={t} variant="page" coverNote={coverNote} />
+                </div>
+                {liveProfile ? (
+                  <div className="border-t border-[var(--joballa-border)] pt-8">
+                    <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--joballa-muted)]">
+                      {t("profile.liveProfileTitle")}
+                    </h3>
+                    <ProfileSections profile={liveProfile} t={t} variant="page" />
+                  </div>
+                ) : null}
               </section>
             </div>
 

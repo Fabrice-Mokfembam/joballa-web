@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { AuthSessionListener } from "@/components/auth/auth-session-listener";
 import { AuthTokenHydrator } from "@/components/auth/auth-token-hydrator";
+import { GoogleAuthProvider } from "@/components/providers/google-oauth-provider";
 import { JoballaThemeProvider } from "@/components/providers/joballa-theme-provider";
 import { AppToaster } from "@/components/ui/app-toaster";
 
@@ -27,10 +28,12 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <JoballaThemeProvider>
-        <AuthTokenHydrator />
-        <AuthSessionListener />
-        {children}
-        <AppToaster />
+        <GoogleAuthProvider>
+          <AuthTokenHydrator />
+          <AuthSessionListener />
+          {children}
+          <AppToaster />
+        </GoogleAuthProvider>
       </JoballaThemeProvider>
     </QueryClientProvider>
   );

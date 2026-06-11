@@ -1,10 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { EmployerAsyncState } from "@/components/employer/employer-async-state";
-import { useCreateEmployerJob, useEmployerCompany, useEmployerDepartmentOptions, useEmployerJob, usePatchEmployerJob } from "@/features/employer/hooks";
+import {
+  useCreateEmployerJob,
+  useEmployerCompany,
+  useEmployerDepartmentOptions,
+  useEmployerJob,
+  usePatchEmployerJob,
+  usePublishEmployerJob,
+  useSaveEmployerJobDraft,
+} from "@/features/employer/hooks";
+import { normalizeEmployerJobStatusFromApi } from "@/features/employer/lib/employer-job-status";
 import {
   EMPTY_POST_JOB_DRAFT,
   formatPostJobStartPreview,
@@ -225,6 +234,9 @@ export function EmployerPostJobFlow({ jobId }: { jobId?: string }) {
         <EmployerPostJobFlowEditor
           key={jobId ?? "new"}
           jobId={jobId}
+          editJobStatus={
+            isEdit && jobQuery.data ? normalizeEmployerJobStatusFromApi(String(jobQuery.data.status)) : undefined
+          }
           initialDraft={
             isEdit && jobQuery.data
               ? normalizePostJobDraft(mapJobDetailToDraft(jobQuery.data))
@@ -238,16 +250,21 @@ export function EmployerPostJobFlow({ jobId }: { jobId?: string }) {
 
 function EmployerPostJobFlowEditor({
   jobId,
+  editJobStatus,
   initialDraft,
 }: {
   jobId?: string;
+  editJobStatus?: string;
   initialDraft: PostJobDraft;
 }) {
   const isEdit = Boolean(jobId);
+  const isDraftJob = editJobStatus === "draft";
   const t = useTranslations("employer.postJobFlow");
   const router = useRouter();
   const createJob = useCreateEmployerJob();
   const patchJob = usePatchEmployerJob(jobId ?? "");
+  const publishJob = usePublishEmployerJob(jobId ?? "");
+  const saveDraft = useSaveEmployerJobDraft(jobId ?? "");
   const companyQuery = useEmployerCompany();
   const { departments: catalogDepartments, isLoading: departmentsLoading } = useEmployerDepartmentOptions();
   const [step, setStep] = useState<Step>("basics");
@@ -271,14 +288,6 @@ function EmployerPostJobFlowEditor({
     [catalogDepartments, initialDraft.category, initialDraft.categoryCustom, initialDraft.department],
   );
 
-  useEffect(() => {
-    if (!draft.category) return;
-    const resolved = syncDepartmentForCategory(draft.category, departments);
-    if (resolved && resolved !== draft.department) {
-      setDraft((current) => ({ ...current, department: resolved }));
-    }
-  }, [departments, draft.category, draft.department]);
-
   const categoryLabel = displayCategoryLabel(draft.category, draft.categoryCustom, (key) => t(key));
   const startDatePreview = formatPostJobStartPreview(draft);
 
@@ -295,11 +304,11 @@ function EmployerPostJobFlowEditor({
       return;
     }
     const payload = { ...draft, requirements, responsibilities };
-    if (departmentsLoading) {
+    if (!asDraft && departmentsLoading) {
       toast.error(t("errors.departmentsLoading"));
       return;
     }
-    const validationError = validatePostJobDraft(payload, departments);
+    const validationError = validatePostJobDraft(payload, departments, { asDraft });
     if (validationError === "CATEGORY_REQUIRED") {
       toast.error(t("errors.category"));
       setStep("basics");
@@ -333,6 +342,25 @@ function EmployerPostJobFlowEditor({
       return;
     }
     if (isEdit && jobId) {
+      if (asDraft) {
+        saveDraft.mutate(body, {
+          onSuccess: () => {
+            router.push(`/employer/jobs?job=${encodeURIComponent(jobId)}&status=draft`);
+          },
+        });
+        return;
+      }
+      if (isDraftJob) {
+        publishJob.mutate(body, {
+          onSuccess: (data) => {
+            const params = new URLSearchParams();
+            params.set("job", jobId);
+            if (data.status === "under_review") params.set("status", "under_review");
+            router.push(`/employer/jobs?${params.toString()}`);
+          },
+        });
+        return;
+      }
       patchJob.mutate(body, {
         onSuccess: () => {
           router.push(`/employer/jobs?job=${encodeURIComponent(jobId)}`);
@@ -365,7 +393,8 @@ function EmployerPostJobFlowEditor({
     }));
   }
 
-  const isSaving = createJob.isPending || patchJob.isPending || departmentsLoading;
+  const isSaving =
+    createJob.isPending || patchJob.isPending || publishJob.isPending || saveDraft.isPending || departmentsLoading;
 
   return (
     <div className={portalPageShellClass}>
@@ -701,9 +730,15 @@ function EmployerPostJobFlowEditor({
                 onClick={() => submitJob(false)}
                 className={cn(buttonClassName("primary"), "h-11 w-full disabled:opacity-60")}
               >
-                {isSaving ? t("actions.submitting") : isEdit ? t("actions.saveChanges") : t("actions.submit")}
+                {isSaving
+                  ? t("actions.submitting")
+                  : isEdit
+                    ? isDraftJob
+                      ? t("actions.submit")
+                      : t("actions.saveChanges")
+                    : t("actions.submit")}
               </button>
-              {!isEdit ? (
+              {!isEdit || isDraftJob ? (
                 <button
                   type="button"
                   disabled={isSaving}

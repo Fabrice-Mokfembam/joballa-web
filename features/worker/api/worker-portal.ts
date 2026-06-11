@@ -80,6 +80,8 @@ export const patchWorkerOwnedJob = (jobId: string, body: Parameters<typeof live.
   withDemo(() => live.patchWorkerOwnedJob(jobId, body), () => demo.patchWorkerOwnedJob(jobId, body));
 export const patchWorkerOwnedJobStatus = (jobId: string, status: string) =>
   withDemo(() => live.patchWorkerOwnedJobStatus(jobId, status), () => demo.patchWorkerOwnedJobStatus(jobId, status));
+export const publishWorkerPostedJob = (jobId: string, body?: Parameters<typeof live.publishWorkerPostedJob>[1]) =>
+  withDemo(() => live.publishWorkerPostedJob(jobId, body), () => demo.publishWorkerPostedJob(jobId, body));
 export const deleteWorkerOwnedJob = (jobId: string) =>
   withDemo(() => live.deleteWorkerOwnedJob(jobId), () => demo.deleteWorkerOwnedJob(jobId));
 export const getWorkerIncomingApplications = (params?: Parameters<typeof live.getWorkerIncomingApplications>[0]) =>

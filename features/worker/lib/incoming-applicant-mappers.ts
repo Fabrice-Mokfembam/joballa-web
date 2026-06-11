@@ -102,6 +102,7 @@ export function workerIncomingToApplicantDetail(
   return {
     ...base,
     profileSnapshot: snapshotFromItem(item) as EmployerApplicantDetail["profileSnapshot"],
+    liveProfile: (item as { liveProfile?: EmployerApplicantDetail["liveProfile"] }).liveProfile ?? null,
     job: jobDetail as EmployerApplicantDetail["job"],
     coverNote,
   };

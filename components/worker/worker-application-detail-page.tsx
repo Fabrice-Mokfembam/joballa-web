@@ -3,13 +3,14 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
+import { ProfileSections } from "@/components/employer/employer-applicant-detail-panel";
 import { useWorkerApplication } from "@/features/worker/hooks";
 import { workerApplicationRowFromApi } from "@/features/worker/lib/application-mappers";
-import { workerJobCardFromApi } from "@/features/worker/lib/job-mappers";
+import { parseSubmittedProfile } from "@/features/employer/lib/applicant-profile";
 import { IconChevronLeft, IconMoreHorizontal } from "@/components/worker/icons";
-import { WorkerProfilePublic } from "@/components/worker/worker-profile-public";
 import { WorkerApplicationsPageSkeleton } from "@/components/worker/worker-loading-skeletons";
 import { JoballaApiError } from "@/lib/joballa/request";
+import { portalDetailSectionClass } from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
 
 function fallbackList(value: unknown): string[] {
@@ -24,6 +25,7 @@ function cadenceLine(row: ReturnType<typeof workerApplicationRowFromApi>) {
 
 export function WorkerApplicationDetailPage({ applicationId }: { applicationId: string }) {
   const t = useTranslations("worker.applications");
+  const tProfile = useTranslations("employer.applicantDetail");
   const query = useWorkerApplication(applicationId);
 
   const row = useMemo(() => {
@@ -31,11 +33,18 @@ export function WorkerApplicationDetailPage({ applicationId }: { applicationId: 
     return workerApplicationRowFromApi(query.data);
   }, [query.data]);
 
-  const job = useMemo(() => {
-    const apiJob = query.data?.job;
-    if (!apiJob) return null;
-    return workerJobCardFromApi(apiJob);
-  }, [query.data?.job]);
+  const profile = useMemo(() => {
+    const snapshot = query.data?.profileSnapshot;
+    if (!snapshot || typeof snapshot !== "object") {
+      return parseSubmittedProfile(undefined);
+    }
+    return parseSubmittedProfile(snapshot as Record<string, unknown>);
+  }, [query.data?.profileSnapshot]);
+
+  const coverNote = useMemo(() => {
+    const note = query.data?.jobSpecificNote ?? query.data?.coverNote;
+    return typeof note === "string" && note.trim() ? note.trim() : null;
+  }, [query.data?.coverNote, query.data?.jobSpecificNote]);
 
   if (query.isLoading) {
     return <WorkerApplicationsPageSkeleton />;
@@ -54,8 +63,6 @@ export function WorkerApplicationDetailPage({ applicationId }: { applicationId: 
     );
   }
 
-  const subtitleParts = [job?.subtitle, row.jobType, row.location].filter(Boolean);
-  const subtitle = subtitleParts[0] ?? "";
   const apiJob = query.data?.job;
   const description = (typeof apiJob?.description === "string" ? apiJob.description : "").trim();
   const requirements = fallbackList(apiJob?.requirements);
@@ -75,76 +82,72 @@ export function WorkerApplicationDetailPage({ applicationId }: { applicationId: 
     <div className="mx-auto flex w-full max-w-[1420px] min-w-0 flex-1 flex-col gap-8 bg-[var(--joballa-page-tint)] text-sm">
       <Link
         href="/worker/applications"
-        className="inline-flex w-fit items-center gap-2 text-2xl font-semibold text-[var(--joballa-muted)] hover:text-[var(--joballa-fg)]"
+        className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-[var(--joballa-muted)] hover:text-[var(--joballa-fg)]"
       >
-        <IconChevronLeft className="size-5" />
+        <IconChevronLeft className="size-4" />
         {t("detail.back")}
       </Link>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(340px,0.72fr)_minmax(0,1.62fr)] xl:items-start xl:gap-8">
         <div className="space-y-5">
-          <section className="rounded-[18px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-6 shadow-sm sm:p-8">
+          <section className="rounded-[18px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-5 shadow-sm sm:p-6">
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-3xl font-bold leading-tight text-[#0d7377] sm:text-4xl">{row.pay}</p>
-                <p className="mt-1 text-base font-bold leading-6 text-[var(--joballa-muted)] sm:text-lg">
+              <div className="min-w-0">
+                <p className="text-2xl font-semibold leading-8 text-[var(--joballa-primary)]">{row.pay}</p>
+                <p className="mt-1 text-sm font-semibold text-[var(--joballa-muted)]">
                   {[row.jobType, cadenceLine(row)].filter(Boolean).join(" · ")}
                 </p>
               </div>
               <button
                 type="button"
-                className="grid size-12 place-items-center rounded-[16px] bg-[var(--joballa-surface)] text-[var(--joballa-muted)] hover:bg-neutral-100 hover:text-[var(--joballa-fg)]"
+                className="grid size-8 shrink-0 place-items-center rounded-xl bg-[var(--joballa-surface)] text-[var(--joballa-muted)] hover:bg-neutral-100 hover:text-[var(--joballa-fg)]"
                 aria-label={t("detail.jobMenu")}
               >
-                <IconMoreHorizontal className="size-6" />
+                <IconMoreHorizontal className="size-4" />
               </button>
             </div>
 
-            <h2 className="mt-10 text-xl font-bold leading-7 text-[var(--joballa-fg)] sm:mt-12 sm:text-2xl sm:leading-8">{row.jobTitle}</h2>
-            <div className="mt-2.5 flex items-center gap-3">
-              <div
-                className={cn(
-                  "flex size-9 items-center justify-center rounded-full bg-black text-sm font-bold text-white",
-                )}
-              >
+            <h2 className="mt-6 text-lg font-semibold leading-7 text-[var(--joballa-fg)]">{row.jobTitle}</h2>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-fg)] text-[8px] font-bold text-[var(--joballa-on-primary)]">
                 {row.companyInitial}
               </div>
-              <span className="text-lg font-bold text-[var(--joballa-muted)]">{row.company}</span>
+              <span className="truncate text-xs font-semibold text-[var(--joballa-muted)]">{row.company}</span>
             </div>
 
-            <dl className="mt-12 space-y-3">
+            <dl className="mt-6 space-y-1.5">
               {stats.map((s) => (
-                <div key={s.label} className="grid grid-cols-[minmax(0,1fr)_minmax(7rem,auto)] items-start gap-3 text-base leading-6 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,auto)] sm:gap-4 sm:text-lg">
-                  <dt className="font-bold text-[var(--joballa-fg)]">{s.label}</dt>
-                  <dd className="text-right font-bold text-[var(--joballa-muted)]">{s.value}</dd>
+                <div key={s.label} className="flex items-center justify-between gap-4 text-sm font-semibold">
+                  <dt className="text-[var(--joballa-fg)]">{s.label}</dt>
+                  <dd className="text-right text-[var(--joballa-muted)]">{s.value}</dd>
                 </div>
               ))}
             </dl>
           </section>
 
-          <section className="rounded-[18px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-6 shadow-sm sm:p-8">
-            <h3 className="text-lg font-bold text-[var(--joballa-fg)] sm:text-xl">{t("detail.aboutTitle")}</h3>
+          <section className="rounded-[18px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-5 shadow-sm sm:p-6">
+            <h3 className="text-base font-semibold text-[var(--joballa-fg)]">{t("detail.aboutTitle")}</h3>
             {description ? (
-              <p className="mt-4 whitespace-pre-wrap text-base leading-7 text-[var(--joballa-muted)] sm:mt-5 sm:text-xl sm:leading-8">{description}</p>
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[var(--joballa-muted)]">{description}</p>
             ) : (
-              <p className="mt-4 text-base leading-7 text-[var(--joballa-muted)] sm:mt-5 sm:text-xl sm:leading-8">{t("detail.emptyDescription")}</p>
+              <p className="mt-3 text-sm leading-6 text-[var(--joballa-muted)]">{t("detail.emptyDescription")}</p>
             )}
             {displayRequirements.length > 0 ? (
               <>
-                <p className="mt-8 text-lg font-bold text-[var(--joballa-fg)] sm:mt-10 sm:text-xl">{t("detail.requirementsTitle")}</p>
-                <ul className="mt-4 list-disc space-y-1.5 pl-6 text-base leading-7 text-[var(--joballa-muted)] sm:mt-5 sm:pl-8 sm:text-xl sm:leading-8">
-                  {displayRequirements.map((line) => (
-                    <li key={line}>{line}</li>
+                <p className="mt-5 text-sm font-semibold text-[var(--joballa-fg)]">{t("detail.requirementsTitle")}</p>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
+                  {displayRequirements.map((line, index) => (
+                    <li key={`req-${index}`}>{line}</li>
                   ))}
                 </ul>
               </>
             ) : null}
             {displayWhatYouWillDo.length > 0 ? (
               <>
-                <p className="mt-8 text-lg font-bold text-[var(--joballa-fg)] sm:mt-10 sm:text-xl">{t("detail.whatYouDoTitle")}</p>
-                <ul className="mt-4 list-disc space-y-1.5 pl-6 text-base leading-7 text-[var(--joballa-muted)] sm:mt-5 sm:pl-8 sm:text-xl sm:leading-8">
-                  {displayWhatYouWillDo.map((line) => (
-                    <li key={line}>{line}</li>
+                <p className="mt-5 text-sm font-semibold text-[var(--joballa-fg)]">{t("detail.whatYouDoTitle")}</p>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
+                  {displayWhatYouWillDo.map((line, index) => (
+                    <li key={`resp-${index}`}>{line}</li>
                   ))}
                 </ul>
               </>
@@ -152,7 +155,16 @@ export function WorkerApplicationDetailPage({ applicationId }: { applicationId: 
           </section>
         </div>
 
-        <WorkerProfilePublic showEditProfileButton={false} className="xl:min-w-0" />
+        <section className={cn(portalDetailSectionClass, "min-h-0 p-6 sm:p-8")}>
+          <h3 className="mb-5 text-lg font-bold text-[var(--joballa-fg)] sm:text-xl">{t("detail.submittedProfileTitle")}</h3>
+          <ProfileSections
+            profile={profile}
+            t={tProfile}
+            variant="page"
+            coverNote={coverNote}
+            allowDocumentDownload={false}
+          />
+        </section>
       </div>
     </div>
   );

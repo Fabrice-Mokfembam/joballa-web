@@ -683,23 +683,26 @@ export async function uploadVerificationDoc(_file: File): Promise<VerificationDo
 export async function createWorkerJob(body: CreateWorkerJobBody): Promise<CreateWorkerJobResponse> {
   await demoDelay(120);
   const jobId = `demo-worker-job-${state.ownedJobs.length + 1}`;
-  const formData = body.formData ?? {};
-  const title = String(formData.title ?? "Untitled job");
-  const asDraft = Boolean(formData.asDraft);
+  const title = String(body.title ?? "Untitled job");
+  const asDraft = Boolean(body.asDraft);
   state.ownedJobs.unshift({
     jobId,
-    department: { id: body.departmentId, name: body.departmentId, category: body.departmentCategory },
+    department: {
+      id: body.departmentId ?? "other",
+      name: body.departmentId ?? "Department",
+      category: "other",
+    },
     title,
-    location: [formData.neighbourhood, formData.city, formData.region].filter(Boolean).join(", "),
-    jobType: String(formData.employmentType ?? "full_time"),
-    salary: `${formData.payAmount} ${String(formData.payCurrency ?? "XAF")}/${String(formData.payStructure ?? "monthly")}`,
+    location: [body.neighbourhood, body.city, body.region].filter(Boolean).join(", "),
+    jobType: String(body.employmentType ?? "full_time"),
+    salary: `${body.payAmount} ${String(body.payCurrency ?? "XAF")}/${String(body.payStructure ?? "monthly")}`,
     status: asDraft ? "draft" : "under_review",
     applicantsCount: 0,
     postedAt: new Date().toISOString(),
   });
   return {
-    id: jobId,
-    status: asDraft ? "submitted" : "under_review",
+    jobId,
+    status: asDraft ? "draft" : "under_review",
     message: asDraft ? "Job saved as draft (demo)." : "Job submitted for review (demo).",
   };
 }
@@ -726,7 +729,7 @@ export async function patchWorkerOwnedJob(jobId: string, body: UpdateWorkerJobBo
   await demoDelay(80);
   const job = state.ownedJobs.find((j) => j.jobId === jobId);
   if (!job) throw new Error("Job not found");
-  if (typeof body.formData?.title === "string") job.title = body.formData.title;
+  if (typeof body.title === "string") job.title = body.title;
   return getWorkerOwnedJob(jobId);
 }
 
@@ -736,6 +739,24 @@ export async function patchWorkerOwnedJobStatus(jobId: string, status: string): 
   if (!job) throw new Error("Job not found");
   job.status = status;
   return getWorkerOwnedJob(jobId);
+}
+
+export async function publishWorkerPostedJob(
+  jobId: string,
+  body?: UpdateWorkerJobBody,
+): Promise<CreateWorkerJobResponse> {
+  await demoDelay(120);
+  if (body && Object.keys(body).length > 0) {
+    await patchWorkerOwnedJob(jobId, body);
+  }
+  const job = state.ownedJobs.find((j) => j.jobId === jobId);
+  if (!job) throw new Error("Job not found");
+  job.status = "under_review";
+  return {
+    jobId,
+    status: "under_review",
+    message: "Job submitted for review. Joballa admin will review before it goes live.",
+  };
 }
 
 export async function deleteWorkerOwnedJob(jobId: string): Promise<void> {

@@ -18,6 +18,8 @@ import type {
   AuthSelectRoleBody,
   AuthTokensResponse,
   AuthVerifyBody,
+  GoogleAuthBody,
+  GoogleAuthResponse,
 } from "@/lib/types/auth";
 
 function apiRole(role: string) {
@@ -64,6 +66,20 @@ export async function postSelectRole(body: AuthSelectRoleBody): Promise<AuthMeRe
 
 export async function postLogin(body: AuthLoginBody): Promise<AuthTokensResponse> {
   const { data } = await joballaAxios.post<AuthTokensResponse>("/auth/login", body);
+  return data;
+}
+
+function encodeGoogleAuthBody(body: GoogleAuthBody) {
+  return {
+    idToken: body.idToken,
+    mode: body.mode,
+    ...(body.role ? { role: apiRole(body.role) } : {}),
+    ...(body.preferredLanguage ? { preferredLanguage: apiLanguage(body.preferredLanguage) } : {}),
+  };
+}
+
+export async function postAuthGoogle(body: GoogleAuthBody): Promise<GoogleAuthResponse> {
+  const { data } = await joballaAxios.post<GoogleAuthResponse>("/auth/google", encodeGoogleAuthBody(body));
   return data;
 }
 

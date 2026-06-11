@@ -1,7 +1,11 @@
 /**
  * Worker portal API types — `docs/FRONTEND_WORKER_PORTAL_API_GUIDE_MAY_2026.md`
  */
-import type { CreateInformalJobRequest, CreateInformalJobResponse } from "@/features/employer/types/employer-portal";
+import type {
+  CreateEmployerJobBody,
+  CreateEmployerJobResponse,
+  UpdateEmployerJobBody,
+} from "@/features/employer/types/employer-portal";
 import type {
   ApplicationStatus,
   AvailabilityStatus,
@@ -322,11 +326,12 @@ export type WorkerOwnedJobDetail = WorkerOwnedJobListItem & {
   [key: string]: unknown;
 };
 
-export type CreateWorkerJobBody = CreateInformalJobRequest;
+/** Same contract as `POST /employer/jobs` — see `POST /worker/posted-jobs`. */
+export type CreateWorkerJobBody = CreateEmployerJobBody;
 
-export type UpdateWorkerJobBody = Partial<CreateWorkerJobBody>;
+export type UpdateWorkerJobBody = UpdateEmployerJobBody;
 
-export type CreateWorkerJobResponse = CreateInformalJobResponse;
+export type CreateWorkerJobResponse = CreateEmployerJobResponse;
 
 export type WorkerIncomingApplicationListItem = {
   applicationId?: string;

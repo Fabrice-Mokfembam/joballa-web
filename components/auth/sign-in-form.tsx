@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Suspense, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -18,8 +19,12 @@ import {
   authSecondaryLinkClassName,
   authTitleClassName,
 } from "@/lib/auth-ui";
-import { AuthGoogleButton } from "@/components/auth/auth-google-button";
 import { AuthMobileHeader } from "@/components/auth/auth-mobile-header";
+
+const AuthGoogleSignInButton = dynamic(
+  () => import("@/components/auth/auth-google-button").then((mod) => mod.AuthGoogleSignInButton),
+  { ssr: false },
+);
 import { postLogin } from "@/features/auth/api/auth";
 import { establishSessionAndNavigate } from "@/lib/auth/establish-session";
 import { JoballaApiError } from "@/lib/joballa/request";
@@ -150,7 +155,12 @@ function SignInFormInner({ variant, showAfterResetHint }: SignInFormInnerProps) 
           <div className="h-px flex-1 bg-[color:var(--auth-divider)]" />
         </div>
 
-        <AuthGoogleButton label={t("google")} title={t("googleSoon")} />
+        <AuthGoogleSignInButton
+          mode="signin"
+          disabled={busy}
+          onError={setError}
+          callbackUrl={searchParams.get("callbackUrl")}
+        />
 
         <Link href={alternateSignInHref} className={cn(authOutlineButtonClassName, "text-center")}>
           {alternateSignInLabel}

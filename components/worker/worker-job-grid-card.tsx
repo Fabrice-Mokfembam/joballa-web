@@ -5,7 +5,7 @@ import { useRouter } from "@/lib/i18n/navigation";
 import { WorkerJobPostingCard } from "@/components/job-posting/worker-job-posting-card";
 import type { JobPostingCardMenuItem } from "@/components/job-posting/job-posting-card";
 import { useSaveWorkerJob, useUnsaveWorkerJob } from "@/features/worker/hooks";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 type Props = {
   job: WorkerJobCard;
@@ -43,19 +43,16 @@ export function WorkerJobGridCard({
   const router = useRouter();
   const saveJob = useSaveWorkerJob();
   const unsaveJob = useUnsaveWorkerJob();
-  const [saved, setSaved] = useState(() => !!(bookmarkFilled ?? job.isSaved));
-
-  useEffect(() => {
-    setSaved(!!(bookmarkFilled ?? job.isSaved));
-  }, [bookmarkFilled, job.isSaved]);
+  const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
+  const saved = savedOverride ?? !!(bookmarkFilled ?? job.isSaved);
 
   const toggleBookmark = useCallback(() => {
     const next = !saved;
-    setSaved(next);
+    setSavedOverride(next);
     if (next) {
-      saveJob.mutate(job.slug, { onError: () => setSaved(false) });
+      saveJob.mutate(job.slug, { onError: () => setSavedOverride(null) });
     } else {
-      unsaveJob.mutate(job.slug, { onError: () => setSaved(true) });
+      unsaveJob.mutate(job.slug, { onError: () => setSavedOverride(null) });
     }
   }, [job.slug, saveJob, saved, unsaveJob]);
 

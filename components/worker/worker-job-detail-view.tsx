@@ -13,6 +13,7 @@ import {
   useWorkerMe,
   useWorkerApplications,
   useWorkerJobShare,
+  useWorkerOwnedJobs,
 } from "@/features/worker/hooks";
 import { workerApplicationRowsFromApi } from "@/features/worker/lib/application-mappers";
 import { getVerificationStatus, isPendingStatus, isVerifiedStatus } from "@/features/worker/lib/verification";
@@ -136,6 +137,8 @@ export function WorkerJobDetailView({
   const hideJob = useHideWorkerJob();
   const reportJob = useReportWorkerJob();
   const shareQuery = useWorkerJobShare(jobId);
+  const ownedJobsQuery = useWorkerOwnedJobs({ page: 1, limit: 100 });
+  const meWorkerId = meQuery.data?.id;
 
   const { schedule, location } = useMemo(() => splitJobSubtitle(job.subtitle), [job.subtitle]);
   const isPanel = variant === "panel";
@@ -159,6 +162,16 @@ export function WorkerJobDetailView({
       ),
     [applicationsQuery.data?.items, job.slug, jobId],
   );
+  const isOwnPostedJob = useMemo(() => {
+    const detailRecord = detail as (WorkerJobDetail & { isOwnJob?: boolean; ownerId?: string }) | null | undefined;
+    if (detailRecord?.isOwnJob) return true;
+    if (meWorkerId && detailRecord?.ownerId && String(detailRecord.ownerId) === String(meWorkerId)) {
+      return true;
+    }
+    return (ownedJobsQuery.data?.items ?? []).some(
+      (owned) => owned.jobId === jobId || owned.assignedJobId === jobId,
+    );
+  }, [detail, jobId, meWorkerId, ownedJobsQuery.data?.items]);
 
   const metaRows = useMemo(() => {
     const ext = detail as WorkerJobDetail & {
@@ -192,7 +205,7 @@ export function WorkerJobDetailView({
       return;
     }
     if (!verificationReady) return;
-    if (alreadyApplied) {
+    if (alreadyApplied || isOwnPostedJob) {
       setApplyOpen(false);
       setVerifyOpen(false);
       return;
@@ -204,13 +217,17 @@ export function WorkerJobDetailView({
     }
     setApplyOpen(false);
     setVerifyOpen(true);
-  }, [alreadyApplied, searchParams, verificationReady, verificationStatus]);
+  }, [alreadyApplied, isOwnPostedJob, searchParams, verificationReady, verificationStatus]);
 
   useEffect(() => {
     setSaved(isSavedProp);
   }, [isSavedProp]);
 
   const openApply = useCallback(() => {
+    if (isOwnPostedJob) {
+      toast.error(t("ownJobApplyBlocked"));
+      return;
+    }
     if (!isVerifiedStatus(verificationStatus)) {
       setVerifyOpen(true);
       return;
@@ -222,7 +239,7 @@ export function WorkerJobDetailView({
     } else {
       router.replace(`${pathname}?apply=1`);
     }
-  }, [alreadyApplied, job.slug, pathname, router, variant, verificationStatus]);
+  }, [alreadyApplied, isOwnPostedJob, job.slug, pathname, router, t, variant, verificationStatus]);
 
   const closeApply = useCallback(() => {
     setApplyOpen(false);
@@ -353,15 +370,15 @@ export function WorkerJobDetailView({
             <button
               type="button"
               onClick={openApply}
-              disabled={alreadyApplied}
+              disabled={alreadyApplied || isOwnPostedJob}
               className={cn(
                 "flex h-12 items-center justify-center rounded-[12px] px-4 text-sm font-semibold shadow-[0_1px_1px_rgba(0,0,0,0.1)] transition",
-                alreadyApplied
+                alreadyApplied || isOwnPostedJob
                   ? "cursor-not-allowed bg-[var(--joballa-primary)]/45 text-white/85"
                   : "bg-[var(--joballa-primary)] text-white hover:opacity-[0.96]",
               )}
             >
-              {alreadyApplied ? t("applied") : t("applyNow")}
+              {alreadyApplied ? t("applied") : isOwnPostedJob ? t("ownJob") : t("applyNow")}
             </button>
             <button
               type="button"

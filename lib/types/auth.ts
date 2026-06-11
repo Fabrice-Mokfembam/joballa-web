@@ -97,3 +97,14 @@ export type AuthMessageResponse = {
   message: string;
   identifier?: string;
 };
+
+export type GoogleAuthBody = {
+  idToken: string;
+  mode: "signup" | "signin";
+  role?: "worker" | "employer" | "WORKER" | "EMPLOYER";
+  preferredLanguage?: Language | "eng" | "fre";
+};
+
+export type GoogleAuthResponse = AuthTokensResponse & {
+  isNewUser: boolean;
+};

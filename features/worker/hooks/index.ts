@@ -55,6 +55,7 @@ export {
   useCreateWorkerJob,
   usePatchWorkerOwnedJob,
   usePatchWorkerOwnedJobStatus,
+  usePublishWorkerPostedJob,
   useDeleteWorkerOwnedJob,
   useWorkerIncomingApplications,
   useWorkerIncomingApplication,

@@ -140,9 +140,12 @@ function mapDocumentRow(item: unknown): ParsedApplicantProfile["documents"][numb
   const name = String(row.name ?? row.fileName ?? "Document");
   const ext = name.split(".").pop()?.toUpperCase() ?? "FILE";
   const size = formatFileSize(row.size ?? row.fileSize);
-  const url = typeof row.url === "string" ? row.url : typeof row.fileUrl === "string" ? row.fileUrl : undefined;
+  const downloadUrl = typeof row.downloadUrl === "string" ? row.downloadUrl : undefined;
+  const url =
+    downloadUrl ??
+    (typeof row.url === "string" ? row.url : typeof row.fileUrl === "string" ? row.fileUrl : undefined);
 
-  return { name, type: String(row.type ?? ext), size, url };
+  return { name, type: String(row.type ?? ext), size, url, downloadUrl };
 }
 
 function mergeDocumentRows(...groups: unknown[][]): ParsedApplicantProfile["documents"] {
@@ -320,7 +323,7 @@ export type ParsedApplicantProfile = {
   highlightedSkills: string[];
   workHistory: { company: string; role: string; description: string; period: string; location: string }[];
   education: { institution: string; degree: string; field: string; period: string; description: string }[];
-  documents: { name: string; type: string; size?: string; url?: string }[];
+  documents: { name: string; type: string; size?: string; url?: string; downloadUrl?: string }[];
   avatarUrl: string | null;
   verified: boolean;
 };
@@ -465,4 +468,10 @@ export function parseApplicantDetailProfile(data: EmployerApplicantDetail | unde
   );
 
   return parsed;
+}
+
+export function parseLiveWorkerProfile(data: EmployerApplicantDetail | undefined): ParsedApplicantProfile | null {
+  const raw = (data as { liveProfile?: Record<string, unknown> | null } | undefined)?.liveProfile;
+  if (!raw || typeof raw !== "object") return null;
+  return parseSubmittedProfile(raw);
 }

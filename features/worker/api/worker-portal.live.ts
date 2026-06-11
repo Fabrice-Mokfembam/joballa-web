@@ -85,6 +85,8 @@ import type {
 
 const WORKER = "/worker";
 const JOBS = `${WORKER}/jobs`;
+const POSTED_JOBS = `${WORKER}/posted-jobs`;
+const WORKER_APPLICANTS = `${WORKER}/applicants`;
 const APPLICATIONS = `${WORKER}/applications`;
 const SAVED = `${WORKER}/saved-jobs`;
 const EARNINGS = `${WORKER}/earnings`;
@@ -351,7 +353,7 @@ export async function uploadVerificationDoc(file: File): Promise<VerificationDoc
 // —— Worker-owned jobs ——
 
 export async function createWorkerJob(body: CreateWorkerJobBody): Promise<CreateWorkerJobResponse> {
-  const { data } = await joballaAxios.post<CreateWorkerJobResponse>(`${WORKER}/informal-requests`, body);
+  const { data } = await joballaAxios.post<CreateWorkerJobResponse>(POSTED_JOBS, body);
   return data;
 }
 
@@ -420,7 +422,7 @@ export async function getWorkerOwnedJobs(params?: {
   page?: number;
   limit?: number;
 }): Promise<Paginated<WorkerOwnedJobListItem>> {
-  const { data } = await joballaAxios.get(`${WORKER}/informal-requests`, {
+  const { data } = await joballaAxios.get(POSTED_JOBS, {
     params: clampListParams(params),
   });
   const page = normalizePaginated<unknown>(data);
@@ -431,22 +433,30 @@ export async function getWorkerOwnedJobs(params?: {
 }
 
 export async function getWorkerOwnedJob(jobId: string): Promise<WorkerOwnedJobDetail> {
-  const { data } = await joballaAxios.get<WorkerOwnedJobDetail>(`${WORKER}/jobs/${jobId}`);
+  const { data } = await joballaAxios.get<WorkerOwnedJobDetail>(`${POSTED_JOBS}/${jobId}`);
   return data;
 }
 
 export async function patchWorkerOwnedJob(jobId: string, body: UpdateWorkerJobBody): Promise<WorkerOwnedJobDetail> {
-  const { data } = await joballaAxios.patch<WorkerOwnedJobDetail>(`${WORKER}/jobs/${jobId}`, body);
+  const { data } = await joballaAxios.patch<WorkerOwnedJobDetail>(`${POSTED_JOBS}/${jobId}`, body);
   return data;
 }
 
 export async function patchWorkerOwnedJobStatus(jobId: string, status: string): Promise<WorkerOwnedJobDetail> {
-  const { data } = await joballaAxios.patch<WorkerOwnedJobDetail>(`${WORKER}/jobs/${jobId}/status`, { status });
+  const { data } = await joballaAxios.patch<WorkerOwnedJobDetail>(`${POSTED_JOBS}/${jobId}/status`, { status });
+  return data;
+}
+
+export async function publishWorkerPostedJob(
+  jobId: string,
+  body?: UpdateWorkerJobBody,
+): Promise<CreateWorkerJobResponse> {
+  const { data } = await joballaAxios.post<CreateWorkerJobResponse>(`${POSTED_JOBS}/${jobId}/publish`, body ?? {});
   return data;
 }
 
 export async function deleteWorkerOwnedJob(jobId: string): Promise<void> {
-  await joballaAxios.delete(`${WORKER}/jobs/${jobId}`);
+  await joballaAxios.delete(`${POSTED_JOBS}/${jobId}`);
 }
 
 function listQueryParams(params?: Record<string, unknown>) {
@@ -467,7 +477,7 @@ export async function getWorkerIncomingApplications(params?: {
   page?: number;
   limit?: number;
 }): Promise<Paginated<WorkerIncomingApplicationListItem>> {
-  const { data } = await joballaAxios.get(`${WORKER}/jobs/applications`, {
+  const { data } = await joballaAxios.get(WORKER_APPLICANTS, {
     params: listQueryParams(params),
   });
   const page = normalizePaginated<unknown>(data);
@@ -482,7 +492,7 @@ export async function getWorkerIncomingApplications(params?: {
 export async function getWorkerIncomingApplication(
   applicationId: string,
 ): Promise<WorkerIncomingApplicationDetail> {
-  const { data } = await joballaAxios.get(`${WORKER}/jobs/applications/${applicationId}`);
+  const { data } = await joballaAxios.get(`${WORKER_APPLICANTS}/${applicationId}`);
   return normalizeWorkerIncomingApplicationDetail(data);
 }
 

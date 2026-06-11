@@ -92,6 +92,7 @@ export function normalizeEmployerApplicantDetail(raw: EmployerApplicantDetail): 
         ? (raw as { jobSpecificNote?: string | null }).jobSpecificNote
         : null),
     attachedDocuments: raw.attachedDocuments,
+    liveProfile: (raw as { liveProfile?: EmployerApplicantDetail["liveProfile"] }).liveProfile ?? null,
     job: raw.job
       ? normalizeEmployerJobDetail(raw.job as Parameters<typeof normalizeEmployerJobDetail>[0])
       : undefined,

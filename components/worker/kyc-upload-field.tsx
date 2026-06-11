@@ -1,7 +1,7 @@
 "use client";
 
 import { FileText } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 function isImageFile(file: File) {
@@ -22,17 +22,15 @@ type KycUploadFieldProps = {
 };
 
 export function KycUploadField({ label, file, onFileChange, accept, capture, className }: KycUploadFieldProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const previewUrl = useMemo(() => {
+    if (!file || !isImageFile(file)) return null;
+    return URL.createObjectURL(file);
+  }, [file]);
 
   useEffect(() => {
-    if (!file || !isImageFile(file)) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   return (
     <label

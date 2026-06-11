@@ -63,7 +63,7 @@ function EmployerJobsViewInner() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  useEffect(() => {
+  const activeStatusFilter = useMemo((): StatusFilter => {
     if (
       statusParam === "active" ||
       statusParam === "under_review" ||
@@ -71,10 +71,12 @@ function EmployerJobsViewInner() {
       statusParam === "paused" ||
       statusParam === "closed"
     ) {
-      setStatusFilter(statusParam);
-      setFiltersOpen(true);
+      return statusParam;
     }
-  }, [statusParam]);
+    return statusFilter;
+  }, [statusFilter, statusParam]);
+
+  const filtersPanelOpen = filtersOpen || activeStatusFilter !== "";
 
   const me = useEmployerMe();
   const jobsQuery = useEmployerJobs({ page: 1, limit: 50 });
@@ -88,9 +90,9 @@ function EmployerJobsViewInner() {
   const filteredCards = useMemo(() => {
     const needle = searchDraft.trim().toLowerCase();
     return cards.filter(
-      (job) => jobMatchesSearch(job, needle) && statusMatchesFilter(job.status, statusFilter),
+      (job) => jobMatchesSearch(job, needle) && statusMatchesFilter(job.status, activeStatusFilter),
     );
-  }, [cards, searchDraft, statusFilter]);
+  }, [activeStatusFilter, cards, searchDraft]);
 
   const selectedInList = useMemo(() => {
     if (!jobParam) return null;
@@ -172,18 +174,18 @@ function EmployerJobsViewInner() {
             type="button"
             onClick={() => setFiltersOpen((o) => !o)}
             className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-3 text-sm font-medium text-[var(--joballa-fg)] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition hover:bg-[var(--joballa-row-hover)] min-[600px]:px-4"
-            aria-expanded={filtersOpen}
+            aria-expanded={filtersPanelOpen}
           >
             <IconFilter className="size-4" />
             <span className="hidden min-[600px]:inline">{t("filtersButton")}</span>
           </button>
         </div>
 
-        {filtersOpen ? (
+        {filtersPanelOpen ? (
           <div className="flex flex-wrap gap-1">
             {STATUS_FILTERS.map((value) => {
               const label = value === "" ? t("filters.all") : t(`filters.${value}`);
-              const active = statusFilter === value;
+              const active = activeStatusFilter === value;
               return (
                 <button
                   key={value || "all"}

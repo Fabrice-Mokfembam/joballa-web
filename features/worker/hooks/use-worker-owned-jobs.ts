@@ -10,6 +10,7 @@ import {
   getWorkerOwnedJobs,
   patchWorkerOwnedJob,
   patchWorkerOwnedJobStatus,
+  publishWorkerPostedJob,
 } from "@/features/worker/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
 import { workerKeys } from "@/features/worker/query-keys";
@@ -69,6 +70,19 @@ export function usePatchWorkerOwnedJobStatus(jobId: string) {
       void qc.invalidateQueries({ queryKey: workerKeys.ownedJobs() });
     },
     onError: (e) => toastApiError(e, "Could not update job status."),
+  });
+}
+
+export function usePublishWorkerPostedJob(jobId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body?: UpdateWorkerJobBody) => publishWorkerPostedJob(jobId, body),
+    onSuccess: (data) => {
+      if (data.message) toastSuccess(data.message);
+      void qc.invalidateQueries({ queryKey: workerKeys.ownedJob(jobId) });
+      void qc.invalidateQueries({ queryKey: workerKeys.ownedJobs() });
+    },
+    onError: (e) => toastApiError(e, "Could not submit job for review."),
   });
 }
 
