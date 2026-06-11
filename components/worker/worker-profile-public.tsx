@@ -45,6 +45,7 @@ export function WorkerProfilePublic({
   applicationNote,
   compactHeader = false,
   previewProfile,
+  forceMobileLayout = false,
 }: {
   className?: string;
   showEditProfileButton?: boolean;
@@ -52,6 +53,8 @@ export function WorkerProfilePublic({
   compactHeader?: boolean;
   /** When set (e.g. apply-flow preview), renders this profile instead of the live query. */
   previewProfile?: WorkerFullProfile;
+  /** Locks mobile layout regardless of viewport (e.g. landing page phone mockup). */
+  forceMobileLayout?: boolean;
 }) {
   const tProfile = useTranslations("worker.profile");
   const profileQuery = useWorkerFullProfile();
@@ -102,9 +105,31 @@ export function WorkerProfilePublic({
   const avatarUrl = profile.avatarUrl;
   const cvStatus = cvStatusQuery.data;
   const cvBusy = generateCv.isPending || downloadCv.isPending;
+  const compact = forceMobileLayout;
+  const sectionGridClass = (gap: "3" | "4" = "3", itemsStart = false) =>
+    cn(
+      "grid border-b border-[var(--joballa-border)]",
+      compact ? "py-4" : "py-6",
+      gap === "4" ? (compact ? "gap-3" : "gap-4") : compact ? "gap-2.5" : "gap-3",
+      !forceMobileLayout && "md:grid-cols-[minmax(10rem,28%)_1fr]",
+      !forceMobileLayout && itemsStart && "md:items-start",
+    );
+  const sectionLabelClass = compact
+    ? "text-[10px] font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]"
+    : "text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]";
+  const bodyBlockClass = compact ? "space-y-1 text-xs leading-5" : "space-y-1.5 text-sm leading-6";
+  const skillsTextClass = compact
+    ? "text-xs font-semibold leading-5 text-[var(--joballa-fg)]"
+    : "text-sm font-bold leading-6 text-[var(--joballa-fg)]";
+  const entryTitleClass = compact
+    ? "text-sm font-bold leading-5 text-[var(--joballa-primary)]"
+    : "text-base font-bold leading-6 text-[var(--joballa-primary)]";
+  const entryBodyClass = compact ? "text-xs leading-5" : "text-sm leading-6";
+  const contactTextClass = compact ? "text-xs leading-5" : "text-sm leading-6";
+  const contactIconClass = compact ? "size-3.5" : "size-4";
 
   return (
-    <div className={cn("flex flex-col items-center gap-4 sm:gap-5", className)}>
+    <div className={cn("flex flex-col items-center gap-4", !forceMobileLayout && "sm:gap-5", className)}>
       {showEditProfileButton ? (
         <div className="flex w-full max-w-[72rem] flex-wrap items-center justify-between gap-2 sm:gap-3">
           <Link
@@ -149,7 +174,14 @@ export function WorkerProfilePublic({
         </div>
       ) : null}
 
-      <article className={cn(portalCardClass(), "w-full px-5 py-6 text-sm leading-6 text-[var(--joballa-fg)] sm:px-8 sm:py-8 lg:px-14 lg:py-12")}>
+      <article
+        className={cn(
+          portalCardClass(),
+          "w-full text-[var(--joballa-fg)]",
+          compact ? "px-4 py-4 text-xs leading-5" : "px-5 py-6 text-sm leading-6",
+          !forceMobileLayout && "sm:px-8 sm:py-8 lg:px-14 lg:py-12",
+        )}
+      >
         {applicationNote?.trim() ? (
           <section className="mb-6 border-b border-[var(--joballa-border)] pb-6">
             <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.applicationNoteLabel")}</p>
@@ -157,23 +189,56 @@ export function WorkerProfilePublic({
           </section>
         ) : null}
 
-        <div className={cn("flex flex-col gap-5 border-b border-[var(--joballa-border)] pb-6 sm:flex-row sm:items-start sm:justify-between", compactHeader && "pb-4")}>
-          <div className="flex min-w-0 items-start gap-3 text-left sm:gap-4">
-            <div className="relative size-16 shrink-0 overflow-hidden rounded-full bg-[var(--joballa-avatar-bg)] min-[480px]:size-24 sm:size-28">
+        <div
+          className={cn(
+            "flex flex-col border-b border-[var(--joballa-border)]",
+            compact ? "gap-4 pb-4" : "gap-5 pb-6",
+            !forceMobileLayout && "sm:flex-row sm:items-start sm:justify-between",
+            compactHeader && "pb-4",
+          )}
+        >
+          <div className={cn("flex min-w-0 items-start gap-3 text-left", !forceMobileLayout && "sm:gap-4")}>
+            <div
+              className={cn(
+                "relative shrink-0 overflow-hidden rounded-full bg-[var(--joballa-avatar-bg)]",
+                compact ? "size-14" : "size-16",
+                !forceMobileLayout && "min-[480px]:size-24 sm:size-28",
+              )}
+            >
               {avatarUrl ? (
                 <Image src={avatarUrl} alt="" fill className="object-cover" sizes="112px" unoptimized />
               ) : (
-                <div className="flex size-full items-center justify-center text-xl font-bold text-[var(--joballa-muted)] min-[480px]:text-2xl">
+                <div
+                  className={cn(
+                    "flex size-full items-center justify-center text-xl font-bold text-[var(--joballa-muted)]",
+                    !forceMobileLayout && "min-[480px]:text-2xl",
+                  )}
+                >
                   {profileInitials(name || profile.professionalTitle || "?")}
                 </div>
               )}
             </div>
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2">
-                <h2 className="text-base font-bold leading-6 tracking-tight text-[var(--joballa-fg)] min-[480px]:text-xl sm:text-2xl">{name}</h2>
+              <div className={cn("flex flex-wrap items-center justify-start gap-1.5", !forceMobileLayout && "sm:gap-2")}>
+                <h2
+                  className={cn(
+                    compact
+                      ? "text-sm font-bold leading-5 tracking-tight text-[var(--joballa-fg)]"
+                      : "text-base font-bold leading-6 tracking-tight text-[var(--joballa-fg)]",
+                    !forceMobileLayout && "min-[480px]:text-xl sm:text-2xl",
+                  )}
+                >
+                  {name}
+                </h2>
                 {verified ? (
                   <span className="group relative inline-flex">
-                    <IconVerified className="size-4 shrink-0 text-[var(--joballa-primary)] min-[480px]:size-5" aria-label={tProfile("preview.verified")} />
+                    <IconVerified
+                      className={cn(
+                        compact ? "size-3.5 shrink-0 text-[var(--joballa-primary)]" : "size-4 shrink-0 text-[var(--joballa-primary)]",
+                        !compact && !forceMobileLayout && "min-[480px]:size-5",
+                      )}
+                      aria-label={tProfile("preview.verified")}
+                    />
                     <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-56 -translate-x-1/2 rounded-lg border border-[var(--joballa-border)] bg-[var(--joballa-dropdown-bg)] px-3 py-2 text-center text-xs font-medium text-[var(--joballa-fg)] shadow-[var(--joballa-shadow-elevated)] group-hover:block group-focus-within:block">
                       {tProfile("preview.verificationTooltip")}
                     </span>
@@ -194,11 +259,25 @@ export function WorkerProfilePublic({
                 )}
               </div>
               {profileHeadline(profile) ? (
-                <p className="mt-0.5 text-xs font-medium leading-5 text-[var(--joballa-fg-subtle)] min-[480px]:text-sm">{profileHeadline(profile)}</p>
+                <p
+                  className={cn(
+                    compact
+                      ? "mt-0.5 text-[11px] font-medium leading-4 text-[var(--joballa-fg-subtle)]"
+                      : "mt-0.5 text-xs font-medium leading-5 text-[var(--joballa-fg-subtle)]",
+                    !compact && !forceMobileLayout && "min-[480px]:text-sm",
+                  )}
+                >
+                  {profileHeadline(profile)}
+                </p>
               ) : null}
               <div className="mt-2 flex flex-wrap items-center justify-start gap-2">
                 {available ? (
-                  <span className="inline-flex min-h-6 items-center justify-center rounded-full bg-[var(--joballa-jade-3)] px-2.5 text-[11px] font-semibold leading-none text-[var(--joballa-primary)]">
+                  <span
+                    className={cn(
+                      "inline-flex items-center justify-center rounded-full bg-[var(--joballa-jade-3)] px-2 font-semibold leading-none text-[var(--joballa-primary)]",
+                      compact ? "min-h-5 text-[10px]" : "min-h-6 text-[11px] px-2.5",
+                    )}
+                  >
                     {tProfile("preview.availableForHire")}
                   </span>
                 ) : null}
@@ -214,22 +293,37 @@ export function WorkerProfilePublic({
               </div>
             </div>
           </div>
-          <div className="shrink-0 space-y-2 text-sm leading-6 text-[var(--joballa-fg-subtle)] sm:min-w-56 sm:text-right">
+          <div
+            className={cn(
+              "shrink-0 space-y-1.5 text-[var(--joballa-fg-subtle)]",
+              contactTextClass,
+              !forceMobileLayout && "sm:min-w-56 sm:text-right",
+            )}
+          >
             {profileLocationLine(profile) ? (
-              <p className="flex items-center gap-2 sm:justify-end"><IconPin className="size-4 shrink-0" />{profileLocationLine(profile)}</p>
+              <p className={cn("flex items-center gap-2", !forceMobileLayout && "sm:justify-end")}>
+                <IconPin className={cn("shrink-0", contactIconClass)} />
+                {profileLocationLine(profile)}
+              </p>
             ) : null}
             {contactPhone ? (
-              <p className="flex items-center gap-2 sm:justify-end"><IconPhone className="size-4 shrink-0" />{contactPhone}</p>
+              <p className={cn("flex items-center gap-2", !forceMobileLayout && "sm:justify-end")}>
+                <IconPhone className={cn("shrink-0", contactIconClass)} />
+                {contactPhone}
+              </p>
             ) : null}
             {profileLanguagesLine(profile) ? (
-              <p className="flex items-center gap-2 sm:justify-end"><IconGlobe className="size-4 shrink-0" />{profileLanguagesLine(profile)}</p>
+              <p className={cn("flex items-center gap-2", !forceMobileLayout && "sm:justify-end")}>
+                <IconGlobe className={cn("shrink-0", contactIconClass)} />
+                {profileLanguagesLine(profile)}
+              </p>
             ) : null}
           </div>
         </div>
 
-        <section className="grid gap-3 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.summaryLabel")}</p>
-          <div className="space-y-1.5 text-sm leading-6">
+        <section className={sectionGridClass()}>
+          <p className={sectionLabelClass}>{tProfile("preview.summaryLabel")}</p>
+          <div className={bodyBlockClass}>
             {profile.professionalTitle?.trim() ? (
               <p className="text-[var(--joballa-fg)]">{profile.professionalTitle}</p>
             ) : null}
@@ -242,18 +336,18 @@ export function WorkerProfilePublic({
           </div>
         </section>
 
-        <section className="grid gap-3 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.skillsLabel")}</p>
+        <section className={sectionGridClass()}>
+          <p className={sectionLabelClass}>{tProfile("preview.skillsLabel")}</p>
           {profileSkillsLine(profile) ? (
-            <p className="text-sm font-bold leading-6 text-[var(--joballa-fg)]">{profileSkillsLine(profile)}</p>
+            <p className={skillsTextClass}>{profileSkillsLine(profile)}</p>
           ) : (
-            <p className="text-sm text-[var(--joballa-fg-subtle)]">{tProfile("preview.emptySkills")}</p>
+            <p className={cn(entryBodyClass, "text-[var(--joballa-fg-subtle)]")}>{tProfile("preview.emptySkills")}</p>
           )}
         </section>
 
-        <section className="grid gap-4 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.workLabel")}</p>
-          <div className="space-y-8 text-[var(--joballa-fg)]">
+        <section className={sectionGridClass("4")}>
+          <p className={sectionLabelClass}>{tProfile("preview.workLabel")}</p>
+          <div className={cn(compact ? "space-y-5" : "space-y-8", "text-[var(--joballa-fg)]")}>
             {workHistories.length === 0 ? (
               <ProfileSectionEmpty
                 message={tProfile("preview.emptyWork")}
@@ -264,22 +358,22 @@ export function WorkerProfilePublic({
               workHistories.map((entry) => (
                 <div key={entry.id}>
                   {entry.jobTitle?.trim() ? (
-                    <p className="text-base font-bold leading-6 text-[var(--joballa-primary)]">{entry.jobTitle}</p>
+                    <p className={entryTitleClass}>{entry.jobTitle}</p>
                   ) : null}
-                  {entry.companyName?.trim() ? <p className="mt-1 text-sm leading-6">{entry.companyName}</p> : null}
+                  {entry.companyName?.trim() ? <p className={cn("mt-1", entryBodyClass)}>{entry.companyName}</p> : null}
                   {entry.description ? (
-                    <p className="mt-1.5 max-w-4xl text-sm leading-6 text-[var(--joballa-fg-subtle)]">{entry.description}</p>
+                    <p className={cn("mt-1.5 max-w-4xl text-[var(--joballa-fg-subtle)]", entryBodyClass)}>{entry.description}</p>
                   ) : null}
-                  <p className="mt-1.5 text-sm leading-6 text-[var(--joballa-fg-subtle)]">{formatWorkHistoryMeta(entry)}</p>
+                  <p className={cn("mt-1.5 text-[var(--joballa-fg-subtle)]", entryBodyClass)}>{formatWorkHistoryMeta(entry)}</p>
                 </div>
               ))
             )}
           </div>
         </section>
 
-        <section className="grid gap-4 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.educationLabel")}</p>
-          <div className="space-y-6 text-[var(--joballa-fg)]">
+        <section className={sectionGridClass("4")}>
+          <p className={sectionLabelClass}>{tProfile("preview.educationLabel")}</p>
+          <div className={cn(compact ? "space-y-4" : "space-y-6", "text-[var(--joballa-fg)]")}>
             {educations.length === 0 ? (
               <ProfileSectionEmpty
                 message={tProfile("preview.emptyEducation")}
@@ -290,16 +384,16 @@ export function WorkerProfilePublic({
               educations.map((entry) => (
                 <div key={entry.id}>
                   {entry.degree?.trim() ? (
-                    <p className="text-base font-bold leading-6 text-[var(--joballa-primary)]">{entry.degree}</p>
+                    <p className={entryTitleClass}>{entry.degree}</p>
                   ) : null}
                   {entry.institution?.trim() ? (
-                    <p className="mt-1 text-sm leading-6">{entry.institution}</p>
+                    <p className={cn("mt-1", entryBodyClass)}>{entry.institution}</p>
                   ) : null}
                   {entry.fieldOfStudy?.trim() ? (
-                    <p className="mt-1 text-sm leading-6 text-[var(--joballa-fg-subtle)]">{entry.fieldOfStudy}</p>
+                    <p className={cn("mt-1 text-[var(--joballa-fg-subtle)]", entryBodyClass)}>{entry.fieldOfStudy}</p>
                   ) : null}
                   {formatEducationMeta(entry) ? (
-                    <p className="mt-1.5 text-sm leading-6 text-[var(--joballa-fg-subtle)]">{formatEducationMeta(entry)}</p>
+                    <p className={cn("mt-1.5 text-[var(--joballa-fg-subtle)]", entryBodyClass)}>{formatEducationMeta(entry)}</p>
                   ) : null}
                 </div>
               ))
@@ -307,9 +401,9 @@ export function WorkerProfilePublic({
           </div>
         </section>
 
-        <section className="grid gap-4 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr]">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.certificationsLabel")}</p>
-          <div className="space-y-6 text-[var(--joballa-fg)]">
+        <section className={sectionGridClass("4")}>
+          <p className={sectionLabelClass}>{tProfile("preview.certificationsLabel")}</p>
+          <div className={cn(compact ? "space-y-4" : "space-y-6", "text-[var(--joballa-fg)]")}>
             {certifications.length === 0 ? (
               <ProfileSectionEmpty
                 message={tProfile("preview.emptyCertifications")}
@@ -325,16 +419,16 @@ export function WorkerProfilePublic({
                         href={entry.credentialUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-base font-bold leading-6 text-[var(--joballa-primary)] underline-offset-2 hover:underline"
+                        className={cn(entryTitleClass, "underline-offset-2 hover:underline")}
                       >
                         {entry.name}
                       </a>
                     ) : (
-                      <p className="text-base font-bold leading-6 text-[var(--joballa-primary)]">{entry.name}</p>
+                      <p className={entryTitleClass}>{entry.name}</p>
                     )
                   ) : null}
                   {formatCertificationMeta(entry) ? (
-                    <p className="mt-1.5 text-sm leading-6 text-[var(--joballa-fg-subtle)]">{formatCertificationMeta(entry)}</p>
+                    <p className={cn("mt-1.5 text-[var(--joballa-fg-subtle)]", entryBodyClass)}>{formatCertificationMeta(entry)}</p>
                   ) : null}
                 </div>
               ))
@@ -342,9 +436,9 @@ export function WorkerProfilePublic({
           </div>
         </section>
 
-        <section className="grid gap-4 border-b border-[var(--joballa-border)] py-6 md:grid-cols-[minmax(10rem,28%)_1fr] md:items-start">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.documentsLabel")}</p>
-          <div className="min-w-0 space-y-3">
+        <section className={sectionGridClass("4", true)}>
+          <p className={sectionLabelClass}>{tProfile("preview.documentsLabel")}</p>
+          <div className={cn("min-w-0", compact ? "space-y-2" : "space-y-3")}>
             {documents.length === 0 ? (
               <ProfileSectionEmpty
                 message={tProfile("preview.emptyDocuments")}
@@ -358,7 +452,10 @@ export function WorkerProfilePublic({
                 const typeLabel = (doc.fileName ?? doc.type ?? "DOC").toString().split(".").pop()?.slice(0, 3).toUpperCase() ?? "DOC";
                 const fileIcon = (
                   <span
-                    className="flex size-12 shrink-0 flex-col overflow-hidden rounded-[8px] bg-[#e5e5e5]"
+                    className={cn(
+                      "flex shrink-0 flex-col overflow-hidden rounded-[8px] bg-[#e5e5e5]",
+                      compact ? "size-10" : "size-12",
+                    )}
                     aria-hidden
                   >
                     <span className="flex-1" />
@@ -377,12 +474,16 @@ export function WorkerProfilePublic({
                         className="flex min-w-0 flex-1 items-center gap-3 underline-offset-2 hover:underline"
                       >
                         {fileIcon}
-                        <span className="min-w-0 truncate text-sm font-bold text-[var(--joballa-primary)]">{label}</span>
+                        <span className={cn("min-w-0 truncate font-bold text-[var(--joballa-primary)]", compact ? "text-xs" : "text-sm")}>
+                          {label}
+                        </span>
                       </a>
                     ) : (
                       <>
                         {fileIcon}
-                        <p className="min-w-0 truncate text-sm font-bold text-[var(--joballa-fg)]">{label}</p>
+                        <p className={cn("min-w-0 truncate font-bold text-[var(--joballa-fg)]", compact ? "text-xs" : "text-sm")}>
+                          {label}
+                        </p>
                       </>
                     )}
                   </div>
@@ -393,19 +494,21 @@ export function WorkerProfilePublic({
         </section>
 
         {paymentMethods.length > 0 ? (
-          <section className="grid gap-4 py-6 md:grid-cols-[minmax(10rem,28%)_1fr] md:items-start">
+          <section className={cn(sectionGridClass("4", true), "border-b-0")}>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.paymentLabel")}</p>
-              <p className="mt-1 text-xs italic text-[var(--joballa-muted)]">{tProfile("preview.paymentPrivate")}</p>
+              <p className={sectionLabelClass}>{tProfile("preview.paymentLabel")}</p>
+              <p className={cn("mt-1 italic text-[var(--joballa-muted)]", compact ? "text-[10px]" : "text-xs")}>
+                {tProfile("preview.paymentPrivate")}
+              </p>
             </div>
-            <div className="flex flex-wrap gap-6">
+            <div className={cn("flex flex-wrap", compact ? "gap-4" : "gap-6")}>
               {paymentMethods.map((method) => {
                 const phone = method.phoneNumber ?? method.phone;
                 const provider = String(method.provider ?? "").includes("ORANGE") ? "Orange Money" : "MTN MoMo";
                 return (
                   <div key={method.id}>
-                    <p className="text-sm font-semibold text-[var(--joballa-fg)]">{phone}</p>
-                    <p className="text-xs text-[var(--joballa-muted)]">
+                    <p className={cn("font-semibold text-[var(--joballa-fg)]", compact ? "text-xs" : "text-sm")}>{phone}</p>
+                    <p className={cn("text-[var(--joballa-muted)]", compact ? "text-[10px]" : "text-xs")}>
                       {provider}
                       {method.isPrimary ? ` · ${tProfile("preview.primaryPayment")}` : ""}
                     </p>

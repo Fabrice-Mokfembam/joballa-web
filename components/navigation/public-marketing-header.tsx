@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { JoballaAuthNavLogo } from "@/components/brand/joballa-auth-nav-logo";
 import { LocaleSwitcher } from "@/components/navigation/locale-switcher";
+import { useJoballaTheme } from "@/components/providers/joballa-theme-provider";
 import { authOutlineButtonClassName, authPrimaryButtonClassName } from "@/lib/auth-ui";
 import { cn } from "@/lib/utils";
 
@@ -30,18 +31,22 @@ export function PublicMarketingHeader({
 }) {
   const t = useTranslations("public");
   const isAuth = surface === "auth";
+  const isLanding = layout === "landing" && !isAuth;
+  const { resolved: resolvedTheme } = useJoballaTheme();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const ghostNavMarketing =
-    tone === "dark"
+  const ghostNavMarketing = isLanding
+    ? "rounded-xl px-4 py-2 text-sm font-remixa font-medium text-[var(--landing-fg-secondary)] transition hover:bg-[var(--landing-card-elevated)] hover:text-[var(--landing-fg)]"
+    : tone === "dark"
       ? "rounded-xl px-4 py-2 text-sm font-remixa font-medium text-[#bec9c9] transition hover:bg-white/5 hover:text-[#e0e3e3]"
       : "rounded-xl px-4 py-2 text-sm font-remixa font-medium text-[var(--joballa-muted)] transition hover:bg-[var(--joballa-row-hover)] hover:text-[var(--joballa-fg)]";
 
   const ghostNavAuth =
     "rounded-xl px-4 py-2 text-sm font-remixa font-medium text-[color:var(--auth-fg-muted)] transition hover:bg-[color:var(--auth-outline-hover)] hover:text-[color:var(--auth-fg)]";
 
-  const drawerNavMarketing =
-    tone === "dark"
+  const drawerNavMarketing = isLanding
+    ? "block rounded-xl px-3 py-3 text-base font-remixa font-medium text-[var(--landing-fg)] transition hover:bg-[var(--landing-card-elevated)]"
+    : tone === "dark"
       ? "block rounded-xl px-3 py-3 text-base font-remixa font-medium text-[#e0e3e3] transition hover:bg-white/5"
       : "block rounded-xl px-3 py-3 text-base font-remixa font-medium text-[var(--joballa-fg)] transition hover:bg-[var(--joballa-row-hover)]";
 
@@ -53,9 +58,11 @@ export function PublicMarketingHeader({
 
   const ghostHeaderBtnMarketing = cn(
     navBtnBase,
-    tone === "dark"
-      ? "border-2 border-[#3e4949] bg-transparent text-[#e0e3e3] hover:bg-white/5"
-      : "border border-[var(--joballa-border)] bg-transparent text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
+    isLanding
+      ? "border-2 border-[var(--landing-border)] bg-transparent text-[var(--landing-fg)] hover:bg-[var(--landing-card-elevated)]"
+      : tone === "dark"
+        ? "border-2 border-[#3e4949] bg-transparent text-[#e0e3e3] hover:bg-white/5"
+        : "border border-[var(--joballa-border)] bg-transparent text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
   );
 
   const ghostHeaderBtnAuth = cn(authOutlineButtonClassName, navBtnBase, "w-auto shadow-none");
@@ -98,8 +105,10 @@ export function PublicMarketingHeader({
 
   const navLinkClass = isAuth ? ghostNavAuth : ghostNavMarketing;
   const drawerNavClass = isAuth ? drawerNavAuth : drawerNavMarketing;
-  const isLanding = layout === "landing" && !isAuth;
   const navKeys = isLanding ? landingNavKeys : defaultNavKeys;
+  const localeSwitcherVariant =
+    isAuth || (isLanding && resolvedTheme === "dark") || tone === "dark" ? "light" : "dark";
+  const logoVariant = isAuth ? "auth" : isLanding ? "landing" : tone === "dark" ? "auth" : "marketing";
   const navHrefs = isLanding ? landingNavHrefs : defaultNavHrefs;
 
   const navLinks = navKeys.map((key, i) => {
@@ -145,7 +154,7 @@ export function PublicMarketingHeader({
         )}
       >
         <div className={cn("flex shrink-0 items-center gap-6 lg:gap-10", isLanding && "min-w-0")}>
-          <JoballaAuthNavLogo variant={isAuth || tone === "dark" ? "auth" : "marketing"} />
+          <JoballaAuthNavLogo variant={logoVariant} />
           {isLanding ? (
             <nav className="hidden items-center gap-6 lg:flex" aria-label={t("nav.navAria")}>
               {navLinks}
@@ -165,7 +174,7 @@ export function PublicMarketingHeader({
         )}
 
         <div className="hidden shrink-0 items-center gap-2 sm:gap-3 lg:flex">
-          <LocaleSwitcher variant={isAuth || tone === "dark" ? "light" : "dark"} />
+          <LocaleSwitcher variant={localeSwitcherVariant} />
           <Link href="/sign-in" className={isAuth ? ghostHeaderBtnAuth : ghostHeaderBtnMarketing}>
             {t("nav.logIn")}
           </Link>
@@ -180,9 +189,11 @@ export function PublicMarketingHeader({
             "inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-xl transition lg:hidden",
             isAuth
               ? "text-[color:var(--auth-fg)] hover:bg-[color:var(--auth-outline-hover)]"
-              : tone === "dark"
-                ? "text-[#e0e3e3] hover:bg-white/5"
-                : "text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
+              : isLanding
+                ? "text-[var(--landing-fg)] hover:bg-[var(--landing-card-elevated)]"
+                : tone === "dark"
+                  ? "text-[#e0e3e3] hover:bg-white/5"
+                  : "text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
           )}
           aria-expanded={menuOpen}
           aria-controls="marketing-mobile-menu"
@@ -219,23 +230,27 @@ export function PublicMarketingHeader({
             menuOpen ? "translate-x-0" : "translate-x-full",
             isAuth
               ? "border-[color:var(--auth-border)] bg-[color:var(--auth-page-bg)]"
-              : "border-[var(--joballa-border)] bg-[var(--joballa-page)]",
+              : isLanding
+                ? "border-[var(--landing-border)] bg-[var(--landing-page-bg)]"
+                : "border-[var(--joballa-border)] bg-[var(--joballa-page)]",
           )}
         >
             <div
               className={cn(
                 "flex items-center justify-between border-b px-4 py-4",
-                isAuth ? "border-[color:var(--auth-border)]" : "border-[var(--joballa-border)]",
+                isAuth ? "border-[color:var(--auth-border)]" : isLanding ? "border-[var(--landing-border)]" : "border-[var(--joballa-border)]",
               )}
             >
-              <JoballaAuthNavLogo variant={isAuth ? "auth" : "marketing"} />
+              <JoballaAuthNavLogo variant={logoVariant} />
               <button
                 type="button"
                 className={cn(
                   "inline-flex size-10 cursor-pointer items-center justify-center rounded-xl transition",
                   isAuth
                     ? "text-[color:var(--auth-fg)] hover:bg-[color:var(--auth-outline-hover)]"
-                    : "text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
+                    : isLanding
+                      ? "text-[var(--landing-fg)] hover:bg-[var(--landing-card-elevated)]"
+                      : "text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
                 )}
                 onClick={closeMenu}
               >
@@ -251,10 +266,10 @@ export function PublicMarketingHeader({
             <div
               className={cn(
                 "flex flex-col gap-3 border-t px-4 py-5",
-                isAuth ? "border-[color:var(--auth-border)]" : "border-[var(--joballa-border)]",
+                isAuth ? "border-[color:var(--auth-border)]" : isLanding ? "border-[var(--landing-border)]" : "border-[var(--joballa-border)]",
               )}
             >
-              <LocaleSwitcher variant={isAuth ? "light" : "dark"} />
+              <LocaleSwitcher variant={localeSwitcherVariant} />
               <Link
                 href="/sign-in"
                 className={isAuth ? drawerBtnOutlineAuth : drawerBtnOutlineMarketing}

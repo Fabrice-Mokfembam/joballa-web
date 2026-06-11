@@ -5,15 +5,17 @@ import { cn } from "@/lib/utils";
 type Props = {
   className?: string;
   /** Wordmark color follows marketing (dark) or auth (light) shell. */
-  variant?: "marketing" | "auth";
+  variant?: "marketing" | "auth" | "landing";
 };
 
 /** Nav lockup — brand mark image + wordmark (matches auth mobile logo). */
 export function JoballaAuthNavLogo({ className, variant = "auth" }: Props) {
   const wordmarkClass =
-    variant === "marketing"
-      ? "text-[var(--joballa-fg)]"
-      : "text-[color:var(--auth-fg)]";
+    variant === "landing"
+      ? "text-[var(--landing-fg)]"
+      : variant === "marketing"
+        ? "text-[var(--joballa-fg)]"
+        : "text-[color:var(--auth-fg)]";
 
   return (
     <Link

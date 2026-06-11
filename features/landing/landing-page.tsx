@@ -46,6 +46,12 @@ import { LandingHeroVisual } from "@/features/landing/landing-hero-visual";
 
 import { LandingHowItWorksSection } from "@/features/landing/landing-how-it-works-section";
 
+import { buildLandingProfilePreview } from "@/features/landing/landing-profile-preview-data";
+
+import { LandingProfilePhoneMockup } from "@/features/landing/landing-profile-phone-mockup";
+
+import type { JobType } from "@/lib/types/enums";
+
 import { cn } from "@/lib/utils";
 
 
@@ -54,28 +60,26 @@ const shell = "mx-auto w-full max-w-[1200px] px-6 md:px-10 lg:px-16";
 
 
 
-function SectionKicker({ children, align = "center" }: { children: React.ReactNode; align?: "center" | "start" }) {
-
+function SectionKicker({
+  children,
+  align = "center",
+  className,
+}: {
+  children: React.ReactNode;
+  align?: "center" | "start";
+  className?: string;
+}) {
   return (
-
     <p
-
       className={cn(
-
         "text-sm font-normal uppercase tracking-[0.16em] text-[var(--landing-kicker)]",
-
         align === "center" ? "text-center" : "text-left",
-
+        className,
       )}
-
     >
-
       {children}
-
     </p>
-
   );
-
 }
 
 
@@ -168,6 +172,39 @@ export async function LandingPage() {
 
 
 
+  const landingProfilePreview = buildLandingProfilePreview({
+    firstName: t("oneProfile.preview.firstName"),
+    lastName: t("oneProfile.preview.lastName"),
+    professionalTitle: t("oneProfile.preview.professionalTitle"),
+    summary: t("oneProfile.preview.summary"),
+    city: t("oneProfile.preview.city"),
+    region: t("oneProfile.preview.region"),
+    country: t("oneProfile.preview.country"),
+    phone: t("oneProfile.preview.phone"),
+    languages: t.raw("oneProfile.preview.languages") as string[],
+    industries: t.raw("oneProfile.preview.industries") as string[],
+    preferredJobTypes: t.raw("oneProfile.preview.preferredJobTypes") as JobType[],
+    skills: t.raw("oneProfile.preview.skills") as string[],
+    work: {
+      jobTitle: t("oneProfile.preview.work.jobTitle"),
+      companyName: t("oneProfile.preview.work.companyName"),
+      description: t("oneProfile.preview.work.description"),
+      city: t("oneProfile.preview.work.city"),
+    },
+    education: {
+      degree: t("oneProfile.preview.education.degree"),
+      institution: t("oneProfile.preview.education.institution"),
+      fieldOfStudy: t("oneProfile.preview.education.fieldOfStudy"),
+    },
+    certification: {
+      name: t("oneProfile.preview.certification.name"),
+      issuer: t("oneProfile.preview.certification.issuer"),
+    },
+    document: {
+      fileName: t("oneProfile.preview.document.fileName"),
+    },
+  });
+
   const trustItems = [
 
     { label: t("trustBar.verifiedProfiles"), icon: ShieldCheck },
@@ -192,7 +229,7 @@ export async function LandingPage() {
 
         <div className={cn(shell, "py-4")}>
 
-          <PublicMarketingHeader surface="marketing" layout="landing" tone="dark" />
+          <PublicMarketingHeader surface="marketing" layout="landing" />
 
         </div>
 
@@ -202,9 +239,9 @@ export async function LandingPage() {
 
       <main className="flex flex-1 flex-col">
 
-        <section className={cn(shell, "grid items-center gap-10 py-16 lg:grid-cols-2 lg:gap-12 lg:py-24")}>
+        <section className={cn(shell, "grid items-center gap-10 py-16 max-lg:text-center lg:grid-cols-2 lg:gap-12 lg:py-24")}>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex w-full flex-col gap-4 max-lg:items-center">
 
             <p className="text-sm uppercase tracking-[0.16em] text-[var(--landing-kicker)]">{t("hero.kicker")}</p>
 
@@ -218,15 +255,15 @@ export async function LandingPage() {
 
             </h1>
 
-            <p className="max-w-lg text-lg leading-relaxed text-[var(--landing-fg-secondary)]">{t("hero.description")}</p>
+            <p className="max-w-lg text-lg leading-relaxed text-[var(--landing-fg-secondary)] max-lg:mx-auto">{t("hero.description")}</p>
 
-            <div className="flex flex-wrap gap-4 pt-2">
+            <div className="flex w-full flex-col gap-4 pt-2 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
 
               <Link
 
                 href="/sign-up/role"
 
-                className="inline-flex h-14 min-w-[200px] items-center justify-center rounded-[14px] bg-[var(--joballa-primary)] px-8 text-base font-semibold text-[var(--joballa-on-primary)] transition hover:opacity-95"
+                className="inline-flex h-14 w-full items-center justify-center rounded-[14px] bg-[var(--joballa-primary)] px-8 text-base font-semibold text-[var(--joballa-on-primary)] transition hover:opacity-95 sm:w-auto sm:min-w-[200px]"
 
               >
 
@@ -238,7 +275,7 @@ export async function LandingPage() {
 
                 href="/sign-up/role"
 
-                className="inline-flex h-14 min-w-[200px] items-center justify-center rounded-[14px] border-2 border-[var(--landing-border)] px-8 text-base font-semibold text-[var(--landing-fg)] transition hover:bg-white/5"
+                className="inline-flex h-14 w-full items-center justify-center rounded-[14px] border-2 border-[var(--landing-border)] px-8 text-base font-semibold text-[var(--landing-fg)] transition hover:bg-white/5 sm:w-auto sm:min-w-[200px]"
 
               >
 
@@ -289,7 +326,7 @@ export async function LandingPage() {
 
 
         <section
-          className="border-y border-[rgba(62,73,73,0.3)] py-8"
+          className="border-y border-[var(--landing-trust-border)] py-8"
           style={{ backgroundImage: "var(--landing-trust-gradient)" }}
         >
 
@@ -323,7 +360,7 @@ export async function LandingPage() {
 
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-6 min-[840px]:grid-cols-2 lg:grid-cols-3">
 
             {problemCards.map(({ key, icon: Icon, highlight }) => (
 
@@ -377,28 +414,11 @@ export async function LandingPage() {
 
         <section className={cn(shell, "grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-2")}>
 
-          <div className="relative max-w-md rounded-2xl border border-[var(--landing-border)] p-6 shadow-lg">
-            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl" aria-hidden>
-              <Image
-                src="/images/landing/profile-feature-bg.png"
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 448px"
-              />
-            </div>
-            <div className="relative aspect-square overflow-hidden rounded-xl border border-[var(--landing-border)]">
-              <Image
-                src="/images/landing/profile-feature-dark.png"
-                alt={t("oneProfile.imageAlt")}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 448px"
-              />
-            </div>
+          <div className="mx-auto w-full lg:justify-self-center">
+            <LandingProfilePhoneMockup profile={landingProfilePreview} label={t("oneProfile.imageAlt")} />
           </div>
 
-          <div>
+          <div className="text-left">
 
             <SectionKicker align="start">{t("oneProfile.kicker")}</SectionKicker>
 
@@ -406,7 +426,7 @@ export async function LandingPage() {
 
             <p className="mt-4 text-lg leading-relaxed text-[var(--landing-fg-secondary)]">{t("oneProfile.description")}</p>
 
-            <ul className="mt-8 space-y-6">
+            <ul className="mt-8 space-y-6 text-left">
 
               {profileFeatures.map(({ key, icon: Icon }) => (
 
@@ -506,7 +526,7 @@ export async function LandingPage() {
 
             <article className="relative overflow-hidden rounded-2xl border border-[var(--landing-border)] bg-[var(--landing-section-alt)] p-10">
 
-              <div className="pointer-events-none absolute -bottom-20 -right-20 size-64 rounded-full bg-[rgba(129,212,216,0.05)] blur-3xl" aria-hidden />
+              <div className="pointer-events-none absolute -bottom-20 -right-20 size-64 rounded-full bg-[var(--landing-payment-glow)] blur-3xl" aria-hidden />
 
               <Smartphone className="relative size-8 text-[var(--landing-accent)]" aria-hidden />
 
@@ -518,7 +538,7 @@ export async function LandingPage() {
 
             <article className="relative overflow-hidden rounded-2xl border border-[var(--landing-border)] bg-[var(--landing-section-alt)] p-10">
 
-              <div className="pointer-events-none absolute -bottom-20 -right-20 size-64 rounded-full bg-[rgba(129,212,216,0.05)] blur-3xl" aria-hidden />
+              <div className="pointer-events-none absolute -bottom-20 -right-20 size-64 rounded-full bg-[var(--landing-payment-glow)] blur-3xl" aria-hidden />
 
               <Lock className="relative size-8 text-[var(--landing-accent)]" aria-hidden />
 
@@ -554,21 +574,21 @@ export async function LandingPage() {
 
           <div className={cn(shell, "relative text-center")}>
 
-            <h2 className="font-remixa text-4xl font-semibold leading-tight text-[#d6f1e3] sm:text-5xl lg:text-[64px] lg:leading-[56px]">
+            <h2 className="font-remixa text-4xl font-semibold leading-tight text-[var(--landing-cta-title)] sm:text-5xl lg:text-[64px] lg:leading-[56px]">
 
               {t("closing.title")}
 
             </h2>
 
-            <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-[#e6f7ed]">{t("closing.description")}</p>
+            <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-[var(--landing-cta-description)]">{t("closing.description")}</p>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-8 flex w-full flex-col gap-4 sm:flex-row sm:flex-wrap sm:justify-center">
 
               <Link
 
                 href="/sign-up/role"
 
-                className="inline-flex h-14 min-w-[220px] items-center justify-center rounded-lg bg-[#d6f1e3] px-10 text-lg font-bold text-[#0d7377] shadow-lg transition hover:opacity-95"
+                className="inline-flex h-14 w-full items-center justify-center rounded-lg bg-[var(--landing-cta-btn-primary-bg)] px-10 text-lg font-bold text-[var(--landing-cta-btn-primary-fg)] shadow-lg transition hover:opacity-95 sm:w-auto sm:min-w-[220px]"
 
               >
 
@@ -580,7 +600,7 @@ export async function LandingPage() {
 
                 href="/sign-up/role"
 
-                className="inline-flex h-14 min-w-[220px] items-center justify-center rounded-lg border-2 border-[#d6f1e3] px-10 text-lg font-bold text-[#d6f1e3] backdrop-blur-sm transition hover:bg-white/10"
+                className="inline-flex h-14 w-full items-center justify-center rounded-lg border-2 border-[var(--landing-cta-btn-outline-border)] px-10 text-lg font-bold text-[var(--landing-cta-btn-outline-fg)] backdrop-blur-sm transition hover:bg-[var(--landing-cta-btn-outline-hover)] sm:w-auto sm:min-w-[220px]"
 
               >
 
@@ -590,7 +610,7 @@ export async function LandingPage() {
 
             </div>
 
-            <p className="mt-6 text-sm text-[rgba(162,245,249,0.6)]">{t("closing.footnote")}</p>
+            <p className="mt-6 text-sm text-[var(--landing-cta-footnote)]">{t("closing.footnote")}</p>
 
           </div>
 
@@ -616,7 +636,7 @@ export async function LandingPage() {
 
               height={32}
 
-              className="h-8 w-auto"
+              className="landing-footer-logo h-8 w-auto"
 
             />
 
@@ -700,15 +720,15 @@ export async function LandingPage() {
 
         </div>
 
-        <div className={cn(shell, "flex flex-wrap items-center justify-between gap-4 border-t border-[rgba(62,73,73,0.3)] py-6")}>
+        <div className={cn(shell, "flex flex-wrap items-center justify-between gap-4 border-t border-[var(--landing-divider)] py-6")}>
 
-          <p className="text-xs font-semibold uppercase tracking-[0.06em] text-[rgba(190,201,201,0.6)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.06em] text-[var(--landing-footer-muted)]">
 
             {t("footer.copyright", { year })}
 
           </p>
 
-          <div className="flex gap-4 text-xs font-semibold uppercase tracking-[0.06em] text-[rgba(190,201,201,0.6)]">
+          <div className="flex gap-4 text-xs font-semibold uppercase tracking-[0.06em] text-[var(--landing-footer-muted)]">
 
             <a href="https://www.linkedin.com" className="transition hover:text-[var(--landing-fg-secondary)]" target="_blank" rel="noreferrer">
 

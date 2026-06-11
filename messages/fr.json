@@ -129,7 +129,39 @@
       "kicker": "Votre profil, votre identite",
       "title": "Un profil. Toutes les opportunites.",
       "description": "Votre profil joballa remplace le CV. Construisez-le une fois, postulez partout. Les employeurs voient une vue standardisee et verifiee de chaque candidat.",
-      "imageAlt": "Graphique abstrait d'identite de profil",
+      "imageAlt": "Apercu du profil architecte cloud sur un telephone mobile",
+      "preview": {
+        "firstName": "Amara",
+        "lastName": "Fon",
+        "professionalTitle": "Architecte cloud",
+        "summary": "Architecte certifiee AWS concue des plateformes cloud resilientes pour les entreprises africaines. Experte en migrations, Kubernetes et infrastructure optimisee.",
+        "city": "Douala",
+        "region": "Littoral",
+        "country": "Cameroun",
+        "phone": "+237 677 123 456",
+        "languages": ["Anglais", "Francais"],
+        "industries": ["Technologie", "Infrastructure cloud"],
+        "preferredJobTypes": ["FULL_TIME", "CONTRACT"],
+        "skills": ["AWS", "Azure", "Kubernetes", "Terraform", "DevOps"],
+        "work": {
+          "jobTitle": "Architecte cloud senior",
+          "companyName": "TechBridge Africa",
+          "description": "A dirige la migration de charges legacy vers AWS et la mise en place de plateformes Kubernetes multi-regions pour des clients en Afrique centrale.",
+          "city": "Douala"
+        },
+        "education": {
+          "degree": "Licence en informatique",
+          "institution": "Universite de Buea",
+          "fieldOfStudy": "Informatique"
+        },
+        "certification": {
+          "name": "AWS Solutions Architect – Professional",
+          "issuer": "Amazon Web Services"
+        },
+        "document": {
+          "fileName": "Amara_Fon_CV.pdf"
+        }
+      },
       "features": {
         "identity": {
           "title": "Identite verifiee",

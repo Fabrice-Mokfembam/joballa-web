@@ -194,7 +194,7 @@ input[type="checkbox"] {
   --auth-outline-hover: var(--figma-gray-3);
   --auth-topbar-fg-hover: var(--figma-foreground);
 
-  /* Marketing landing (light fallbacks — page forces dark via .landing-page) */
+  /* Marketing landing — light theme (scoped via .landing-page) */
   --landing-page-bg: #fafafa;
   --landing-section-alt: #f0f0f0;
   --landing-section-muted: #e8e8e8;
@@ -212,84 +212,60 @@ input[type="checkbox"] {
   --landing-mockup-fg: #171717;
   --landing-step-bg: #d4d4d4;
   --landing-step-fg: #525252;
-  --landing-pill-workers-text: #0d7377;
-  --landing-pill-employers-text: #183537;
   --landing-problem-card-bg: #f9f9f9;
   --landing-problem-card-border: #e5e5e5;
   --landing-problem-card-highlight: #f4a621;
   --landing-dept-card-bg: #f5f5f5;
   --landing-dept-icon-bg: rgba(13, 115, 119, 0.12);
   --landing-footer-bg: #f5f5f5;
+  --landing-trust-border: rgba(0, 0, 0, 0.08);
+  --landing-divider: rgba(0, 0, 0, 0.12);
+  --landing-footer-muted: rgba(64, 64, 64, 0.6);
+  --landing-payment-glow: rgba(13, 115, 119, 0.08);
+  --landing-cta-title: #0d7377;
+  --landing-cta-description: #404040;
+  --landing-cta-btn-primary-bg: #0d7377;
+  --landing-cta-btn-primary-fg: #fafafa;
+  --landing-cta-btn-outline-border: #0d7377;
+  --landing-cta-btn-outline-fg: #0d7377;
+  --landing-cta-btn-outline-hover: rgba(13, 115, 119, 0.08);
+  --landing-cta-footnote: rgba(64, 64, 64, 0.7);
+  --landing-hero-image-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  --landing-hero-ring: conic-gradient(
+    from 210deg,
+    rgba(13, 115, 119, 0.35),
+    rgba(244, 166, 33, 0.25),
+    rgba(98, 129, 82, 0.3),
+    rgba(13, 115, 119, 0.35)
+  );
+  --landing-hero-card-bg: rgba(255, 255, 255, 0.92);
+  --landing-hero-card-border: #e5e5e5;
+  --landing-hero-badge-icon-fg: #131313;
+  --landing-hero-match-bg: #fef3c7;
+  --landing-hero-match-fg: #d97706;
+  --landing-hero-chip-bg: #f5f5f5;
+  --landing-hero-chip-border: #e5e5e5;
+  --landing-hero-chip-fg: #737373;
+  --landing-hero-icon-btn-bg: #f0f0f0;
+  --landing-hero-apply-bg: #0d7377;
+  --landing-hero-apply-fg: #fafafa;
   --landing-trust-gradient: linear-gradient(
     90deg,
     #f4a621 0%,
     #628152 28.365%,
     #0e6c6f 61.058%,
     #c0d3c9 100%
-  );
-  --landing-pill-workers-gradient: linear-gradient(
-    90deg,
-    #f4a621 32.692%,
-    #628152 26.64%,
-    #c0d3c9 90.571%
-  );
-  --landing-pill-employers-gradient: linear-gradient(
-    90.1deg,
-    #c0d3c9 15.253%,
-    #0e6c6f 88.539%,
-    #f4a621 148.43%
   );
 
   color-scheme: light;
 }
 
-/* Marketing landing page — always uses dark palette (Figma 921-10532). */
 .landing-page {
-  --landing-page-bg: #131313;
-  --landing-section-alt: #181c1d;
-  --landing-section-muted: #1c2021;
-  --landing-fg: #e0e3e3;
-  --landing-fg-secondary: #bec9c9;
-  --landing-fg-muted: #a3a3a3;
-  --landing-kicker: #acdec8;
-  --landing-accent: #56ba9f;
-  --landing-border: #3e4949;
-  --landing-border-muted: #404040;
-  --landing-card: #171717;
-  --landing-card-elevated: #272b2b;
-  --landing-mockup-bg: #171717;
-  --landing-mockup-input-bg: #0a0a0a;
-  --landing-mockup-fg: #fafafa;
-  --landing-step-bg: #314e50;
-  --landing-step-fg: #a0bec0;
-  --landing-pill-workers-text: #0d7377;
-  --landing-pill-employers-text: #183537;
-  --landing-problem-card-bg: #1c2021;
-  --landing-problem-card-border: #3e4949;
-  --landing-problem-card-highlight: #f4a621;
-  --landing-dept-card-bg: #272b2b;
-  --landing-dept-icon-bg: rgba(13, 115, 119, 0.2);
-  --landing-footer-bg: #181c1d;
-  --landing-trust-gradient: linear-gradient(
-    90deg,
-    #f4a621 0%,
-    #628152 28.365%,
-    #0e6c6f 61.058%,
-    #c0d3c9 100%
-  );
-  --landing-pill-workers-gradient: linear-gradient(
-    90deg,
-    #f4a621 32.692%,
-    #628152 26.64%,
-    #c0d3c9 90.571%
-  );
-  --landing-pill-employers-gradient: linear-gradient(
-    90.1deg,
-    #c0d3c9 15.253%,
-    #0e6c6f 88.539%,
-    #f4a621 148.43%
-  );
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+.landing-page .landing-footer-logo {
+  filter: brightness(0);
 }
 
 /*
@@ -409,6 +385,69 @@ input[type="checkbox"] {
   --auth-topbar-fg-hover: var(--figma-dark-fg);
 
   color-scheme: dark;
+}
+
+/* Marketing landing — dark theme (follows global theme choice) */
+[data-joballa-theme="dark"] .landing-page {
+  color-scheme: dark;
+  --landing-page-bg: #131313;
+  --landing-section-alt: #181c1d;
+  --landing-section-muted: #1c2021;
+  --landing-fg: #e0e3e3;
+  --landing-fg-secondary: #bec9c9;
+  --landing-fg-muted: #a3a3a3;
+  --landing-kicker: #acdec8;
+  --landing-accent: #56ba9f;
+  --landing-border: #3e4949;
+  --landing-border-muted: #404040;
+  --landing-card: #171717;
+  --landing-card-elevated: #272b2b;
+  --landing-mockup-bg: #171717;
+  --landing-mockup-input-bg: #0a0a0a;
+  --landing-mockup-fg: #fafafa;
+  --landing-step-bg: #314e50;
+  --landing-step-fg: #a0bec0;
+  --landing-problem-card-bg: #1c2021;
+  --landing-problem-card-border: #3e4949;
+  --landing-problem-card-highlight: #f4a621;
+  --landing-dept-card-bg: #272b2b;
+  --landing-dept-icon-bg: rgba(13, 115, 119, 0.2);
+  --landing-footer-bg: #181c1d;
+  --landing-trust-border: rgba(62, 73, 73, 0.3);
+  --landing-divider: rgba(62, 73, 73, 0.3);
+  --landing-footer-muted: rgba(190, 201, 201, 0.6);
+  --landing-payment-glow: rgba(129, 212, 216, 0.05);
+  --landing-cta-title: #d6f1e3;
+  --landing-cta-description: #e6f7ed;
+  --landing-cta-btn-primary-bg: #d6f1e3;
+  --landing-cta-btn-primary-fg: #0d7377;
+  --landing-cta-btn-outline-border: #d6f1e3;
+  --landing-cta-btn-outline-fg: #d6f1e3;
+  --landing-cta-btn-outline-hover: rgba(255, 255, 255, 0.1);
+  --landing-cta-footnote: rgba(162, 245, 249, 0.6);
+  --landing-hero-image-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  --landing-hero-ring: conic-gradient(
+    from 210deg,
+    rgba(13, 115, 119, 0.55),
+    rgba(244, 166, 33, 0.35),
+    rgba(98, 129, 82, 0.4),
+    rgba(13, 115, 119, 0.55)
+  );
+  --landing-hero-card-bg: rgba(23, 23, 23, 0.84);
+  --landing-hero-card-border: #404040;
+  --landing-hero-badge-icon-fg: #131313;
+  --landing-hero-match-bg: #1b180f;
+  --landing-hero-match-fg: #f4a623;
+  --landing-hero-chip-bg: #191919;
+  --landing-hero-chip-border: #222222;
+  --landing-hero-chip-fg: #a3a3a3;
+  --landing-hero-icon-btn-bg: #262626;
+  --landing-hero-apply-bg: #0d7377;
+  --landing-hero-apply-fg: #171717;
+}
+
+[data-joballa-theme="dark"] .landing-page .landing-footer-logo {
+  filter: none;
 }
 
 @theme inline {

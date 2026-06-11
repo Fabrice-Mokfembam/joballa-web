@@ -2,29 +2,9 @@ import { LandingProfileMockup } from "@/features/landing/landing-profile-mockup"
 
 const shell = "mx-auto w-full max-w-[1200px] px-6 md:px-10 lg:px-16";
 
-function WorkersJourneyPill({ children }: { children: React.ReactNode }) {
+function JourneyPill({ children }: { children: React.ReactNode }) {
   return (
-    <span
-      className="inline-flex rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.06em] mix-blend-color-burn"
-      style={{
-        backgroundImage: "var(--landing-pill-workers-gradient)",
-        color: "var(--landing-pill-workers-text)",
-      }}
-    >
-      {children}
-    </span>
-  );
-}
-
-function EmployersJourneyPill({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      className="inline-flex rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-[0.06em] mix-blend-color-burn"
-      style={{
-        backgroundImage: "var(--landing-pill-employers-gradient)",
-        color: "var(--landing-pill-employers-text)",
-      }}
-    >
+    <span className="inline-flex w-fit self-start rounded-full border border-[var(--landing-border-muted)] bg-[var(--landing-mockup-input-bg)] px-4 py-1 text-xs font-semibold uppercase tracking-[0.06em] text-[var(--landing-mockup-fg)]">
       {children}
     </span>
   );
@@ -66,24 +46,28 @@ export function LandingHowItWorksSection({
   employerSteps,
 }: LandingHowItWorksSectionProps) {
   return (
-    <section id="how-it-works" className="bg-[var(--landing-section-alt)] px-6 py-10 md:px-10 lg:px-16">
+    <section id="how-it-works" className="overflow-x-clip bg-[var(--landing-section-alt)] py-10 sm:py-16">
       <div className={shell}>
-        <div className="flex flex-col gap-2">
+        <div className="flex min-w-0 flex-col gap-2">
           <p className="text-base uppercase tracking-[0.16em] text-[var(--landing-kicker)]">{kicker}</p>
           <h2 className="text-2xl font-semibold leading-[1.3] text-[var(--landing-fg)]">{title}</h2>
         </div>
 
-        <div className="mt-10 flex flex-col gap-10">
-          <div className="flex flex-col gap-4">
-            <WorkersJourneyPill>{workersLabel}</WorkersJourneyPill>
-            <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
-              <LandingProfileMockup />
-              <StepList steps={workerSteps} />
+        <div className="mt-10 flex min-w-0 flex-col gap-10">
+          <div className="flex min-w-0 flex-col gap-4">
+            <JourneyPill>{workersLabel}</JourneyPill>
+            <div className="grid min-w-0 gap-10 lg:grid-cols-2 lg:items-start">
+              <div className="min-w-0">
+                <LandingProfileMockup />
+              </div>
+              <div className="min-w-0">
+                <StepList steps={workerSteps} />
+              </div>
             </div>
           </div>
 
           <div id="for-employers" className="flex flex-col gap-4">
-            <EmployersJourneyPill>{employersLabel}</EmployersJourneyPill>
+            <JourneyPill>{employersLabel}</JourneyPill>
             <StepList steps={employerSteps} />
           </div>
         </div>

@@ -108,7 +108,7 @@ export function AuthGoogleSignInButton({
       aria-busy={busy}
     >
       <GoogleLogin
-        onSuccess={(credential) => void handleSuccess(credential)}
+        onSuccess={(credential: CredentialResponse) => void handleSuccess(credential)}
         onError={() => handleError(t("errors.cancelled"))}
         text={mode === "signup" ? "signup_with" : "signin_with"}
         shape="rectangular"
