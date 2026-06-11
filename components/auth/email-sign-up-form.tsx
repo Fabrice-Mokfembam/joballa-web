@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -17,9 +18,14 @@ import {
 import { postRegister, postResendOtp, postVerify } from "@/features/auth/api/auth";
 import { establishSessionAndNavigate } from "@/lib/auth/establish-session";
 import { consumePendingSignupRole, peekPendingSignupRole } from "@/components/auth/signup-role-continue";
-import { AuthGoogleButton } from "@/components/auth/auth-google-button";
 import { JoballaApiError } from "@/lib/joballa/request";
 import { toLanguagePreference } from "@/lib/joballa/names";
+import { writeOnboardingRole } from "@/lib/onboarding-signup-state";
+
+const AuthGoogleSignInButton = dynamic(
+  () => import("@/components/auth/auth-google-button").then((mod) => mod.AuthGoogleSignInButton),
+  { ssr: false },
+);
 import type { JoballaRole } from "@/lib/joballa/types";
 import type { AuthRegisterBody } from "@/lib/types/auth";
 
@@ -43,6 +49,10 @@ export function EmailSignUpForm() {
   const [busy, setBusy] = useState(false);
 
   const lang = toLanguagePreference(locale);
+
+  useEffect(() => {
+    writeOnboardingRole(initialRole);
+  }, [initialRole]);
 
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -238,7 +248,7 @@ export function EmailSignUpForm() {
               <div className="h-px flex-1 bg-[color:var(--auth-divider)]" />
             </div>
 
-            <AuthGoogleButton label={t("googleContinue")} title={t("googleSoon")} />
+            <AuthGoogleSignInButton mode="signup" disabled={busy} onError={setError} />
 
             <p className="pt-2 text-center text-sm leading-5 text-[color:var(--auth-fg-subtle)]">
               {t("legalPrefix")}
