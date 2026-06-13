@@ -17,7 +17,13 @@ import { useCreateWorkerJob, useWorkerDepartmentOptions, useWorkerKyc, useWorker
 import { getVerificationStatus, isVerifiedStatus } from "@/features/worker/lib/verification";
 import { profileInitials } from "@/features/worker/lib/profile-display";
 import { VerificationGateDialog } from "@/components/verification/verification-gate-dialog";
-import { CAMEROON_CITIES_BY_REGION } from "@/lib/cameroon-region-cities";
+import {
+  CAMEROON_CITIES_BY_REGION,
+  CAMEROON_REGION_IDS,
+  DEFAULT_CAMEROON_REGION,
+  getCitiesForRegion,
+  type CameroonRegionId,
+} from "@/lib/cameroon-region-cities";
 import { toast } from "@/lib/toast";
 import {
   portalCardClass,
@@ -42,9 +48,7 @@ const PAY_STRUCTURES = ["hourly", "daily", "weekly", "monthly", "fixed"] as cons
 const EXPERIENCE_LEVELS = ["entry", "junior", "mid", "senior", "lead", "tutor", "not_required"] as const;
 const DURATION_UNITS = ["months", "weeks", "years"] as const;
 
-const ALL_CITIES = Array.from(new Set(Object.values(CAMEROON_CITIES_BY_REGION).flat())).sort((a, b) =>
-  a.localeCompare(b),
-);
+const REGION_OPTIONS = CAMEROON_REGION_IDS.map((id) => ({ value: id, labelKey: id }));
 
 function splitDuration(raw: string): { amount: string; unit: (typeof DURATION_UNITS)[number] } {
   const match = raw.trim().match(/^(\d+)\s*(\w+)/i);
@@ -64,9 +68,13 @@ function mergeDuration(amount: string, unit: string): string {
   return `${n} ${unit}`;
 }
 
+function sanitizePayDigits(raw: string): string {
+  return raw.replace(/\D/g, "");
+}
+
 function formatPayPreview(pay: string, payPer: string): string {
-  const digits = pay.replace(/\D/g, "");
-  if (!digits) return "—";
+  const amount = sanitizePayDigits(pay);
+  if (!amount) return "—";
   const per =
     payPer === "monthly"
       ? "mo"
@@ -77,7 +85,7 @@ function formatPayPreview(pay: string, payPer: string): string {
           : payPer === "hourly"
             ? "hr"
             : "fixed";
-  return `${Number(digits).toLocaleString("en-US")} XAF/${per}`;
+  return `${Number(amount).toLocaleString("en-US")} XAF/${per}`;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -309,6 +317,7 @@ function PostJobStepIndicator({ step, onStep }: { step: Step; onStep: (s: Step) 
 
 export function WorkerPostJobFlow() {
   const t = useTranslations("worker.postJobFlow");
+  const tRegions = useTranslations("worker.findJobsPage");
   const router = useRouter();
   const createJob = useCreateWorkerJob();
   const meQuery = useWorkerMe();
@@ -352,12 +361,17 @@ export function WorkerPostJobFlow() {
   const gateStatus =
     latestKycStatus === "PENDING" ? "PENDING" : isVerifiedStatus(verificationStatus) ? "VERIFIED" : "UNVERIFIED";
 
+  const regionId = (draft.region || DEFAULT_CAMEROON_REGION) as CameroonRegionId;
+  const cityOptions = useMemo(() => getCitiesForRegion(regionId), [regionId]);
   const payPreview = formatPayPreview(draft.pay, draft.payPer);
   const employmentLabel = draft.jobType
     ? t(`options.employmentType.${draft.jobType as (typeof EMPLOYMENT_TYPES)[number]}`)
     : "—";
   const schedulePreview = [employmentLabel !== "—" ? employmentLabel : "", draft.schedule].filter(Boolean).join(" · ");
-  const locationPreview = draft.location ? `Onsite, ${draft.location}` : "—";
+  const locationPreview =
+    draft.location || draft.region
+      ? [draft.location, draft.region ? tRegions(`regions.${regionId}` as "regions.littoral") : ""].filter(Boolean).join(", ")
+      : "—";
 
   function validateBasics(asDraft: boolean): boolean {
     const payload = { ...draft, requirements, responsibilities };
@@ -447,13 +461,28 @@ export function WorkerPostJobFlow() {
                 />
               </Field>
 
-              <SelectField
-                label={t("fields.city")}
-                value={draft.location}
-                onChange={(value) => update("location", value)}
-                placeholder={t("placeholders.city")}
-                options={ALL_CITIES.map((city) => ({ value: city, label: city }))}
-              />
+              <div className="grid grid-cols-2 gap-2.5">
+                <SelectField
+                  label={t("fields.region")}
+                  value={draft.region}
+                  onChange={(value) => {
+                    update("region", value);
+                    update("location", "");
+                  }}
+                  placeholder={t("placeholders.region")}
+                  options={REGION_OPTIONS.map((option) => ({
+                    value: option.value,
+                    label: tRegions(`regions.${option.labelKey}` as "regions.littoral"),
+                  }))}
+                />
+                <SelectField
+                  label={t("fields.town")}
+                  value={draft.location}
+                  onChange={(value) => update("location", value)}
+                  placeholder={t("placeholders.town")}
+                  options={cityOptions.map((city) => ({ value: city, label: city }))}
+                />
+              </div>
 
               <div className="grid gap-2.5 sm:grid-cols-2">
                 <SelectField
@@ -534,14 +563,15 @@ export function WorkerPostJobFlow() {
                 />
               </div>
 
-              <div className="grid gap-2.5 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-2.5">
                 <Field label={t("fields.pay")}>
                   <input
                     className={cn(portalInputClass, "h-9")}
                     value={draft.pay}
-                    onChange={(e) => update("pay", e.target.value)}
+                    onChange={(e) => update("pay", sanitizePayDigits(e.target.value))}
                     placeholder={t("placeholders.pay")}
                     inputMode="numeric"
+                    pattern="[0-9]*"
                     maxLength={fieldMaxLength("payAmount")}
                   />
                 </Field>
@@ -609,7 +639,7 @@ export function WorkerPostJobFlow() {
             >
               {t("actions.continue")}
             </button>
-            <p className="text-center text-xs font-semibold text-[#bbb]">{t("preview.moderationDescription")}</p>
+            <p className="text-center text-xs font-semibold text-[var(--joballa-muted)]">{t("preview.moderationDescription")}</p>
           </div>
         </div>
       ) : null}
@@ -769,7 +799,7 @@ export function WorkerPostJobFlow() {
                 </div>
               ) : null}
 
-              <div className="border-t border-[var(--joballa-border)] pt-4 text-center text-xs font-medium text-[#bbb]">
+              <div className="border-t border-[var(--joballa-border)] pt-4 text-center text-xs font-medium text-[var(--joballa-muted)]">
                 <p>{t("preview.listedBy", { department: departmentLabel })}</p>
                 <p>{t("preview.listedFor", { name: posterName })}</p>
               </div>

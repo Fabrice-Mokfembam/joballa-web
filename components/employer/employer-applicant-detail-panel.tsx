@@ -228,7 +228,7 @@ function ApplicantProfilePageCard({
               const bold = profile.highlightedSkills.some((h) => h.toLowerCase() === skill.toLowerCase());
               return (
                 <span key={skill}>
-                  <span className={bold ? "font-semibold text-[var(--joballa-fg)]" : "text-[#bbb]"}>{skill}</span>
+                  <span className={bold ? "font-semibold text-[var(--joballa-fg)]" : "text-[var(--joballa-muted)]"}>{skill}</span>
                   {index < profile.skills.length - 1 ? ", " : ""}
                 </span>
               );
@@ -479,19 +479,20 @@ function ApplicantNotesSection({
   applicationId: string;
   initialNotes?: string | null;
 }) {
+  const tn = useTranslations("employer.applicantDetail.notes");
   const [notes, setNotes] = useState(initialNotes ?? "");
   const saveNotes = usePatchEmployerApplicantNotes(applicationId);
 
   return (
     <section className={cn(portalDetailSectionClass, "mt-4 p-4")}>
-      <h3 className="text-sm font-bold text-[var(--joballa-fg)]">Private notes</h3>
-      <p className="mt-1 text-xs text-[var(--joballa-muted)]">Only visible to your company.</p>
+      <h3 className="text-sm font-bold text-[var(--joballa-fg)]">{tn("title")}</h3>
+      <p className="mt-1 text-xs text-[var(--joballa-muted)]">{tn("hint")}</p>
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         rows={4}
         className="mt-3 w-full rounded-[12px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 py-2 text-sm text-[var(--joballa-fg)] outline-none focus:border-[var(--joballa-primary)] focus:ring-2 focus:ring-[var(--joballa-primary)]"
-        placeholder="Add interview notes, follow-ups, or hiring context..."
+        placeholder={tn("placeholder")}
       />
       <button
         type="button"
@@ -499,7 +500,7 @@ function ApplicantNotesSection({
         onClick={() => saveNotes.mutate(notes.trim())}
         className={cn(buttonClassName("primary"), "mt-3 text-xs")}
       >
-        {saveNotes.isPending ? "Saving..." : "Save notes"}
+        {saveNotes.isPending ? tn("saving") : tn("save")}
       </button>
     </section>
   );
@@ -996,9 +997,9 @@ export function EmployerApplicantDetailPanel({
                       </div>
                     ) : null}
                     <div className="border-t border-[var(--joballa-border)] pt-4">
-                      <p className="text-center text-xs text-[#bbb]">{t("jobInfo.listedBy", { company: companyName })}</p>
+                      <p className="text-center text-xs text-[var(--joballa-muted)]">{t("jobInfo.listedBy", { company: companyName })}</p>
                       {listedForName ? (
-                        <p className="text-center text-xs text-[#bbb]">{t("jobInfo.listedFor", { name: listedForName })}</p>
+                        <p className="text-center text-xs text-[var(--joballa-muted)]">{t("jobInfo.listedFor", { name: listedForName })}</p>
                       ) : null}
                     </div>
                   </section>

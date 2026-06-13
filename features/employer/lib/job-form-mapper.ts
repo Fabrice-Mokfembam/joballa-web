@@ -21,7 +21,9 @@ export type PostJobDraft = {
   jobType: string;
   workMode: string;
   location: string;
+  region: string;
   pay: string;
+  payMax: string;
   payPer: string;
   openings: string;
   /** ISO date `YYYY-MM-DD` when `startNow` is false */
@@ -45,7 +47,9 @@ export const EMPTY_POST_JOB_DRAFT: PostJobDraft = {
   jobType: "full_time",
   workMode: "onsite",
   location: "",
+  region: "",
   pay: "",
+  payMax: "",
   payPer: "monthly",
   openings: "1",
   startDate: "",
@@ -72,7 +76,9 @@ export function normalizePostJobDraft(
     jobType: String(draft.jobType ?? EMPTY_POST_JOB_DRAFT.jobType),
     workMode: String(draft.workMode ?? EMPTY_POST_JOB_DRAFT.workMode),
     location: String(draft.location ?? ""),
+    region: String(draft.region ?? ""),
     pay: String(draft.pay ?? ""),
+    payMax: String(draft.payMax ?? ""),
     payPer: String(draft.payPer ?? EMPTY_POST_JOB_DRAFT.payPer),
     openings: String(draft.openings ?? EMPTY_POST_JOB_DRAFT.openings),
     startDate: String(draft.startDate ?? ""),
@@ -146,8 +152,9 @@ export function mapDraftToCreateJobBody(
   asDraft: boolean,
   extraDepartments?: EmployerJobDepartment[],
 ): CreateEmployerJobBody {
-  const { city, neighbourhood, region } = parseLocation(draft.location);
+  const { city, neighbourhood, region: parsedRegion } = parseLocation(draft.location);
   const pay = parsePay(draft.pay);
+  const payMax = parsePay(draft.payMax);
   const startNow = draft.startNow;
   const startDate = startNow ? undefined : toApiStartDate(draft.startDate);
   const departments = mergeJobDepartments(extraDepartments);
@@ -162,7 +169,7 @@ export function mapDraftToCreateJobBody(
     title: draft.title.trim() || "Untitled job",
     workMode: normalizeWorkMode(draft.workMode),
     country: "Cameroon",
-    region,
+    region: draft.region.trim() || parsedRegion,
     city,
     neighbourhood: neighbourhood || undefined,
     description: draft.description.trim() || "Job description",
@@ -171,6 +178,7 @@ export function mapDraftToCreateJobBody(
     employmentType: normalizeEmploymentType(draft.jobType || "full_time"),
     duration: normalizeDurationString(draft.duration),
     payAmount: pay || 1,
+    ...(payMax > pay ? { payMaxAmount: payMax } : {}),
     payCurrency: "XAF",
     payStructure: normalizePayStructure(draft.payPer || "monthly"),
     numberOfOpenings: Math.max(1, Number(draft.openings) || 1),
@@ -242,8 +250,10 @@ export function mapJobDetailToDraft(job: EmployerJobDetail): PostJobDraft {
     categoryCustom,
     jobType: String(job.employmentType ?? job.jobType ?? "full_time"),
     workMode: String(job.workMode ?? "onsite"),
-    location,
-    pay: String(job.salary ?? formatPayFromParts(job.payAmount, job.payCurrency, job.payStructure)),
+    location: String(job.city ?? job.location ?? ""),
+    region: String(job.region ?? ""),
+    pay: String(job.payAmount ?? job.salary ?? ""),
+    payMax: job.payMaxAmount != null ? String(job.payMaxAmount) : "",
     payPer: String(job.payStructure ?? "monthly"),
     openings: String(job.numberOfOpenings ?? 1),
     startDate: startNow ? "" : apiStartDate,

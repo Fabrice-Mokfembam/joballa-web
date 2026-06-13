@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ChevronDown, UploadCloud } from "lucide-react";
 
 function MockField({ label, value, placeholder }: { label: string; value?: string; placeholder?: string }) {
@@ -29,9 +32,11 @@ function MockSelect({ label, value }: { label: string; value: string }) {
 }
 
 export function LandingProfileMockup() {
+  const t = useTranslations("public.howDual.mockup");
+
   return (
     <div className="min-w-0 overflow-hidden rounded-[14px] border border-[var(--landing-border-muted)] bg-[var(--landing-mockup-bg)] p-4 sm:p-6">
-      <p className="text-xs font-bold uppercase tracking-normal text-[var(--landing-fg-muted)]">Personal info</p>
+      <p className="text-xs font-bold uppercase tracking-normal text-[var(--landing-fg-muted)]">{t("sectionTitle")}</p>
       <div className="mt-1.5 flex flex-col gap-4 sm:flex-row sm:gap-2">
         <div className="flex shrink-0 flex-col items-center gap-1.5 px-2 py-2 sm:py-4">
           <div className="relative size-24 overflow-hidden rounded-full bg-white">
@@ -48,24 +53,24 @@ export function LandingProfileMockup() {
             className="inline-flex h-8 items-center gap-1 rounded-xl px-3 text-sm font-medium text-[var(--joballa-primary)] shadow-[0_1px_1px_rgba(0,0,0,0.1)]"
           >
             <UploadCloud className="size-4" aria-hidden />
-            Replace
+            {t("replace")}
           </button>
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-7 py-2 sm:py-4 sm:pl-4">
           <div className="flex flex-col gap-4">
             <div className="flex gap-2">
-              <MockField label="First Name" value="Ako" />
-              <MockField label="Last Name" value="James" />
+              <MockField label={t("firstName")} value={t("sampleFirstName")} />
+              <MockField label={t("lastName")} value={t("sampleLastName")} />
             </div>
             <div className="flex gap-2">
-              <MockSelect label="Location" value="Cameroon" />
-              <MockSelect label="City" value="Buea" />
+              <MockSelect label={t("location")} value={t("sampleLocation")} />
+              <MockSelect label={t("city")} value={t("sampleCity")} />
             </div>
-            <MockField label="Phone" value="+237" />
+            <MockField label={t("phone")} value={t("samplePhone")} />
             <div className="flex min-w-0 flex-col gap-1">
-              <label className="px-1 text-xs font-medium text-[var(--landing-fg-muted)]">Languages Spoken</label>
+              <label className="px-1 text-xs font-medium text-[var(--landing-fg-muted)]">{t("languages")}</label>
               <div className="flex h-9 min-w-0 items-center justify-between gap-2 rounded-xl border border-[var(--landing-border-muted)] bg-[var(--landing-mockup-input-bg)] px-2.5 text-sm text-[var(--landing-fg-muted)]">
-                <span className="truncate">Ex: English, French, Spanish</span>
+                <span className="truncate">{t("languagesPlaceholder")}</span>
                 <ChevronDown className="size-4 shrink-0" aria-hidden />
               </div>
             </div>
@@ -74,7 +79,7 @@ export function LandingProfileMockup() {
             <div className="h-6 w-11 shrink-0 rounded-full bg-[var(--landing-border-muted)] p-0.5">
               <div className="size-5 rounded-full bg-[var(--landing-mockup-input-bg)]" />
             </div>
-            <span className="text-sm text-[var(--landing-fg-muted)]">Available to Work</span>
+            <span className="text-sm text-[var(--landing-fg-muted)]">{t("available")}</span>
           </div>
         </div>
       </div>

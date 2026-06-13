@@ -37,6 +37,8 @@ export function RequireAuth({ children, allowedRoles }: RequireAuthProps) {
     let cancelled = false;
 
     void (async () => {
+      useAuthStore.getState().setPortalGateReady(false);
+
       if (!hasRecoverableSessionHint(useAuthStore.getState().accessToken)) {
         if (!cancelled) logoutAndRedirectToSignIn(router, { pathname });
         return;
@@ -66,7 +68,10 @@ export function RequireAuth({ children, allowedRoles }: RequireAuthProps) {
         return;
       }
 
-      if (!cancelled) setSessionReady(true);
+      if (!cancelled) {
+        useAuthStore.getState().setPortalGateReady(true);
+        setSessionReady(true);
+      }
     })();
 
     return () => {

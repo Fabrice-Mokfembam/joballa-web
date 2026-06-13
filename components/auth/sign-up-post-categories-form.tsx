@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -15,12 +15,10 @@ import {
   readOnboardingInterests,
   writeOnboardingPostingCategories,
 } from "@/lib/onboarding-signup-state";
+import { useWorkerDepartmentOptions } from "@/features/worker/hooks";
 import {
-  WORKER_SIGN_UP_CATEGORY_SLUGS,
   WORKER_SIGN_UP_JOB_TYPE_SLUGS,
-  categorySlugsToLabels,
   jobTypeSlugsToEnums,
-  type WorkerSignUpCategorySlug,
   type WorkerSignUpJobTypeSlug,
 } from "@/lib/worker/sign-up-categories";
 import { AuthMobileHeader } from "@/components/auth/auth-mobile-header";
@@ -34,6 +32,11 @@ export function SignUpPostCategoriesForm() {
   const router = useRouter();
   const token = useAuthStore((s) => s.accessToken);
 
+  const { departments } = useWorkerDepartmentOptions();
+  const departmentSlugs = useMemo(
+    () => departments.filter((dept) => dept.slug !== "other").map((dept) => dept.slug ?? dept.id),
+    [departments],
+  );
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(() => new Set());
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(() => new Set());
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +88,7 @@ export function SignUpPostCategoriesForm() {
     setError(null);
   }
 
-  const categoryLabel = (slug: string) => tInterests(`options.${slug as WorkerSignUpCategorySlug}`);
+  const categoryLabel = (slug: string) => departments.find((dept) => (dept.slug ?? dept.id) === slug)?.name ?? slug;
   const typeLabel = (slug: string) => t(`jobTypes.${slug as WorkerSignUpJobTypeSlug}`);
 
   async function onContinue() {
@@ -104,8 +107,9 @@ export function SignUpPostCategoriesForm() {
       const postSlugs = [...selectedCategories];
       writeOnboardingPostingCategories(postSlugs);
 
-      const interestLabels = categorySlugsToLabels(interestSlugs, (s) => tInterests(`options.${s}`));
-      const postLabels = categorySlugsToLabels(postSlugs, (s) => tInterests(`options.${s}`));
+      const slugToName = (slug: string) => departments.find((dept) => (dept.slug ?? dept.id) === slug)?.name;
+      const interestLabels = interestSlugs.map(slugToName).filter((name): name is string => Boolean(name));
+      const postLabels = postSlugs.map(slugToName).filter((name): name is string => Boolean(name));
       const industries = [...new Set([...interestLabels, ...postLabels])];
       const preferredJobTypes = jobTypeSlugsToEnums([...selectedTypes]);
 
@@ -130,7 +134,7 @@ export function SignUpPostCategoriesForm() {
       <p className="mt-8 text-sm font-semibold text-[color:var(--auth-fg)]">{t("sections.categories")}</p>
       <div className="mt-3">
         <WorkerCategoryChips
-          slugs={WORKER_SIGN_UP_CATEGORY_SLUGS}
+          slugs={departmentSlugs}
           selected={selectedCategories}
           onToggle={toggleCategory}
           labelForSlug={categoryLabel}

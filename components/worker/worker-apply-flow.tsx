@@ -173,18 +173,18 @@ export function WorkerApplyFlow({
       }}
     >
       <div
-        className="my-6 w-full max-w-3xl overflow-hidden rounded-2xl border border-[#e5e5e5] bg-[var(--joballa-page-tint)] shadow-2xl"
+        className="my-6 w-full max-w-3xl overflow-hidden rounded-2xl border border-[var(--joballa-border)] bg-[var(--joballa-page-tint)] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-[#e5e5e5] bg-white px-4 py-3 sm:px-5">
-          <p id="apply-flow-title" className="min-w-0 truncate text-base font-semibold text-[#0a0a0a]">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--joballa-border)] bg-[var(--joballa-card)] px-4 py-3 sm:px-5">
+          <p id="apply-flow-title" className="min-w-0 truncate text-base font-semibold text-[var(--joballa-fg)]">
             {jobTitle}
           </p>
           <button
             type="button"
             onClick={onClose}
             aria-label={t("closeModal")}
-            className="shrink-0 rounded-lg p-2 text-[#737373] transition hover:bg-neutral-100 hover:text-[#0a0a0a]"
+            className="shrink-0 rounded-lg p-2 text-[var(--joballa-muted)] transition hover:bg-[var(--joballa-row-hover)] hover:text-[var(--joballa-fg)]"
           >
             <span aria-hidden className="block text-xl leading-none">
               ×
@@ -203,7 +203,7 @@ export function WorkerApplyFlow({
               if (step === 1) onClose();
               else setStep((s) => Math.max(1, (s - 1) as number) as Step);
             }}
-            className="flex w-fit items-center gap-1.5 text-sm font-medium text-[#737373] hover:text-[#0a0a0a]"
+            className="flex w-fit items-center gap-1.5 text-sm font-medium text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
           >
             <IconChevronLeft className="size-4" />
             {t("back")}

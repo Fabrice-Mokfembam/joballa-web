@@ -20,6 +20,8 @@ import type { WorkerApplicationRow } from "@/lib/worker-applications-data";
 import { WorkerJobPostingCard } from "@/components/job-posting/worker-job-posting-card";
 import { IconGrid, IconList } from "@/components/worker/icons";
 import { SimpleDialog } from "@/components/worker/dashboard/simple-dialog";
+import { JobCardSkeleton, WorkerStatCardSkeleton } from "@/components/worker/worker-loading-skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 type StatKey = "applications" | "earnings" | "views" | "strength";
@@ -124,15 +126,21 @@ export function WorkerDashboard() {
   const [applicationDialog, setApplicationDialog] = useState<WorkerApplicationRow | null>(null);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
+  const profileComplete = profileCompleteness >= 100;
+  const statsLoading = dashboardQuery.isLoading;
+  const recommendedLoading = dashboardQuery.isLoading;
+  const applicationsLoading = dashboardQuery.isLoading;
+  const profileStrengthLoading = profileQuery.isLoading;
+
   const stats = useMemo(
     () =>
       [
         { k: "applications" as const },
         { k: "earnings" as const },
         { k: "views" as const },
-        { k: "strength" as const },
+        ...(profileComplete ? [] : [{ k: "strength" as const }]),
       ] as const,
-    [],
+    [profileComplete],
   );
 
   const statHint = (k: StatKey) => {
@@ -208,30 +216,37 @@ export function WorkerDashboard() {
             </Link>
           </div>
         ) : null}
-        <div className="grid gap-2.5 min-[420px]:grid-cols-2 sm:gap-3 xl:grid-cols-4">
-          {stats.map(({ k }) => (
-            <div
-              key={k}
-              className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-3 py-4 shadow-sm sm:px-3.5 sm:py-5"
-            >
-              <p className="text-[10px] font-bold uppercase leading-3.5 tracking-normal text-[var(--joballa-muted)] sm:text-xs sm:leading-4">
-                {t(`stats.${k}.label`)}
-              </p>
-              <div className="mt-2 flex items-end justify-between gap-1.5 sm:mt-3 sm:gap-2">
-                <p className="text-2xl font-semibold leading-7 text-[var(--joballa-fg)] sm:text-3xl sm:leading-8 md:text-4xl md:leading-10 lg:text-5xl lg:leading-[48px]">
-                  {statDisplay[k]}
-                </p>
-                <p
-                  className={cn(
-                    "max-w-[88px] shrink-0 text-right text-[10px] font-semibold leading-3.5 text-[var(--joballa-muted)] sm:max-w-[120px] sm:text-xs sm:leading-4",
-                    k === "strength" && "text-[var(--joballa-primary)]",
-                  )}
+        <div
+          className={cn(
+            "grid gap-2.5 min-[420px]:grid-cols-2 sm:gap-3",
+            profileComplete ? "xl:grid-cols-3" : "xl:grid-cols-4",
+          )}
+        >
+          {statsLoading
+            ? Array.from({ length: profileComplete ? 3 : 4 }).map((_, i) => <WorkerStatCardSkeleton key={i} />)
+            : stats.map(({ k }) => (
+                <div
+                  key={k}
+                  className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-3 py-4 shadow-sm sm:px-3.5 sm:py-5"
                 >
-                  {statHint(k)}
-                </p>
-              </div>
-            </div>
-          ))}
+                  <p className="text-[10px] font-bold uppercase leading-3.5 tracking-normal text-[var(--joballa-muted)] sm:text-xs sm:leading-4">
+                    {t(`stats.${k}.label`)}
+                  </p>
+                  <div className="mt-2 flex items-end justify-between gap-1.5 sm:mt-3 sm:gap-2">
+                    <p className="text-2xl font-semibold leading-7 text-[var(--joballa-fg)] sm:text-3xl sm:leading-8 md:text-4xl md:leading-10 lg:text-5xl lg:leading-[48px]">
+                      {statDisplay[k]}
+                    </p>
+                    <p
+                      className={cn(
+                        "max-w-[88px] shrink-0 text-right text-[10px] font-semibold leading-3.5 text-[var(--joballa-muted)] sm:max-w-[120px] sm:text-xs sm:leading-4",
+                        k === "strength" && "text-[var(--joballa-primary)]",
+                      )}
+                    >
+                      {statHint(k)}
+                    </p>
+                  </div>
+                </div>
+              ))}
         </div>
 
         <section>
@@ -256,6 +271,7 @@ export function WorkerDashboard() {
                     grid ? "bg-[var(--joballa-tag-bg)] text-[var(--joballa-fg)]" : "text-[var(--joballa-muted)]",
                   )}
                   aria-pressed={grid}
+                  aria-label={t("recommended.viewGrid")}
                   onClick={() => setGrid(true)}
                 >
                   <IconGrid className="size-5" />
@@ -267,6 +283,7 @@ export function WorkerDashboard() {
                     !grid ? "bg-[var(--joballa-tag-bg)] text-[var(--joballa-fg)]" : "text-[var(--joballa-muted)]",
                   )}
                   aria-pressed={!grid}
+                  aria-label={t("recommended.viewList")}
                   onClick={() => setGrid(false)}
                 >
                   <IconList className="size-5" />
@@ -275,7 +292,21 @@ export function WorkerDashboard() {
             </div>
           </div>
 
-          {grid ? (
+          {recommendedLoading ? (
+            grid ? (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <JobCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="mb-3 h-10 w-full last:mb-0" />
+                ))}
+              </div>
+            )
+          ) : grid ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {recommendedGrid.map((job) => (
                 <DashboardJobCard key={job.id} job={job} t={t} grid showApply={!isJobApplied(job)} />
@@ -286,13 +317,13 @@ export function WorkerDashboard() {
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-[var(--joballa-border)] text-xs font-semibold text-[var(--joballa-muted)]">
-                    <th className="px-4 py-3">Posted</th>
-                    <th className="px-4 py-3">Employer</th>
-                    <th className="px-4 py-3">Job Title</th>
-                    <th className="px-4 py-3">Pay Rate</th>
-                    <th className="px-4 py-3">Job Type</th>
-                    <th className="px-4 py-3">Location</th>
-                    <th className="px-4 py-3">Match %</th>
+                    <th className="px-4 py-3">{t("recommended.table.posted")}</th>
+                    <th className="px-4 py-3">{t("recommended.table.employer")}</th>
+                    <th className="px-4 py-3">{t("recommended.table.jobTitle")}</th>
+                    <th className="px-4 py-3">{t("recommended.table.pay")}</th>
+                    <th className="px-4 py-3">{t("recommended.table.jobType")}</th>
+                    <th className="px-4 py-3">{t("recommended.table.location")}</th>
+                    <th className="px-4 py-3">{t("recommended.table.match")}</th>
                     <th className="px-4 py-3" />
                   </tr>
                 </thead>
@@ -359,7 +390,17 @@ export function WorkerDashboard() {
               </div>
             </div>
             <div className="space-y-3">
-              {applicationRows.length === 0 ? (
+              {applicationsLoading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-4 py-4 shadow-sm sm:px-5 sm:py-5"
+                  >
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="mt-3 h-4 w-1/2" />
+                  </div>
+                ))
+              ) : applicationRows.length === 0 ? (
                 <p className="rounded-[14px] border border-dashed border-[var(--joballa-border)] bg-[var(--joballa-card)] p-6 text-center text-sm text-[var(--joballa-muted)]">
                   {t("applications.emptyFiltered")}
                 </p>
@@ -415,7 +456,18 @@ export function WorkerDashboard() {
             </div>
           </section>
 
+          {!profileComplete ? (
           <section className="w-full max-w-[500px] self-start rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-4 py-5 shadow-sm sm:px-5 sm:py-6">
+            {profileStrengthLoading ? (
+              <div className="space-y-3" aria-busy>
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-2.5 w-full rounded-full" />
+                <Skeleton className="h-24 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-[14px]" />
+              </div>
+            ) : (
+            <>
             <h2 className="text-base font-semibold leading-6 text-[var(--joballa-fg)] sm:text-lg sm:leading-7">
               {t("profileStrength.title")}
             </h2>
@@ -457,7 +509,10 @@ export function WorkerDashboard() {
             >
               {t("profileBoostCta")}
             </button>
+            </>
+            )}
           </section>
+          ) : null}
         </div>
       </div>
 

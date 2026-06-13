@@ -18,6 +18,7 @@ import {
 import { workerApplicationRowsFromApi } from "@/features/worker/lib/application-mappers";
 import { getVerificationStatus, isPendingStatus, isVerifiedStatus } from "@/features/worker/lib/verification";
 import { displayValue } from "@/features/worker/lib/display-value";
+import { resolveJobPosterType } from "@/features/worker/lib/job-poster";
 import type { WorkerJobDetail } from "@/features/worker/types/worker-portal";
 import type { WorkerJobCard } from "@/lib/worker-job-data";
 import { splitJobSubtitle } from "@/components/job-posting/worker-job-posting-card";
@@ -31,6 +32,7 @@ import {
   IconClose,
   IconMoreHorizontal,
 } from "@/components/worker/icons";
+import { portalDetailSectionClass, portalIconButtonMutedClass } from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
 
 function DetailActionMenu({
@@ -49,19 +51,22 @@ function DetailActionMenu({
         aria-label={label}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="flex size-10 items-center justify-center rounded-[14px] bg-[#f6f6f6] text-[#737373] transition hover:bg-[#eeeeee] hover:text-[#0a0a0a]"
+        className={cn(portalIconButtonMutedClass, "size-10 rounded-[14px]")}
       >
         <IconMoreHorizontal className="size-5" />
       </button>
       {open ? (
         <>
           <button type="button" className="fixed inset-0 z-10 cursor-default bg-transparent" aria-hidden onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-lg border border-[#e5e5e5] bg-white py-1 text-sm shadow-md">
+          <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-lg border border-[var(--joballa-border)] bg-[var(--joballa-dropdown-bg)] py-1 text-sm shadow-[var(--joballa-shadow-elevated)]">
             {items.map((item) => (
               <button
                 key={item.label}
                 type="button"
-                className={cn("block w-full px-3 py-2 text-left hover:bg-neutral-50", item.destructive && "text-red-600 hover:bg-red-50")}
+                className={cn(
+                  "block w-full px-3 py-2 text-left text-[var(--joballa-fg)] hover:bg-[var(--joballa-row-hover)]",
+                  item.destructive && "text-[var(--joballa-danger-fg)] hover:bg-[var(--joballa-danger-bg)]",
+                )}
                 onClick={() => {
                   item.onSelect();
                   setOpen(false);
@@ -80,8 +85,8 @@ function DetailActionMenu({
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(9rem,auto)] items-start gap-4 text-sm leading-5">
-      <dt className="min-w-0 font-semibold text-[#0a0a0a]">{label}</dt>
-      <dd className="min-w-0 text-right font-semibold leading-5 text-[#737373]">{value}</dd>
+      <dt className="min-w-0 font-semibold text-[var(--joballa-fg)]">{label}</dt>
+      <dd className="min-w-0 text-right font-semibold leading-5 text-[var(--joballa-muted)]">{value}</dd>
     </div>
   );
 }
@@ -172,6 +177,8 @@ export function WorkerJobDetailView({
       (owned) => owned.jobId === jobId || owned.assignedJobId === jobId,
     );
   }, [detail, jobId, meWorkerId, ownedJobsQuery.data?.items]);
+
+  const posterType = useMemo(() => resolveJobPosterType(detail ?? null), [detail]);
 
   const metaRows = useMemo(() => {
     const ext = detail as WorkerJobDetail & {
@@ -302,8 +309,8 @@ export function WorkerJobDetailView({
   return (
     <div
       className={cn(
-        "flex w-full min-w-0 flex-1 flex-col",
-        isPanel ? "min-h-0 rounded-[18px] bg-[var(--joballa-page-tint)]" : "gap-5 bg-[var(--joballa-page-tint)] sm:gap-6",
+        "flex w-full min-w-0 flex-col",
+        isPanel ? "rounded-[18px] bg-[var(--joballa-page-tint)]" : "flex-1 gap-5 bg-[var(--joballa-page-tint)] sm:gap-6",
       )}
     >
       <h1 className="sr-only">
@@ -311,12 +318,12 @@ export function WorkerJobDetailView({
       </h1>
 
       {isPanel && onClosePanel ? (
-        <div className="sticky top-0 z-10 flex shrink-0 items-center justify-end border-b border-[#e5e5e5] bg-[var(--joballa-page-tint)] px-2 py-2">
+        <div className="sticky top-0 z-10 flex shrink-0 items-center justify-end bg-[var(--joballa-page-tint)] px-2 py-2">
           <button
             type="button"
             aria-label={t("closePanel")}
             onClick={onClosePanel}
-            className="flex size-10 items-center justify-center rounded-[14px] bg-white text-[#737373] shadow-[0_1px_2px_rgba(0,0,0,0.04)] ring-1 ring-[#e5e5e5] transition hover:bg-[#f6f6f6] hover:text-[#0a0a0a]"
+            className={cn(portalIconButtonMutedClass, "size-10 rounded-[14px]")}
           >
             <IconClose className="size-5" />
           </button>
@@ -326,7 +333,7 @@ export function WorkerJobDetailView({
       {!isPanel ? (
         <Link
           href="/worker/jobs"
-          className="inline-flex w-fit shrink-0 items-center gap-1.5 text-sm font-medium text-[#737373] transition hover:text-[#0a0a0a]"
+          className="inline-flex w-fit shrink-0 items-center gap-1.5 text-sm font-medium text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
         >
           <IconChevronLeft className="size-4" />
           {t("back")}
@@ -335,34 +342,34 @@ export function WorkerJobDetailView({
 
       <div
         className={cn(
-          "min-w-0 flex-1 space-y-3",
-          isPanel && "overflow-y-auto px-1 pb-3 pr-2",
-          !isPanel && "mx-auto w-full max-w-3xl space-y-4 text-sm",
+          "min-w-0 space-y-3",
+          isPanel && "px-1 pb-3 pr-2",
+          !isPanel && "mx-auto w-full max-w-3xl flex-1 space-y-4 text-sm",
         )}
       >
-        <section
-          className={cn(
-            "rounded-[14px] border border-[#e5e5e5] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
-            isPanel ? "p-3.5" : "p-4 sm:p-5",
-          )}
-        >
+        <section className={cn(portalDetailSectionClass, isPanel && "!p-3.5")}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-xl font-bold leading-7 tracking-tight text-[var(--joballa-primary)] sm:text-[22px]">{job.pay}</p>
               {scheduleLine ? (
-                <p className="mt-0.5 text-sm font-semibold leading-5 text-[#737373]">{scheduleLine}</p>
+                <p className="mt-0.5 text-sm font-semibold leading-5 text-[var(--joballa-muted)]">{scheduleLine}</p>
               ) : null}
             </div>
             <DetailActionMenu label={t("moreActions")} items={menuItems} />
           </div>
 
           <div className="mt-5 min-w-0">
-            <h2 className="text-lg font-bold leading-7 text-[#0a0a0a]">{job.title}</h2>
+            <h2 className="text-lg font-bold leading-7 text-[var(--joballa-fg)]">{job.title}</h2>
             <div className="mt-1.5 flex min-w-0 items-center gap-2">
               <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white", job.companyColor)}>
                 {job.companyInitial}
               </div>
-              <p className="truncate text-sm font-semibold text-[#737373]">{job.company}</p>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-[var(--joballa-muted)]">{job.company}</p>
+                {posterType ? (
+                  <p className="text-xs font-medium text-[var(--joballa-fg-subtle)]">{t(`posterType.${posterType}`)}</p>
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -389,7 +396,7 @@ export function WorkerJobDetailView({
                 "flex h-12 items-center justify-center gap-2 rounded-[12px] border px-4 text-sm font-semibold transition disabled:opacity-50",
                 saved
                   ? "border-[var(--joballa-primary)] bg-[var(--joballa-jade-3)] text-[var(--joballa-primary)] hover:opacity-90"
-                  : "border-[#e5e5e5] bg-white text-[#171717] hover:border-[var(--joballa-primary)] hover:text-[var(--joballa-primary)]",
+                  : "border-[var(--joballa-border)] bg-[var(--joballa-card)] text-[var(--joballa-fg)] hover:border-[var(--joballa-primary)] hover:text-[var(--joballa-primary)]",
               )}
             >
               {saved ? <IconBookmarkSolid className="size-4" /> : <IconBookmark className="size-4" />}
@@ -406,23 +413,18 @@ export function WorkerJobDetailView({
           ) : null}
         </section>
 
-        <section
-          className={cn(
-            "rounded-[14px] border border-[#e5e5e5] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
-            isPanel ? "p-3.5" : "p-4 sm:p-5",
-          )}
-        >
-          <h3 className="text-sm font-bold text-[#0a0a0a]">{t("aboutTitle")}</h3>
+        <section className={cn(portalDetailSectionClass, isPanel && "!p-3.5")}>
+          <h3 className="text-sm font-bold text-[var(--joballa-fg)]">{t("aboutTitle")}</h3>
           {description ? (
-            <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-[#737373]">{description}</p>
+            <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-[var(--joballa-muted)]">{description}</p>
           ) : (
-            <p className="mt-4 text-sm leading-6 text-[#737373]">{t("emptyDescription")}</p>
+            <p className="mt-4 text-sm leading-6 text-[var(--joballa-muted)]">{t("emptyDescription")}</p>
           )}
 
           {requirements.length > 0 ? (
             <>
-              <h3 className="mt-7 text-sm font-bold text-[#0a0a0a]">{t("reqTitle")}</h3>
-              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-[#737373]">
+              <h3 className="mt-7 text-sm font-bold text-[var(--joballa-fg)]">{t("reqTitle")}</h3>
+              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
                 {requirements.map((line) => (
                   <li key={line}>{line}</li>
                 ))}
@@ -432,8 +434,8 @@ export function WorkerJobDetailView({
 
           {responsibilities.length > 0 ? (
             <>
-              <h3 className="mt-7 text-sm font-bold text-[#0a0a0a]">{t("whatTitle")}</h3>
-              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-[#737373]">
+              <h3 className="mt-7 text-sm font-bold text-[var(--joballa-fg)]">{t("whatTitle")}</h3>
+              <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
                 {responsibilities.map((line) => (
                   <li key={line}>{line}</li>
                 ))}

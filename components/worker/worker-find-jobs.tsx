@@ -18,6 +18,7 @@ import {
   useSaveWorkerJob,
   useWorkerJob,
   useWorkerApplications,
+  useWorkerDepartmentOptions,
   useWorkerJobSearch,
 } from "@/features/worker/hooks";
 import { buildJobSearchParams } from "@/features/worker/lib/job-search-params";
@@ -90,7 +91,11 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
   const [city, setCity] = useState(CITY_ALL);
 
   const typeOptions = useMemo(() => (t.raw("typeOptions") as string[]) ?? [], [t]);
-  const deptOptions = useMemo(() => (t.raw("deptOptions") as string[]) ?? [], [t]);
+  const { departments: departmentCatalog } = useWorkerDepartmentOptions();
+  const deptOptions = useMemo(
+    () => departmentCatalog.map((dept) => dept.name).filter(Boolean) as string[],
+    [departmentCatalog],
+  );
   const payOptions = useMemo(() => (t.raw("payOptions") as string[]) ?? [], [t]);
 
   const [type, setType] = useState(FILTER_ALL);
@@ -375,7 +380,7 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
       <div
         className={cn(
           "flex min-h-0 w-full flex-1 flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6",
-          showPanel && "lg:grid lg:h-[calc(100dvh-8.5rem)] lg:grid-cols-[minmax(340px,0.78fr)_minmax(0,1.22fr)] lg:gap-6 lg:overflow-hidden",
+          showPanel && "lg:grid lg:h-[calc(100dvh-8.5rem)] lg:grid-cols-[minmax(340px,0.78fr)_minmax(0,1.22fr)] lg:items-start lg:gap-6 lg:overflow-hidden",
         )}
       >
         <div className="flex min-w-0 min-h-0 flex-1 flex-col gap-3 max-lg:max-w-full lg:min-h-0 lg:overflow-y-auto lg:pr-1">
@@ -402,8 +407,9 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
             </div>
           </div>
 
+          <div className="min-h-[28rem] w-full">
           {jobsQuery.isLoading ? (
-            <WorkerFindJobsPageSkeleton cards={6} />
+            <WorkerFindJobsPageSkeleton cards={6} grid={grid} />
           ) : jobsQuery.isError ? (
             <PortalEmptyState description={jobsQuery.error instanceof JoballaApiError ? jobsQuery.error.message : t("loadError")} />
           ) : filteredJobs.length === 0 ? (
@@ -487,10 +493,11 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
               </table>
             </div>
           )}
+          </div>
         </div>
 
         {showPanel ? (
-          <aside className="hidden min-h-0 w-full max-w-full rounded-[22px] border border-[var(--joballa-border)] bg-[var(--joballa-page)] p-3 lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
+          <aside className="hidden w-full max-w-full self-start rounded-[22px] border border-[var(--joballa-border)] bg-[var(--joballa-page)] p-3 lg:flex lg:max-h-[calc(100dvh-8.5rem)] lg:flex-col lg:overflow-y-auto">
             {panelJobQuery.isLoading || !selectedJob ? (
               <WorkerFindJobsPageSkeleton cards={1} />
             ) : (

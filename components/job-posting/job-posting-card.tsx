@@ -44,6 +44,8 @@ export type JobPostingCardProps = {
   showApply?: boolean;
   /** Optional overflow menu (⋯) */
   menuItems?: JobPostingCardMenuItem[];
+  /** Status pill shown beside the more menu (e.g. Draft, Live). */
+  statusPill?: { label: string; className?: string };
   moreMenuAriaLabel: string;
   titleHref?: string;
   /** When set (and typically without `titleHref`), title opens via click instead of navigation. */
@@ -100,6 +102,7 @@ export function JobPostingCard({
   onApplyClick,
   showApply = true,
   menuItems,
+  statusPill,
   moreMenuAriaLabel,
   titleHref,
   onTitleClick,
@@ -162,6 +165,11 @@ export function JobPostingCard({
               <span className="min-w-[1px] shrink-0" />
             )}
           </div>
+          {statusPill ? (
+            <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold leading-4", statusPill.className)}>
+              {statusPill.label}
+            </span>
+          ) : null}
           <div className="relative shrink-0" data-card-stop>
             <button
               type="button"
@@ -273,7 +281,7 @@ export function JobPostingCard({
                 "flex h-8 items-center justify-center rounded-xl bg-[var(--joballa-tag-bg)] px-3 text-[var(--joballa-muted)] transition hover:bg-[var(--joballa-row-hover)] hover:text-[var(--joballa-fg)]",
                 bookmarkFilled && "text-[var(--joballa-fg)]",
               )}
-              aria-label={bookmarkLabel || "Bookmark"}
+              aria-label={bookmarkLabel ?? ""}
               onClick={onBookmarkClick}
             >
               {bookmarkFilled ? <IconBookmarkSolid className="size-4" /> : <IconBookmark className="size-4" />}

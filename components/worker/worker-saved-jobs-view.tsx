@@ -11,7 +11,7 @@ import {
   type CameroonRegionId,
 } from "@/lib/cameroon-region-cities";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { useDeleteSavedJob, useSavedJobs, useWorkerApplications } from "@/features/worker/hooks";
+import { useDeleteSavedJob, useSavedJobs, useWorkerApplications, useWorkerDepartmentOptions } from "@/features/worker/hooks";
 import { buildJobSearchParams } from "@/features/worker/lib/job-search-params";
 import { workerApplicationRowsFromApi } from "@/features/worker/lib/application-mappers";
 import { workerJobCardFromApi } from "@/features/worker/lib/job-mappers";
@@ -51,7 +51,11 @@ export function WorkerSavedJobsView() {
   const [city, setCity] = useState(CITY_ALL);
 
   const typeOptions = useMemo(() => (tf.raw("typeOptions") as string[]) ?? [], [tf]);
-  const deptOptions = useMemo(() => (tf.raw("deptOptions") as string[]) ?? [], [tf]);
+  const { departments: departmentCatalog } = useWorkerDepartmentOptions();
+  const deptOptions = useMemo(
+    () => departmentCatalog.map((dept) => dept.name).filter(Boolean) as string[],
+    [departmentCatalog],
+  );
   const payOptions = useMemo(() => (tf.raw("payOptions") as string[]) ?? [], [tf]);
 
   const [type, setType] = useState(FILTER_ALL);

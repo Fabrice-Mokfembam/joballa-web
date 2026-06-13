@@ -55,7 +55,7 @@ export function WorkerProfileDocuments() {
             e.stopPropagation();
             inputRef.current?.click();
           }}
-          className="mt-1 inline-flex h-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--joballa-border)] bg-white px-4 text-sm font-medium text-[var(--joballa-fg)] shadow-sm transition hover:bg-[var(--joballa-row-hover)]"
+          className="mt-1 inline-flex h-9 cursor-pointer items-center justify-center rounded-xl border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-4 text-sm font-medium text-[var(--joballa-fg)] shadow-sm transition hover:bg-[var(--joballa-row-hover)]"
         >
           {t("browse")}
         </button>

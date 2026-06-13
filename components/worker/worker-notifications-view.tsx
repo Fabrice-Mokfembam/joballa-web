@@ -70,7 +70,7 @@ export function WorkerNotificationsView() {
               className={
                 activeFilter === filter
                   ? "inline-flex h-9 items-center rounded-full border border-[var(--joballa-primary)] bg-[var(--joballa-primary)] px-4 text-sm font-medium text-white"
-                  : "inline-flex h-9 items-center rounded-full border border-[var(--joballa-border)] bg-white px-4 text-sm font-medium text-[var(--joballa-muted)]"
+                  : "inline-flex h-9 items-center rounded-full border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-4 text-sm font-medium text-[var(--joballa-muted)]"
               }
             >
               {t(`filters.${filter}`)}
@@ -90,11 +90,11 @@ export function WorkerNotificationsView() {
       </div>
 
       {items.length === 0 ? (
-        <p className="rounded-[14px] border border-[var(--joballa-border)] bg-white px-6 py-10 text-center text-sm text-[var(--joballa-muted)]">
+        <p className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] px-6 py-10 text-center text-sm text-[var(--joballa-muted)]">
           {t("empty")}
         </p>
       ) : (
-        <ul className="divide-y divide-[var(--joballa-border)] overflow-hidden rounded-[14px] border border-[var(--joballa-border)] bg-white">
+        <ul className="divide-y divide-[var(--joballa-border)] overflow-hidden rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)]">
           {items.map((item) => (
             <li key={item.id}>
               <button

@@ -22,7 +22,14 @@ export const portalIconButtonClass =
   "rounded-lg p-2 text-[var(--joballa-nav-fg-muted)] transition hover:bg-[var(--joballa-nav-hover)] hover:text-[var(--joballa-nav-fg)]";
 
 export const portalProfileSummaryClass =
-  "flex cursor-pointer list-none items-center gap-1.5 rounded-lg py-1 pl-0.5 pr-0.5 outline-none ring-[var(--joballa-primary)] transition hover:bg-[var(--joballa-nav-hover)] focus-visible:ring-2 sm:gap-2 sm:py-1.5 sm:pl-1 [&::-webkit-details-marker]:hidden";
+  "flex cursor-pointer list-none items-center gap-1.5 rounded-lg py-1 pl-0.5 pr-0.5 outline-none ring-[var(--joballa-primary)] transition hover:bg-[var(--joballa-nav-hover)] focus-visible:ring-2 min-[901px]:gap-2 min-[901px]:py-1.5 min-[901px]:pl-1 [&::-webkit-details-marker]:hidden";
+
+/** Profile menu label — hidden at ≤900px so the header control is avatar-only. */
+export const portalProfileNameClass =
+  "hidden max-w-[140px] truncate text-sm font-semibold text-[var(--joballa-nav-fg)] min-[901px]:inline";
+
+export const portalProfileChevronClass =
+  "hidden size-3.5 shrink-0 text-[var(--joballa-nav-fg-muted)] min-[901px]:block";
 
 export function portalNavLinkClass(active: boolean) {
   return cn(

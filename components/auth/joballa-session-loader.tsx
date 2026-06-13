@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 const RING_SIZE = 88;
@@ -16,6 +19,7 @@ type JoballaSessionLoaderProps = {
 
 /** Branded indeterminate loader: ring around logo mark, wordmark below. */
 export function JoballaSessionLoader({ className }: JoballaSessionLoaderProps) {
+  const t = useTranslations("common.aria");
   return (
     <div className={cn("flex flex-col items-center", className)}>
       <div className="relative size-[88px] shrink-0">
@@ -66,7 +70,7 @@ export function JoballaSessionLoader({ className }: JoballaSessionLoaderProps) {
       >
         joballa
       </p>
-      <span className="sr-only">Loading</span>
+      <span className="sr-only">{t("loading")}</span>
     </div>
   );
 }

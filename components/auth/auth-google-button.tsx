@@ -4,10 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/lib/i18n/navigation";
+import { GoogleBrandIcon } from "@/components/icons/google-brand-icon";
 import { postAuthGoogle } from "@/features/auth/api/auth";
 import { mapGoogleAuthError } from "@/features/auth/lib/map-google-auth-error";
 import { establishSessionAndNavigate } from "@/lib/auth/establish-session";
 import { isGoogleSignInEnabled } from "@/lib/auth/google-client-id";
+import { authOutlineButtonClassName } from "@/lib/auth-ui";
 import {
   clearOnboardingRole,
   clearPendingSignUp,
@@ -37,6 +39,7 @@ export function AuthGoogleSignInButton({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [buttonWidth, setButtonWidth] = useState(320);
   const [busy, setBusy] = useState(false);
+  const label = mode === "signup" ? t("signUp") : t("signIn");
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -101,22 +104,31 @@ export function AuthGoogleSignInButton({
     <div
       ref={wrapperRef}
       className={cn(
-        "flex w-full justify-center overflow-hidden",
+        "relative h-12 w-full",
         (disabled || busy) && "pointer-events-none opacity-60",
         className,
       )}
       aria-busy={busy}
+      aria-label={label}
     >
-      <GoogleLogin
-        onSuccess={(credential: CredentialResponse) => void handleSuccess(credential)}
-        onError={() => handleError(t("errors.cancelled"))}
-        text={mode === "signup" ? "signup_with" : "signin_with"}
-        shape="rectangular"
-        theme="outline"
-        size="large"
-        width={buttonWidth}
-      />
+      <div className={cn(authOutlineButtonClassName, "pointer-events-none absolute inset-0")} aria-hidden>
+        <GoogleBrandIcon className="size-5 shrink-0" />
+        <span>{label}</span>
+      </div>
+      <div
+        className="absolute inset-0 z-10 overflow-hidden opacity-[0.01] [&_iframe]:h-12! [&_iframe]:w-full!"
+        aria-hidden
+      >
+        <GoogleLogin
+          onSuccess={(credential: CredentialResponse) => void handleSuccess(credential)}
+          onError={() => handleError(t("errors.cancelled"))}
+          text={mode === "signup" ? "signup_with" : "signin_with"}
+          shape="rectangular"
+          theme="outline"
+          size="large"
+          width={buttonWidth}
+        />
+      </div>
     </div>
   );
 }
-

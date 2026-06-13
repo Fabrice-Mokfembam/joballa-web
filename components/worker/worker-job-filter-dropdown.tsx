@@ -30,7 +30,7 @@ export function WorkerJobFilterDropdown({
 }) {
   const triggerTone =
     tone === "toolbar"
-      ? "h-11 min-h-[44px] gap-2 rounded-[14px] border border-[#e5e5e5] bg-white px-3 text-xs font-medium text-[#737373] shadow-none"
+      ? "h-11 min-h-[44px] gap-2 rounded-[14px] border border-[var(--joballa-control-border)] bg-[var(--joballa-control-bg)] px-3 text-xs font-medium text-[var(--joballa-fg)] shadow-none"
       : "h-10 gap-2 rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 text-sm font-medium text-[var(--joballa-fg)]";
 
   return (
@@ -40,9 +40,9 @@ export function WorkerJobFilterDropdown({
         onClick={onToggle}
         className={cn("flex shrink-0 items-center outline-none ring-[var(--joballa-primary)] focus-visible:ring-2", triggerTone)}
       >
-        <span className={tone === "toolbar" ? "text-[#737373]" : "text-[var(--joballa-muted)]"}>{icon}</span>
+        <span className="text-[var(--joballa-muted)]">{icon}</span>
         <span className="max-w-[120px] truncate sm:max-w-[160px]">{valueLabel || label}</span>
-        <IconChevronDown className={cn("size-4 shrink-0", tone === "toolbar" ? "text-[#737373]" : "text-[var(--joballa-muted)]")} />
+        <IconChevronDown className="size-4 shrink-0 text-[var(--joballa-muted)]" />
       </button>
       {open ? (
         <>

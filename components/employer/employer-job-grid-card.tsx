@@ -1,9 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { EmployerJobCardModel } from "@/lib/employer-job-card";
-import { displayEmployerJobStatus } from "@/features/employer/lib/employer-job-status";
+import { employerJobStatusKey } from "@/features/employer/lib/employer-job-status";
 import { useRouter } from "@/lib/i18n/navigation";
 import { JobPostingCard } from "@/components/job-posting/job-posting-card";
+import { jobStatusPillClass } from "@/lib/job-status-pill";
 
 type Props = {
   job: EmployerJobCardModel;
@@ -22,9 +24,12 @@ export function EmployerJobGridCard({
   isActive,
   splitPane,
   onSelectJob,
-  viewApplicantsLabel = "View applicants",
+  viewApplicantsLabel,
 }: Props) {
+  const t = useTranslations("employer.jobsPage");
+  const tc = useTranslations("common.aria");
   const router = useRouter();
+  const resolvedViewApplicantsLabel = viewApplicantsLabel ?? t("viewApplicants");
   const parts = job.subtitle.split(/\s*•\s*/).map((s) => s.trim());
   const schedule = parts[0] ?? job.subtitle;
   const location = parts.slice(1).join(" • ");
@@ -37,7 +42,11 @@ export function EmployerJobGridCard({
       title={job.title}
       scheduleLabel={schedule}
       locationLabel={location}
-      pillTags={[displayEmployerJobStatus(job.status), job.pay]}
+      pillTags={[job.pay]}
+      statusPill={{
+        label: t(`status.${employerJobStatusKey(job.status)}`),
+        className: jobStatusPillClass(job.status),
+      }}
       companyName={job.company}
       companyLogoUrl={job.companyLogoUrl}
       companyInitial={job.companyInitial}
@@ -45,7 +54,7 @@ export function EmployerJobGridCard({
       postedLabel={postedLabel}
       matchTextOverride={applicantsLabel}
       showBookmark={false}
-      applyLabel={viewApplicantsLabel}
+      applyLabel={resolvedViewApplicantsLabel}
       onCardClick={() => {
         if (splitPane && onSelectJob) {
           onSelectJob(job.jobId);
@@ -56,7 +65,7 @@ export function EmployerJobGridCard({
       onApplyClick={() => {
         void router.push(`/employer/applicants?jobId=${encodeURIComponent(job.jobId)}`);
       }}
-      moreMenuAriaLabel="Job actions"
+      moreMenuAriaLabel={tc("jobActions")}
     />
   );
 }

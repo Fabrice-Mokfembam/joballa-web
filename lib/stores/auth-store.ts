@@ -13,9 +13,12 @@ export type AuthStore = {
   accessToken: string | null;
   refreshToken: string | null;
   user: AuthSessionUser | null;
+  /** True after protected-route session hydration succeeds (not just persisted tokens). */
+  portalGateReady: boolean;
   setAccessToken: (token: string | null) => void;
   setTokens: (accessToken: string, refreshToken?: string | null) => void;
   setSession: (accessToken: string, refreshToken: string | null, user: AuthSessionUser | null) => void;
+  setPortalGateReady: (ready: boolean) => void;
   clearSession: () => void;
 };
 
@@ -23,6 +26,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   accessToken: null,
   refreshToken: null,
   user: null,
+  portalGateReady: false,
   setAccessToken: (token) => {
     const refresh = get().refreshToken;
     set({ accessToken: token });
@@ -39,11 +43,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     if (user) writeSessionCookie(user.role);
     set({ accessToken, refreshToken, user });
   },
+  setPortalGateReady: (ready) => set({ portalGateReady: ready }),
   clearSession: () => {
     clearSessionCookie();
     clearStoredTokens();
     blockTokenRefresh();
-    set({ accessToken: null, refreshToken: null, user: null });
+    set({ accessToken: null, refreshToken: null, user: null, portalGateReady: false });
   },
 }));
 

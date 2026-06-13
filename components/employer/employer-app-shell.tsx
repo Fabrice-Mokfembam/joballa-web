@@ -15,9 +15,17 @@ import {
   IconSettings,
   IconUser,
 } from "@/components/worker/icons";
+import { AuthSessionLoadingScreen } from "@/components/auth/auth-session-loading-screen";
 import { useEmployerMe } from "@/features/employer/hooks";
 import { Link, usePathname } from "@/lib/i18n/navigation";
-import { portalIconButtonClass, portalNavLinkClass, portalProfileSummaryClass } from "@/components/portal/portal-ui";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import {
+  portalIconButtonClass,
+  portalNavLinkClass,
+  portalProfileChevronClass,
+  portalProfileNameClass,
+  portalProfileSummaryClass,
+} from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
 
 type NavKey = "dashboard" | "jobs" | "applicants" | "workforce" | "payroll";
@@ -81,6 +89,7 @@ function EmployerAvatar({ name, url }: { name: string; url?: string | null }) {
 }
 
 export function EmployerAppShell({ children }: { children: ReactNode }) {
+  const portalGateReady = useAuthStore((s) => s.portalGateReady);
   const pathname = usePathname();
   const t = useTranslations("employer.nav");
   const ts = useTranslations("employer.shell");
@@ -114,6 +123,10 @@ export function EmployerAppShell({ children }: { children: ReactNode }) {
       document.removeEventListener("keydown", onDocumentKeyDown);
     };
   }, []);
+
+  if (!portalGateReady) {
+    return <AuthSessionLoadingScreen />;
+  }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-[var(--joballa-page)] text-[var(--joballa-fg)]">
@@ -195,12 +208,10 @@ export function EmployerAppShell({ children }: { children: ReactNode }) {
             </Link>
 
             <details ref={menuRef} className="relative shrink-0">
-              <summary className={portalProfileSummaryClass}>
+              <summary className={portalProfileSummaryClass} aria-label={companyDisplayName}>
                 <EmployerAvatar name={companyDisplayName} url={avatarUrl} />
-                <span className="hidden max-w-[120px] truncate text-sm font-semibold text-[var(--joballa-nav-fg)] sm:max-w-[140px] lg:inline">
-                  {companyDisplayName}
-                </span>
-                <IconChevronDown className="size-3 shrink-0 text-[var(--joballa-nav-fg-muted)] sm:size-3.5" />
+                <span className={portalProfileNameClass}>{companyDisplayName}</span>
+                <IconChevronDown className={portalProfileChevronClass} />
               </summary>
               <div
                 className="absolute right-0 z-50 mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-[var(--joballa-border)] bg-[var(--joballa-dropdown-bg)] py-1 shadow-lg"

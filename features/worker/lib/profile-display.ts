@@ -1,5 +1,4 @@
 import type {
-  ProfileCompletenessBreakdown,
   WorkerCertification,
   WorkerDocument,
   WorkerEducation,
@@ -96,36 +95,7 @@ function formatMonthYear(iso: string): string {
   return d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
 }
 
-function isWeightedBreakdown(
-  breakdown: WorkerFullProfile["profileStrengthBreakdown"],
-): breakdown is ProfileCompletenessBreakdown {
-  if (!breakdown || typeof breakdown !== "object") return false;
-  return "personalInfo" in breakdown || "experience" in breakdown;
-}
-
 export function profileSectionCompletion(profile: WorkerFullProfile) {
-  const breakdown = profile.profileStrengthBreakdown;
-  if (isWeightedBreakdown(breakdown)) {
-    const max = {
-      personal: 20,
-      summary: 10,
-      skills: 15,
-      work: 20,
-      education: 10,
-      verification: 10,
-      payment: 0,
-    };
-    return {
-      personal: (breakdown.personalInfo ?? 0) >= max.personal,
-      summary: (breakdown.summary ?? 0) >= max.summary,
-      skills: (breakdown.skills ?? 0) >= max.skills,
-      work: (breakdown.experience ?? 0) >= max.work,
-      education: (breakdown.education ?? 0) >= max.education,
-      verification: (breakdown.verification ?? 0) >= max.verification,
-      payment: hasPaymentMethod(profile),
-    };
-  }
-
   return {
     personal: !!(profileDisplayName(profile) && profile.city),
     summary: !!(profile.professionalTitle && profile.summary),

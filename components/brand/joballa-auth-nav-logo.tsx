@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +13,7 @@ type Props = {
 
 /** Nav lockup — brand mark image + wordmark (matches auth mobile logo). */
 export function JoballaAuthNavLogo({ className, variant = "auth" }: Props) {
+  const t = useTranslations("common.aria");
   const wordmarkClass =
     variant === "landing"
       ? "text-[var(--landing-fg)]"
@@ -21,7 +25,7 @@ export function JoballaAuthNavLogo({ className, variant = "auth" }: Props) {
     <Link
       href="/"
       className={cn("inline-flex shrink-0 items-center gap-2", className)}
-      aria-label="Joballa home"
+      aria-label={t("home")}
     >
       <Image
         src="/brand/auth-logo-mark.png"

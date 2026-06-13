@@ -297,7 +297,7 @@ async function main() {
   if (runTech) console.log(`[seed:accounts] Employer (Tech Chantier):  ${techEmail}`);
   if (runHealth) console.log(`[seed:accounts] Employer (Health org):    ${healthEmail}`);
   if (runWorker) console.log(`[seed:accounts] Worker (teaching):         ${workerEmail}`);
-  console.log("[seed:accounts] Sign in with NEXT_PUBLIC_USE_DEMO_DATA=false");
+  console.log("[seed:accounts] Sign in with the seeded accounts above.");
 }
 
 main().catch((e) => {

@@ -40,7 +40,7 @@ export function SettingsToggleRow({
   onChange,
   disabled,
 }: {
-  icon: ReactNode;
+  icon?: ReactNode;
   title: string;
   description: string;
   enabled?: boolean;
@@ -48,8 +48,13 @@ export function SettingsToggleRow({
   disabled?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-4 border-t border-[var(--joballa-border)] py-5 first:border-t-0 first:pt-0 last:pb-0">
-      <SettingsIcon>{icon}</SettingsIcon>
+    <div
+      className={cn(
+        "grid items-center gap-4 border-t border-[var(--joballa-border)] py-5 first:border-t-0 first:pt-0 last:pb-0",
+        icon ? "grid-cols-[48px_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1fr)_auto]",
+      )}
+    >
+      {icon ? <SettingsIcon>{icon}</SettingsIcon> : null}
       <div className="min-w-0">
         <h3 className="text-sm font-bold leading-6 text-[var(--joballa-fg)]">{title}</h3>
         <p className="mt-0.5 text-sm leading-5 text-[var(--joballa-muted)]">{description}</p>
@@ -123,21 +128,24 @@ export function SettingsActionLink({
   description,
 }: {
   href: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   title: string;
   description: string;
 }) {
   return (
     <Link
       href={href}
-      className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-4 border-t border-[var(--joballa-border)] py-5 outline-none ring-[var(--joballa-primary)] transition first:border-t-0 first:pt-0 last:pb-0 hover:bg-[var(--joballa-row-hover)] focus-visible:ring-2"
+      className={cn(
+        "grid items-center gap-4 border-t border-[var(--joballa-border)] py-5 outline-none ring-[var(--joballa-primary)] transition first:border-t-0 first:pt-0 last:pb-0 hover:bg-[var(--joballa-row-hover)] focus-visible:ring-2",
+        icon ? "grid-cols-[48px_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1fr)_auto]",
+      )}
     >
-      <SettingsIcon>{icon}</SettingsIcon>
+      {icon ? <SettingsIcon>{icon}</SettingsIcon> : null}
       <div className="min-w-0">
         <h3 className="text-sm font-bold leading-6 text-[var(--joballa-fg)]">{title}</h3>
         <p className="mt-0.5 text-sm leading-5 text-[var(--joballa-muted)]">{description}</p>
       </div>
-      <ChevronRight className="size-5 text-[var(--joballa-muted)]" aria-hidden strokeWidth={1.8} />
+      {icon ? <ChevronRight className="size-5 text-[var(--joballa-muted)]" aria-hidden strokeWidth={1.8} /> : null}
     </Link>
   );
 }

@@ -3,7 +3,7 @@ import { PortalPageHeaderSkeleton, PortalSettingsPageSkeleton } from "@/componen
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-function JobCardSkeleton() {
+export function JobCardSkeleton() {
   return (
     <div className="flex flex-col gap-6 rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-[14px] shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
       <div className="flex items-center justify-between gap-2">
@@ -35,7 +35,7 @@ function JobCardSkeleton() {
   );
 }
 
-function WorkerStatCardSkeleton() {
+export function WorkerStatCardSkeleton() {
   return (
     <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-3 shadow-sm sm:p-3.5">
       <Skeleton className="h-3 w-20 sm:w-24" />
@@ -121,32 +121,33 @@ export function WorkerDashboardPageSkeleton() {
 }
 
 /** Toolbar + job grid — mirrors {@link WorkerFindJobsViewInner}. */
-export function WorkerFindJobsPageSkeleton({ cards = 6 }: { cards?: number }) {
+export function WorkerFindJobsPageSkeleton({ cards = 6, grid = true }: { cards?: number; grid?: boolean }) {
   return (
-    <div className={portalPageShellClass} aria-busy>
-      <div className="flex w-full flex-col gap-2 min-[600px]:gap-3">
-        <div className="flex min-w-0 items-stretch gap-2 min-[600px]:gap-3">
-          <Skeleton className="h-11 min-w-0 flex-1 rounded-[14px]" />
-          <Skeleton className="h-11 w-11 shrink-0 rounded-full min-[600px]:w-28 min-[600px]:rounded-full" />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-9 w-[5.5rem] rounded-full sm:w-28" />
+    <div className="w-full" aria-busy>
+      {grid ? (
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+          {Array.from({ length: cards }).map((_, i) => (
+            <JobCardSkeleton key={i} />
           ))}
         </div>
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className={portalSegmentGroupClass}>
-          <Skeleton className="size-8 rounded-[8px]" />
-          <Skeleton className="size-8 rounded-[8px]" />
+      ) : (
+        <div className="overflow-x-auto rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] shadow-[var(--joballa-shadow-card)]">
+          <div className="min-w-[640px]">
+            <div className="flex gap-4 border-b border-[var(--joballa-border)] px-4 py-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-3 flex-1" />
+              ))}
+            </div>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex gap-4 border-b border-[var(--joballa-border)] px-4 py-3 last:border-0">
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <Skeleton key={j} className="h-4 flex-1" />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
-        <Skeleton className="h-4 w-24" />
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-        {Array.from({ length: cards }).map((_, i) => (
-          <JobCardSkeleton key={i} />
-        ))}
-      </div>
+      )}
     </div>
   );
 }

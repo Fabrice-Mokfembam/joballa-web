@@ -7,6 +7,18 @@
     }
   },
   "common": {
+    "asyncState": {
+      "loading": "Loading…",
+      "error": "Something went wrong.",
+      "retry": "Try again"
+    },
+    "aria": {
+      "loading": "Loading",
+      "remove": "Remove",
+      "removeItem": "Remove {item}",
+      "home": "Joballa home",
+      "jobActions": "Job actions"
+    },
     "confirm": {
       "cancel": "Cancel",
       "signOut": {
@@ -40,6 +52,21 @@
     "passwordInput": {
       "showPassword": "Show password",
       "hidePassword": "Hide password"
+    }
+  },
+  "verification": {
+    "gate": {
+      "cancel": "Cancel",
+      "verify": "Verify",
+      "viewStatus": "View status",
+      "workerKycPendingTitle": "KYC verification is pending",
+      "employerPendingTitle": "Business verification is pending",
+      "workerKycTitle": "Verify your KYC first",
+      "employerTitle": "Verify your business first",
+      "pendingDescription": "Your documents are already under review. Verification can take up to 24 hours or less.",
+      "employerDescription": "Employers need approved business registration documents before posting jobs on Joballa.",
+      "workerPostJobDescription": "Workers need approved KYC before posting jobs on Joballa.",
+      "workerApplyDescription": "Workers need approved KYC before applying for jobs on Joballa."
     }
   },
   "notFound": {
@@ -272,6 +299,23 @@
             "description": "Hire your choice, log shifts, and pay workers via MTN MoMo or Orange Money — directly from your dashboard."
           }
         }
+      },
+      "mockup": {
+        "sectionTitle": "Personal info",
+        "replace": "Replace",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "location": "Location",
+        "city": "City",
+        "phone": "Phone",
+        "languages": "Languages Spoken",
+        "languagesPlaceholder": "Ex: English, French, Spanish",
+        "available": "Available to Work",
+        "sampleFirstName": "Ako",
+        "sampleLastName": "James",
+        "sampleLocation": "Cameroon",
+        "sampleCity": "Buea",
+        "samplePhone": "+237"
       }
     },
     "metricsBanner": {
@@ -454,6 +498,8 @@
       "backHome": "Back to home"
     },
     "google": {
+      "signUp": "Sign up with Google",
+      "signIn": "Sign in with Google",
       "errors": {
         "noAccount": "No Joballa account for this Google account. Please sign up first.",
         "conflict": "This email is already registered. Sign in with your password or use Google on the sign-in page.",
@@ -795,7 +841,7 @@
       "title": "What jobs will you post?",
       "subtitle": "Tell us which sectors and employment types you plan to offer. You can update these later in your profile.",
       "sections": {
-        "categories": "Job categories",
+        "categories": "Departments",
         "kinds": "Employment types",
         "kindsHint": "Pick at least one type of job you expect to post."
       },
@@ -804,7 +850,7 @@
         "working": "Saving…"
       },
       "errors": {
-        "minCategories": "Pick at least three job categories to continue.",
+        "minCategories": "Pick at least three departments to continue.",
         "minTypes": "Pick at least one employment type to continue.",
         "generic": "Something went wrong. Please try again."
       },
@@ -1040,7 +1086,18 @@
         "save": "Save",
         "share": "Share",
         "flag": "Flag",
-        "hide": "Hide"
+        "hide": "Hide",
+        "viewGrid": "Grid view",
+        "viewList": "List view",
+        "table": {
+          "posted": "Posted",
+          "employer": "Employer",
+          "jobTitle": "Job title",
+          "pay": "Pay rate",
+          "jobType": "Job type",
+          "location": "Location",
+          "match": "Match %"
+        }
       },
       "applications": {
         "title": "Application Status",
@@ -1086,7 +1143,7 @@
       "regionAll": "All regions",
       "typeAll": "All types",
       "payAll": "All ranges",
-      "deptAll": "All categories",
+      "deptAll": "All departments",
       "regions": {
         "adamawa": "Adamawa",
         "centre": "Centre",
@@ -1121,16 +1178,16 @@
         "50k – 150k XAF",
         "Over 150k XAF"
       ],
-      "bookmark": "Save job",
+      "bookmark": "Save",
       "apply": "Apply",
       "cardMenu": "More job actions",
       "menu": {
         "openDetails": "Open details",
-        "save": "Save job",
+        "save": "Save",
         "share": "Share job",
         "report": "Report job",
         "hide": "Hide job",
-        "unsave": "Remove saved job"
+        "unsave": "Unsave"
       },
       "viewGrid": "Grid view",
       "viewList": "List view",
@@ -1163,8 +1220,12 @@
       "applied": "Applied",
       "ownJob": "Your job",
       "ownJobApplyBlocked": "You cannot apply to a job you posted.",
-      "saveJob": "Save Job",
+      "saveJob": "Save",
       "savedJob": "Saved",
+      "posterType": {
+        "employer": "Posted by an employer",
+        "worker": "Posted by an individual"
+      },
       "expand": "Open full job details",
       "moreActions": "More job actions",
       "cadencePartTime": "3d/week",
@@ -1185,8 +1246,8 @@
       },
       "menu": {
         "openDetails": "Open details",
-        "save": "Save job",
-        "unsave": "Remove saved job",
+        "save": "Save",
+        "unsave": "Unsave",
         "share": "Share job",
         "shareCopied": "Link copied to clipboard",
         "report": "Report job",
@@ -1261,12 +1322,27 @@
       "bookmark": "Save job",
       "manage": "Manage",
       "menu": "Job actions",
+      "actions": {
+        "apply": "Apply for job",
+        "viewDetails": "View details",
+        "publish": "Publish",
+        "publishing": "Publishing…",
+        "edit": "Edit job",
+        "delete": "Delete job",
+        "viewApplicants": "View applicants"
+      },
+      "detail": {
+        "loading": "Loading job details…",
+        "loadError": "Could not load this job.",
+        "back": "Back to my jobs"
+      },
       "status": {
         "draft": "Draft",
         "under_review": "Pending review",
         "live": "Live",
         "paused": "Paused",
-        "closed": "Closed"
+        "closed": "Closed",
+        "suspended": "Suspended"
       }
     },
     "postJobFlow": {
@@ -1297,7 +1373,10 @@
         "workMode": "Select work mode",
         "location": "Neighbourhood, City, Region — e.g. Bonanjo, Douala, Littoral",
         "city": "Select city",
+        "region": "Select region",
         "pay": "e.g. 60000",
+        "payMin": "e.g. 50000",
+        "payMax": "e.g. 80000",
         "payPer": "Select pay structure",
         "openings": "e.g. 1",
         "startDate": "YYYY-MM-DD",
@@ -1376,7 +1455,10 @@
         "workMode": "Work mode",
         "location": "Location",
         "city": "City",
+        "region": "Region",
         "pay": "Pay",
+        "payMin": "Pay from",
+        "payMax": "Pay to",
         "payPer": "Per",
         "openings": "Number of openings",
         "startDate": "Start date",
@@ -1750,6 +1832,36 @@
         "share": "Share",
         "flag": "Flag",
         "delete": "Delete"
+      },
+      "detail": {
+        "back": "Back",
+        "employerLabel": "Employer",
+        "transactionDetails": "Transaction details",
+        "actions": "Actions",
+        "viewJobListing": "View job listing",
+        "relatedTransactions": "Related transactions",
+        "receiptTitle": "Joballa Payment Receipt",
+        "fields": {
+          "date": "Date",
+          "transactionTime": "Transaction time",
+          "jobType": "Job type",
+          "contract": "Contract",
+          "rate": "Rate",
+          "paymentPlatform": "Payment platform",
+          "paymentMethod": "Payment method",
+          "totalReceived": "Total received"
+        },
+        "receipt": {
+          "transaction": "Transaction",
+          "amount": "Amount",
+          "status": "Status",
+          "employer": "Employer",
+          "job": "Job",
+          "paymentPlatform": "Payment platform",
+          "paymentMethod": "Payment method",
+          "initiated": "Initiated",
+          "completed": "Completed"
+        }
       }
     },
     "engagements": {
@@ -2011,7 +2123,7 @@
       "title": "Post a Job",
       "editTitle": "Edit job",
       "editDescription": "Update role details for candidates. Active jobs stay active — changes apply once saved.",
-      "description": "Create the role, add the details that candidates need, then review the final employer-facing preview before you submit it.",
+      "description": "Create the role, add the details that candidates need, then review the final preview before you submit it.",
       "backToJobs": "Back to jobs",
       "backToJob": "Back to job",
       "stepsLabel": "Post job steps",
@@ -2035,7 +2147,11 @@
         "workMode": "Select work mode",
         "location": "Neighbourhood, City, Region — e.g. Bonanjo, Douala, Littoral",
         "city": "Select city",
+        "town": "Select town",
+        "region": "Select region",
         "pay": "e.g. 60000",
+        "payMin": "e.g. 50000",
+        "payMax": "e.g. 80000",
         "payPer": "Select pay structure",
         "openings": "e.g. 1",
         "startDate": "YYYY-MM-DD",
@@ -2114,7 +2230,11 @@
         "workMode": "Work mode",
         "location": "Location",
         "city": "City",
+        "town": "Town",
+        "region": "Region",
         "pay": "Pay",
+        "payMin": "Pay from",
+        "payMax": "Pay to",
         "payPer": "Per",
         "openings": "Number of openings",
         "startDate": "Start date",
@@ -2255,6 +2375,13 @@
         "notePlaceholder": "Explain why this application was not selected…",
         "confirm": "Reject applicant"
       },
+      "notes": {
+        "title": "Private notes",
+        "hint": "Only visible to your company.",
+        "placeholder": "Add interview notes, follow-ups, or hiring context…",
+        "saving": "Saving…",
+        "save": "Save notes"
+      },
       "crumbPrefix": "Dashboard >",
       "back": "Back",
       "more": "More actions",
@@ -2319,7 +2446,15 @@
       "posted": "Posted {time} ago",
       "applicantsShort": "{count} applicants · {shortlisted} shortlisted",
       "viewApplicants": "View applicants",
-      "empty": "No jobs yet. Post your first role to start receiving applicants."
+      "empty": "No jobs yet. Post your first role to start receiving applicants.",
+      "status": {
+        "active": "Active",
+        "under_review": "Under review",
+        "draft": "Draft",
+        "paused": "Paused",
+        "closed": "Closed",
+        "rejected": "Rejected"
+      }
     },
     "workforce": {
       "title": "Workforce",

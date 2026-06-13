@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { JoballaApiError } from "@/lib/joballa/request";
 import { buttonClassName } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -34,24 +35,29 @@ export function EmployerAsyncState({
   isError,
   error,
   onRetry,
-  loadingLabel = "Loading…",
-  errorLabel = "Something went wrong.",
-  retryLabel = "Try again",
+  loadingLabel,
+  errorLabel,
+  retryLabel,
   children,
   className,
   skeleton,
 }: Props) {
+  const t = useTranslations("common.asyncState");
+  const resolvedLoadingLabel = loadingLabel ?? t("loading");
+  const resolvedErrorLabel = errorLabel ?? t("error");
+  const resolvedRetryLabel = retryLabel ?? t("retry");
+
   if (isLoading) {
     return (
       <div className={cn("space-y-4", className)} aria-busy>
         {skeleton ?? <DefaultSkeleton />}
-        <p className="sr-only">{loadingLabel}</p>
+        <p className="sr-only">{resolvedLoadingLabel}</p>
       </div>
     );
   }
 
   if (isError) {
-    const message = error instanceof JoballaApiError ? error.message : errorLabel;
+    const message = error instanceof JoballaApiError ? error.message : resolvedErrorLabel;
     return (
       <div
         className={cn(
@@ -64,7 +70,7 @@ export function EmployerAsyncState({
         <p className="text-sm font-medium text-[var(--joballa-danger-fg)]">{message}</p>
         {onRetry ? (
           <button type="button" onClick={onRetry} className={cn(buttonClassName(), "mt-4")}>
-            {retryLabel}
+            {resolvedRetryLabel}
           </button>
         ) : null}
       </div>

@@ -480,12 +480,22 @@ function EmployerPostJobFlowEditor({
                   maxLength={fieldMaxLength("location")}
                 />
               </Field>
-              <Field label={t("fields.pay")}>
+              <Field label={t("fields.payMin")}>
                 <input
                   className={portalInputClass}
                   value={draft.pay}
                   onChange={(e) => update("pay", e.target.value)}
-                  placeholder={t("placeholders.pay")}
+                  placeholder={t("placeholders.payMin")}
+                  inputMode="numeric"
+                  maxLength={fieldMaxLength("payAmount")}
+                />
+              </Field>
+              <Field label={t("fields.payMax")}>
+                <input
+                  className={portalInputClass}
+                  value={draft.payMax}
+                  onChange={(e) => update("payMax", e.target.value)}
+                  placeholder={t("placeholders.payMax")}
                   inputMode="numeric"
                   maxLength={fieldMaxLength("payAmount")}
                 />

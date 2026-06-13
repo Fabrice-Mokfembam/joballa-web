@@ -116,6 +116,7 @@ export type CreateEmployerJobBody = {
   employmentType: string;
   duration?: string;
   payAmount: number;
+  payMaxAmount?: number;
   payCurrency?: "XAF";
   payStructure: string;
   numberOfOpenings: number;

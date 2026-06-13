@@ -100,7 +100,7 @@ export function WorkerApplicationDetailPage({ applicationId }: { applicationId: 
               </div>
               <button
                 type="button"
-                className="grid size-8 shrink-0 place-items-center rounded-xl bg-[var(--joballa-surface)] text-[var(--joballa-muted)] hover:bg-neutral-100 hover:text-[var(--joballa-fg)]"
+                className="grid size-8 shrink-0 place-items-center rounded-xl bg-[var(--joballa-card)] text-[var(--joballa-muted)] transition hover:bg-[var(--joballa-row-hover)] hover:text-[var(--joballa-fg)]"
                 aria-label={t("detail.jobMenu")}
               >
                 <IconMoreHorizontal className="size-4" />

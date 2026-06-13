@@ -1,5 +1,5 @@
-import { EmployerDashboardPageSkeleton } from "@/components/employer/employer-loading-skeletons";
+import { AuthSessionLoadingScreen } from "@/components/auth/auth-session-loading-screen";
 
 export default function Loading() {
-  return <EmployerDashboardPageSkeleton />;
+  return <AuthSessionLoadingScreen />;
 }

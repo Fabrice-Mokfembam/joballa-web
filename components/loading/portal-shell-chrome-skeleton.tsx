@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { JoballaPanelLogoMark } from "@/components/brand/joballa-panel-logo-mark";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -6,11 +9,12 @@ const NAV_SLOT_COUNT = 5;
 
 /** Header + mobile bottom tab bar — mirrors worker/employer {@link WorkerAppShell}. */
 export function PortalShellChromeSkeleton({ children }: { children: ReactNode }) {
+  const t = useTranslations("common.aria");
   return (
     <div
       className="flex min-h-[100dvh] flex-col bg-[var(--joballa-page)] text-[var(--joballa-fg)]"
       aria-busy
-      aria-label="Loading"
+      aria-label={t("loading")}
     >
       <header className="sticky top-0 z-50 border-b border-[var(--joballa-border)] bg-[var(--joballa-header)] shadow-[0_1px_0_rgba(0,0,0,0.04)]">
         <div className="mx-auto flex h-14 min-h-14 w-full max-w-[1440px] items-center gap-2 px-4 sm:h-16 sm:min-h-16 sm:gap-3 sm:px-6 md:px-8 lg:px-10">

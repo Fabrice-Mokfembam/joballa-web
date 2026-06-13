@@ -18,6 +18,14 @@ export function toApiEmployerJobStatus(status: string): string {
   return value;
 }
 
+const STATUS_I18N_KEYS = new Set(["active", "under_review", "draft", "paused", "closed", "rejected"]);
+
+/** Message key under `employer.jobsPage.status.*` for next-intl. */
+export function employerJobStatusKey(status: string | undefined | null): string {
+  const normalized = normalizeEmployerJobStatusFromApi(status);
+  return STATUS_I18N_KEYS.has(normalized) ? normalized : normalized || "draft";
+}
+
 export function displayEmployerJobStatus(status: string | undefined | null): string {
   const normalized = normalizeEmployerJobStatusFromApi(status);
   if (normalized === "active") return "Active";

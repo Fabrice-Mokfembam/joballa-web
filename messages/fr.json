@@ -7,6 +7,18 @@
     }
   },
   "common": {
+    "asyncState": {
+      "loading": "Chargement…",
+      "error": "Une erreur s'est produite.",
+      "retry": "Reessayer"
+    },
+    "aria": {
+      "loading": "Chargement",
+      "remove": "Retirer",
+      "removeItem": "Retirer {item}",
+      "home": "Accueil Joballa",
+      "jobActions": "Actions sur l'offre"
+    },
     "confirm": {
       "cancel": "Annuler",
       "signOut": {
@@ -40,6 +52,21 @@
     "passwordInput": {
       "showPassword": "Afficher le mot de passe",
       "hidePassword": "Masquer le mot de passe"
+    }
+  },
+  "verification": {
+    "gate": {
+      "cancel": "Annuler",
+      "verify": "Verifier",
+      "viewStatus": "Voir le statut",
+      "workerKycPendingTitle": "Verification KYC en cours",
+      "employerPendingTitle": "Verification entreprise en cours",
+      "workerKycTitle": "Verifiez d'abord votre KYC",
+      "employerTitle": "Verifiez d'abord votre entreprise",
+      "pendingDescription": "Vos documents sont deja en cours d'examen. La verification peut prendre jusqu'a 24 heures ou moins.",
+      "employerDescription": "Les employeurs doivent avoir des documents d'immatriculation approuves avant de publier des offres sur Joballa.",
+      "workerPostJobDescription": "Les travailleurs doivent avoir un KYC approuve avant de publier des offres sur Joballa.",
+      "workerApplyDescription": "Les travailleurs doivent avoir un KYC approuve avant de postuler aux offres sur Joballa."
     }
   },
   "notFound": {
@@ -272,6 +299,23 @@
             "description": "Embauchez, enregistrez les shifts et payez les travailleurs via MTN MoMo ou Orange Money depuis votre tableau de bord."
           }
         }
+      },
+      "mockup": {
+        "sectionTitle": "Informations personnelles",
+        "replace": "Remplacer",
+        "firstName": "Prenom",
+        "lastName": "Nom",
+        "location": "Region",
+        "city": "Ville",
+        "phone": "Telephone",
+        "languages": "Langues parlees",
+        "languagesPlaceholder": "Ex : anglais, francais, espagnol",
+        "available": "Disponible pour travailler",
+        "sampleFirstName": "Ako",
+        "sampleLastName": "James",
+        "sampleLocation": "Cameroun",
+        "sampleCity": "Buea",
+        "samplePhone": "+237"
       }
     },
     "metricsBanner": {
@@ -454,6 +498,8 @@
       "backHome": "Retour a l'accueil"
     },
     "google": {
+      "signUp": "S'inscrire avec Google",
+      "signIn": "Se connecter avec Google",
       "errors": {
         "noAccount": "Aucun compte Joballa pour ce compte Google. Inscrivez-vous d'abord.",
         "conflict": "Cet e-mail est deja enregistre. Connectez-vous avec votre mot de passe ou utilisez Google sur la page de connexion.",
@@ -1040,7 +1086,18 @@
         "save": "Enregistrer",
         "share": "Partager",
         "flag": "Signaler",
-        "hide": "Masquer"
+        "hide": "Masquer",
+        "viewGrid": "Vue grille",
+        "viewList": "Vue liste",
+        "table": {
+          "posted": "Publie",
+          "employer": "Employeur",
+          "jobTitle": "Intitule du poste",
+          "pay": "Remuneration",
+          "jobType": "Type de poste",
+          "location": "Lieu",
+          "match": "Correspondance %"
+        }
       },
       "applications": {
         "title": "Etat des candidatures",
@@ -1086,7 +1143,7 @@
       "regionAll": "Toutes les regions",
       "typeAll": "Tous les types",
       "payAll": "Toutes les fourchettes",
-      "deptAll": "Toutes les categories",
+      "deptAll": "Tous les departements",
       "regions": {
         "adamawa": "Adamaoua",
         "centre": "Centre",
@@ -1126,11 +1183,11 @@
       "cardMenu": "Plus d'actions sur l'offre",
       "menu": {
         "openDetails": "Ouvrir les details",
-        "save": "Enregistrer l'offre",
+        "save": "Enregistrer",
         "share": "Partager l'offre",
         "report": "Signaler l'offre",
         "hide": "Masquer l'offre",
-        "unsave": "Retirer des offres enregistrees"
+        "unsave": "Retirer"
       },
       "viewGrid": "Grille",
       "viewList": "Liste",
@@ -1165,6 +1222,10 @@
       "ownJobApplyBlocked": "Vous ne pouvez pas postuler a une offre que vous avez publiee.",
       "saveJob": "Enregistrer",
       "savedJob": "Enregistre",
+      "posterType": {
+        "employer": "Publiee par un employeur",
+        "worker": "Publiee par un particulier"
+      },
       "expand": "Ouvrir les details complets",
       "moreActions": "Plus d'actions offre",
       "cadencePartTime": "3j/semaine",
@@ -1185,8 +1246,8 @@
       },
       "menu": {
         "openDetails": "Ouvrir les details",
-        "save": "Enregistrer l'offre",
-        "unsave": "Retirer des offres enregistrees",
+        "save": "Enregistrer",
+        "unsave": "Retirer",
         "share": "Partager l'offre",
         "shareCopied": "Lien copie dans le presse-papiers",
         "report": "Signaler l'offre",
@@ -1279,12 +1340,27 @@
       "bookmark": "Enregistrer l'offre",
       "manage": "Gerer",
       "menu": "Actions de l'offre",
+      "actions": {
+        "apply": "Postuler a l'offre",
+        "viewDetails": "Voir les details",
+        "publish": "Publier",
+        "publishing": "Publication…",
+        "edit": "Modifier l'offre",
+        "delete": "Supprimer l'offre",
+        "viewApplicants": "Voir les candidats"
+      },
+      "detail": {
+        "loading": "Chargement des details…",
+        "loadError": "Impossible de charger cette offre.",
+        "back": "Retour a mes offres"
+      },
       "status": {
         "draft": "Brouillon",
         "under_review": "En attente de revue",
         "live": "En ligne",
         "paused": "En pause",
-        "closed": "Fermee"
+        "closed": "Fermee",
+        "suspended": "Suspendue"
       }
     },
     "postJobFlow": {
@@ -1768,6 +1844,36 @@
         "share": "Partager",
         "flag": "Signaler",
         "delete": "Supprimer"
+      },
+      "detail": {
+        "back": "Retour",
+        "employerLabel": "Employeur",
+        "transactionDetails": "Details de la transaction",
+        "actions": "Actions",
+        "viewJobListing": "Voir l'offre",
+        "relatedTransactions": "Transactions liees",
+        "receiptTitle": "Recu de paiement Joballa",
+        "fields": {
+          "date": "Date",
+          "transactionTime": "Heure de la transaction",
+          "jobType": "Type de poste",
+          "contract": "Contrat",
+          "rate": "Taux",
+          "paymentPlatform": "Plateforme de paiement",
+          "paymentMethod": "Mode de paiement",
+          "totalReceived": "Total recu"
+        },
+        "receipt": {
+          "transaction": "Transaction",
+          "amount": "Montant",
+          "status": "Statut",
+          "employer": "Employeur",
+          "job": "Offre",
+          "paymentPlatform": "Plateforme de paiement",
+          "paymentMethod": "Mode de paiement",
+          "initiated": "Initie",
+          "completed": "Termine"
+        }
       }
     },
     "settings": {
@@ -2034,6 +2140,8 @@
         "workMode": "Choisir le mode de travail",
         "location": "Quartier, Ville, Region — ex. Bonanjo, Douala, Littoral",
         "city": "Choisir une ville",
+        "town": "Choisir une ville",
+        "region": "Choisir une region",
         "pay": "ex. 60000",
         "payPer": "Choisir la structure de paie",
         "openings": "ex. 1",
@@ -2113,6 +2221,8 @@
         "workMode": "Mode de travail",
         "location": "Lieu",
         "city": "Ville",
+        "town": "Ville",
+        "region": "Region",
         "pay": "Paie",
         "payPer": "Par",
         "openings": "Nombre de postes",
@@ -2254,6 +2364,13 @@
         "notePlaceholder": "Expliquez pourquoi cette candidature n'a pas ete retenue…",
         "confirm": "Refuser le candidat"
       },
+      "notes": {
+        "title": "Notes privees",
+        "hint": "Visibles uniquement par votre entreprise.",
+        "placeholder": "Ajoutez des notes d'entretien, des suivis ou du contexte de recrutement…",
+        "saving": "Enregistrement…",
+        "save": "Enregistrer les notes"
+      },
       "crumbPrefix": "Tableau de bord >",
       "back": "Retour",
       "more": "Plus d'actions",
@@ -2318,7 +2435,15 @@
       "posted": "Publie il y a {time}",
       "applicantsShort": "{count} candidats · {shortlisted} preselectionnes",
       "viewApplicants": "Voir les candidats",
-      "empty": "Aucune offre pour le moment. Publiez votre premiere offre pour recevoir des candidats."
+      "empty": "Aucune offre pour le moment. Publiez votre premiere offre pour recevoir des candidats.",
+      "status": {
+        "active": "Active",
+        "under_review": "En revue",
+        "draft": "Brouillon",
+        "paused": "En pause",
+        "closed": "Fermee",
+        "rejected": "Rejetee"
+      }
     },
     "workforce": {
       "title": "Main-d'oeuvre",

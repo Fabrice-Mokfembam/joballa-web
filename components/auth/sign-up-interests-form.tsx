@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -11,11 +11,7 @@ import { normalizeApiRole } from "@/lib/auth/normalize-api-auth";
 import { intlPathFromDashboardRoute } from "@/lib/joballa/dashboard-route";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { writeOnboardingInterests } from "@/lib/onboarding-signup-state";
-import {
-  WORKER_SIGN_UP_CATEGORY_SLUGS,
-  categorySlugsToLabels,
-  type WorkerSignUpCategorySlug,
-} from "@/lib/worker/sign-up-categories";
+import { useWorkerDepartmentOptions } from "@/features/worker/hooks";
 import { AuthMobileHeader } from "@/components/auth/auth-mobile-header";
 import { WorkerCategoryChips } from "@/components/auth/worker-category-chips";
 import { JoballaApiError } from "@/lib/joballa/request";
@@ -26,6 +22,11 @@ export function SignUpInterestsForm() {
   const router = useRouter();
   const token = useAuthStore((s) => s.accessToken);
 
+  const { departments } = useWorkerDepartmentOptions();
+  const departmentSlugs = useMemo(
+    () => departments.filter((dept) => dept.slug !== "other").map((dept) => dept.slug ?? dept.id),
+    [departments],
+  );
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -64,7 +65,7 @@ export function SignUpInterestsForm() {
     setError(null);
   }
 
-  const labelForSlug = (slug: string) => t(`options.${slug as WorkerSignUpCategorySlug}`);
+  const labelForSlug = (slug: string) => departments.find((dept) => (dept.slug ?? dept.id) === slug)?.name ?? slug;
 
   async function onContinue() {
     if (selected.size < 3) {
@@ -76,7 +77,9 @@ export function SignUpInterestsForm() {
     try {
       const slugs = [...selected];
       writeOnboardingInterests(slugs);
-      const industries = categorySlugsToLabels(slugs, (s) => t(`options.${s}`));
+      const industries = slugs
+        .map((slug) => departments.find((dept) => (dept.slug ?? dept.id) === slug)?.name)
+        .filter((name): name is string => Boolean(name));
       await patchWorkerProfessionalSummary({ industries });
       router.push("/sign-up/post-categories");
     } catch (err: unknown) {
@@ -94,7 +97,7 @@ export function SignUpInterestsForm() {
 
       <div className="mt-8">
         <WorkerCategoryChips
-          slugs={WORKER_SIGN_UP_CATEGORY_SLUGS}
+          slugs={departmentSlugs}
           selected={selected}
           onToggle={toggle}
           labelForSlug={labelForSlug}

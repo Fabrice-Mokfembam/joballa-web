@@ -19,7 +19,15 @@ import {
 } from "@/components/worker/icons";
 import { useWorkerMe, useWorkerNotificationsUnreadCount } from "@/features/worker/hooks";
 import { profileInitials } from "@/features/worker/lib/profile-display";
-import { portalIconButtonClass, portalNavLinkClass, portalProfileSummaryClass } from "@/components/portal/portal-ui";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import { AuthSessionLoadingScreen } from "@/components/auth/auth-session-loading-screen";
+import {
+  portalIconButtonClass,
+  portalNavLinkClass,
+  portalProfileChevronClass,
+  portalProfileNameClass,
+  portalProfileSummaryClass,
+} from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
 
 type NavKey = "dashboard" | "jobs" | "applications" | "saved" | "earnings";
@@ -72,6 +80,7 @@ function workerMobileHeaderTitle(pathname: string, ts: (key: string) => string, 
 }
 
 export function WorkerAppShell({ children }: { children: ReactNode }) {
+  const portalGateReady = useAuthStore((s) => s.portalGateReady);
   const pathname = usePathname();
   const t = useTranslations("worker.nav");
   const ts = useTranslations("worker.shell");
@@ -109,6 +118,10 @@ export function WorkerAppShell({ children }: { children: ReactNode }) {
       document.removeEventListener("keydown", onDocumentKeyDown);
     };
   }, []);
+
+  if (!portalGateReady) {
+    return <AuthSessionLoadingScreen />;
+  }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-[var(--joballa-page)] text-[var(--joballa-fg)]">
@@ -203,7 +216,7 @@ export function WorkerAppShell({ children }: { children: ReactNode }) {
             </Link>
 
             <details ref={menuRef} className="relative shrink-0">
-              <summary className={portalProfileSummaryClass}>
+              <summary className={portalProfileSummaryClass} aria-label={userDisplayName || t("profile")}>
                 <span className="relative flex size-8 shrink-0 overflow-hidden rounded-full border border-[var(--joballa-border)] bg-[var(--joballa-tag-bg)] sm:size-9">
                   {userAvatarUrl ? (
                     <Image src={userAvatarUrl} alt="" fill className="object-cover" sizes="36px" unoptimized />
@@ -213,12 +226,8 @@ export function WorkerAppShell({ children }: { children: ReactNode }) {
                     </span>
                   )}
                 </span>
-                {userDisplayName ? (
-                  <span className="hidden max-w-[120px] truncate text-sm font-semibold text-[var(--joballa-nav-fg)] sm:inline sm:max-w-[140px]">
-                    {userDisplayName}
-                  </span>
-                ) : null}
-                <IconChevronDown className="size-3 shrink-0 text-[var(--joballa-nav-fg-muted)] sm:size-3.5" />
+                {userDisplayName ? <span className={portalProfileNameClass}>{userDisplayName}</span> : null}
+                <IconChevronDown className={portalProfileChevronClass} />
               </summary>
               <div
                 className="absolute right-0 z-50 mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-[var(--joballa-border)] bg-[var(--joballa-dropdown-bg)] py-1 shadow-lg"

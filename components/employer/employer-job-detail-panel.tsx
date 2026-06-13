@@ -9,6 +9,7 @@ import { useDeleteEmployerJob, useEmployerJob, usePatchEmployerJobStatus } from 
 import {
   displayEmployerJobStatus,
   employerJobStatusActions,
+  employerJobStatusKey,
   normalizeEmployerJobStatusFromApi,
 } from "@/features/employer/lib/employer-job-status";
 import { employerJobDurationLabel, employerJobStartDateLabel } from "@/features/employer/lib/employer-job-fields";
@@ -20,6 +21,7 @@ import type { EmployerJobDetail } from "@/features/employer/types/employer-porta
 import type { EmployerJobStatusAction } from "@/features/employer/lib/employer-job-status";
 import { portalDetailSectionClass } from "@/components/portal/portal-ui";
 import { IconClose, IconExpand, IconMoreHorizontal } from "@/components/worker/icons";
+import { jobStatusPillClass } from "@/lib/job-status-pill";
 import { cn } from "@/lib/utils";
 
 function PanelChromeButton({
@@ -71,6 +73,7 @@ function JobActionsMenu({
   onDelete: () => void;
   t: ReturnType<typeof useTranslations>;
 }) {
+  const tJobs = useTranslations("employer.jobsPage");
   const normalized = normalizeEmployerJobStatusFromApi(status);
   const statusActions = employerJobStatusActions(status);
 
@@ -89,7 +92,7 @@ function JobActionsMenu({
       />
       <div className="absolute right-0 z-20 mt-1 min-w-[168px] overflow-hidden rounded-xl border border-[var(--joballa-border)] bg-[var(--joballa-dropdown-bg)] py-1 text-sm shadow-[var(--joballa-shadow-elevated)]">
         <p className="border-b border-[var(--joballa-border)] px-3 py-2 text-xs font-medium text-[var(--joballa-muted)]">
-          {displayEmployerJobStatus(status)}
+          {tJobs(`status.${employerJobStatusKey(status)}`)}
         </p>
         {statusActions.map((next) => (
           <button
@@ -184,6 +187,7 @@ function JobSidebarPanel({
   onDelete: () => void;
   t: ReturnType<typeof useTranslations>;
 }) {
+  const tJobs = useTranslations("employer.jobsPage");
   const [expanded, setExpanded] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   const pay = job.salary ?? (typeof job.pay === "string" ? job.pay : "—");
@@ -201,6 +205,9 @@ function JobSidebarPanel({
             <p className="mt-1 truncate text-xs font-semibold text-[var(--joballa-muted)]">{jobLocationLine(job)}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2.5">
+            <span className={jobStatusPillClass(String(job.status))}>
+              {tJobs(`status.${employerJobStatusKey(job.status)}`)}
+            </span>
             {showExpand ? (
               <Link
                 href={`/employer/jobs/${encodeURIComponent(jobId)}`}

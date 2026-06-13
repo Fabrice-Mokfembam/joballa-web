@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 function statusBadgeClass(status: string) {
   if (status === "paid") return "bg-[var(--joballa-jade-3)] text-[var(--joballa-primary)]";
   if (status === "overdue") return "bg-[var(--joballa-danger-bg)] text-[var(--joballa-danger-fg)]";
-  return "bg-[var(--joballa-match)]/14 text-amber-900";
+  return "bg-[var(--joballa-highlight-bg)] text-[var(--joballa-highlight-fg)]";
 }
 
 function humanTime(value?: string | null) {
@@ -32,6 +32,7 @@ function humanTime(value?: string | null) {
 
 export function WorkerEarningDetailPage({ transactionId }: { transactionId: string }) {
   const t = useTranslations("worker.earnings");
+  const td = useTranslations("worker.earnings.detail");
   const router = useRouter();
   const txDetailQuery = useEarningsTransaction(transactionId);
   const txListQuery = useEarningsTransactions({ page: 1, limit: 100 });
@@ -49,7 +50,7 @@ export function WorkerEarningDetailPage({ transactionId }: { transactionId: stri
       <div className="space-y-6">
         <Link href="/worker/earnings" className="inline-flex items-center gap-2 text-lg font-semibold text-[var(--joballa-muted)]">
           <IconChevronLeft className="size-5" />
-          Back
+          {td("back")}
         </Link>
         <p className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-8 text-center text-sm text-[var(--joballa-muted)]">
           {t("empty")}
@@ -59,15 +60,15 @@ export function WorkerEarningDetailPage({ transactionId }: { transactionId: stri
   }
 
   const receiptLines = [
-    `Transaction: ${transaction.reference ?? transaction.id}`,
-    `Amount: ${transaction.amountPrimary}`,
-    `Status: ${transaction.status}`,
-    `Employer: ${transaction.employer}`,
-    `Job: ${transaction.jobTitle}`,
-    `Payment platform: ${transaction.paymentPlatform ?? "--"}`,
-    `Payment method: ${transaction.paymentMethod ?? "--"}`,
-    `Initiated: ${humanTime(transaction.initiatedAt)}`,
-    `Completed: ${humanTime(transaction.completedAt)}`,
+    `${td("receipt.transaction")}: ${transaction.reference ?? transaction.id}`,
+    `${td("receipt.amount")}: ${transaction.amountPrimary}`,
+    `${td("receipt.status")}: ${t(`status.${transaction.status}`)}`,
+    `${td("receipt.employer")}: ${transaction.employer}`,
+    `${td("receipt.job")}: ${transaction.jobTitle}`,
+    `${td("receipt.paymentPlatform")}: ${transaction.paymentPlatform ?? "--"}`,
+    `${td("receipt.paymentMethod")}: ${transaction.paymentMethod ?? "--"}`,
+    `${td("receipt.initiated")}: ${humanTime(transaction.initiatedAt)}`,
+    `${td("receipt.completed")}: ${humanTime(transaction.completedAt)}`,
   ];
   const applicationSlug =
     transaction.applicationId ??
@@ -79,7 +80,7 @@ export function WorkerEarningDetailPage({ transactionId }: { transactionId: stri
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <Link href="/worker/earnings" className="inline-flex items-center gap-2 text-xl font-semibold text-[var(--joballa-muted)] hover:text-[var(--joballa-fg)]">
         <IconChevronLeft className="size-5" />
-        Back
+        {td("back")}
       </Link>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
         <div className="space-y-6">
@@ -95,32 +96,32 @@ export function WorkerEarningDetailPage({ transactionId }: { transactionId: stri
               </div>
               <button
                 type="button"
-                onClick={() => downloadSimplePdf(`joballa-receipt-${transaction.id}.pdf`, "Joballa Payment Receipt", receiptLines)}
+                onClick={() => downloadSimplePdf(`joballa-receipt-${transaction.id}.pdf`, td("receiptTitle"), receiptLines)}
                 className="h-10 rounded-[10px] border border-[var(--joballa-border)] px-4 text-sm font-semibold text-[var(--joballa-fg)]"
               >
                 {t("rowMenu.save")}
               </button>
             </div>
             <div className="mt-6 flex items-center gap-3 border-t border-[var(--joballa-border)] pt-5">
-              <span className="grid size-10 place-items-center rounded-full bg-black text-sm font-bold text-white">{transaction.employerInitial || "J"}</span>
+              <span className="grid size-10 place-items-center rounded-full bg-[var(--joballa-avatar-bg)] text-sm font-bold text-[var(--joballa-fg)]">{transaction.employerInitial || "J"}</span>
               <div>
                 <p className="font-bold text-[var(--joballa-fg)]">{transaction.employer}</p>
-                <p className="text-sm text-[var(--joballa-muted)]">Employer</p>
+                <p className="text-sm text-[var(--joballa-muted)]">{td("employerLabel")}</p>
               </div>
             </div>
           </section>
 
           <section className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-6 shadow-sm">
-            <h2 className="text-sm font-bold uppercase text-[var(--joballa-muted)]">Transaction details</h2>
+            <h2 className="text-sm font-bold uppercase text-[var(--joballa-muted)]">{td("transactionDetails")}</h2>
             <dl className="mt-5 divide-y divide-[var(--joballa-border)]">
               {[
-                ["Date", transaction.dateLabel || "--"],
-                ["Transaction time", humanTime(transaction.completedAt ?? transaction.initiatedAt)],
-                ["Job type", "Contract"],
-                ["Rate", transaction.amountPrimary],
-                ["Payment platform", transaction.paymentPlatform ?? "--"],
-                ["Payment method", transaction.paymentMethod ?? "--"],
-                ["Total received", transaction.amountPrimary],
+                [td("fields.date"), transaction.dateLabel || "--"],
+                [td("fields.transactionTime"), humanTime(transaction.completedAt ?? transaction.initiatedAt)],
+                [td("fields.jobType"), td("fields.contract")],
+                [td("fields.rate"), transaction.amountPrimary],
+                [td("fields.paymentPlatform"), transaction.paymentPlatform ?? "--"],
+                [td("fields.paymentMethod"), transaction.paymentMethod ?? "--"],
+                [td("fields.totalReceived"), transaction.amountPrimary],
               ].map(([label, value]) => (
                 <div key={label} className="flex flex-col justify-between gap-1 py-3 text-sm min-[480px]:flex-row min-[480px]:gap-6">
                   <dt className="text-[var(--joballa-muted)]">{label}</dt>
@@ -133,7 +134,7 @@ export function WorkerEarningDetailPage({ transactionId }: { transactionId: stri
 
         <aside className="space-y-4">
           <section className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-5 shadow-sm">
-            <h2 className="text-xs font-bold uppercase text-[var(--joballa-muted)]">Actions</h2>
+            <h2 className="text-xs font-bold uppercase text-[var(--joballa-muted)]">{td("actions")}</h2>
             <button
               type="button"
               onClick={() => {
@@ -142,11 +143,11 @@ export function WorkerEarningDetailPage({ transactionId }: { transactionId: stri
               disabled={!applicationSlug}
               className="mt-4 h-11 w-full rounded-[10px] border border-[var(--joballa-border)] px-4 text-left text-sm font-bold text-[var(--joballa-fg)] hover:border-[var(--joballa-primary)]"
             >
-              View job listing
+              {td("viewJobListing")}
             </button>
           </section>
           <section className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-5 shadow-sm">
-            <h2 className="text-xs font-bold uppercase text-[var(--joballa-muted)]">Related transactions</h2>
+            <h2 className="text-xs font-bold uppercase text-[var(--joballa-muted)]">{td("relatedTransactions")}</h2>
             <div className="mt-4 space-y-3">
               {earningTransactionsFromApi(txListQuery.data?.items ?? []).filter((row) => row.id !== transaction.id).slice(0, 2).map((row) => (
                 <button key={row.id} type="button" onClick={() => router.push(`/worker/earnings/${row.id}`)} className="block w-full border-b border-[var(--joballa-border)] pb-3 text-left last:border-0">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { WorkerJobCard } from "@/lib/worker-job-data";
 import { useRouter } from "@/lib/i18n/navigation";
 import { WorkerJobPostingCard } from "@/components/job-posting/worker-job-posting-card";
@@ -31,8 +32,8 @@ export function WorkerJobGridCard({
   matchLabel,
   bookmarkLabel,
   bookmarkFilled,
-  moreMenuAriaLabel = "Job actions",
-  applyLabel = "Apply",
+  moreMenuAriaLabel,
+  applyLabel,
   showApply = true,
   splitPane,
   isActive,
@@ -40,7 +41,11 @@ export function WorkerJobGridCard({
   onApplyInPane,
   menuItems,
 }: Props) {
+  const t = useTranslations("worker.findJobsPage");
+  const tc = useTranslations("common.aria");
   const router = useRouter();
+  const resolvedMoreMenuAriaLabel = moreMenuAriaLabel ?? tc("jobActions");
+  const resolvedApplyLabel = applyLabel ?? t("apply");
   const saveJob = useSaveWorkerJob();
   const unsaveJob = useUnsaveWorkerJob();
   const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
@@ -65,10 +70,10 @@ export function WorkerJobGridCard({
       bookmarkLabel={bookmarkLabel}
       bookmarkFilled={saved}
       onBookmarkClick={toggleBookmark}
-      applyLabel={applyLabel}
+      applyLabel={resolvedApplyLabel}
       showApply={showApply}
       menuItems={menuItems}
-      moreMenuAriaLabel={moreMenuAriaLabel}
+      moreMenuAriaLabel={resolvedMoreMenuAriaLabel}
       titleHref={null}
       applyHref={null}
       onCardClick={() => {

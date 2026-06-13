@@ -1,5 +1,10 @@
+import { PortalRouteLoading } from "@/components/auth/portal-route-loading";
 import { WorkerFindJobsPageSkeleton } from "@/components/worker/worker-loading-skeletons";
 
 export default function Loading() {
-  return <WorkerFindJobsPageSkeleton />;
+  return (
+    <PortalRouteLoading>
+      <WorkerFindJobsPageSkeleton />
+    </PortalRouteLoading>
+  );
 }
