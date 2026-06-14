@@ -7,13 +7,15 @@ import { Link } from "@/lib/i18n/navigation";
 import {
   MetaRow,
   ProfileSections,
+  ApplicantStatusActions,
 } from "@/components/employer/employer-applicant-detail-panel";
 import { EmployerAsyncState } from "@/components/employer/employer-async-state";
 import { parseApplicantDetailProfile } from "@/features/employer/lib/applicant-profile";
+import type { EmployerApplicantStatus } from "@/features/employer/types/employer-portal";
 import { employerJobDurationLabel, employerJobStartDateLabel } from "@/features/employer/lib/employer-job-fields";
 import { employerJobRequiredSkillsList } from "@/components/employer/employer-job-required-skills";
 import { workerIncomingToApplicantDetail } from "@/features/worker/lib/incoming-applicant-mappers";
-import { useWorkerIncomingApplication, useWorkerMe, useWorkerOwnedJob } from "@/features/worker/hooks";
+import { useWorkerIncomingApplication, useWorkerMe, useWorkerOwnedJob, usePatchWorkerApplicantStatus } from "@/features/worker/hooks";
 import type { WorkerOwnedJobDetail } from "@/features/worker/types/worker-portal";
 import { IconClose, IconExpand } from "@/components/worker/icons";
 import { portalDetailSectionClass } from "@/components/portal/portal-ui";
@@ -31,7 +33,11 @@ function IncomingApplicantSidebarPanel({
   onClose,
   job,
   profile,
+  status,
+  statusLabels,
   t,
+  ta,
+  patchStatus,
   coverNote,
   posterName,
   posterAvatar,
@@ -40,7 +46,11 @@ function IncomingApplicantSidebarPanel({
   onClose?: () => void;
   job: WorkerOwnedJobDetail | undefined;
   profile: ReturnType<typeof parseApplicantDetailProfile>;
+  status: EmployerApplicantStatus;
+  statusLabels: Record<string, string>;
   t: ReturnType<typeof useTranslations>;
+  ta: ReturnType<typeof useTranslations>;
+  patchStatus: ReturnType<typeof usePatchWorkerApplicantStatus>;
   coverNote?: string | null;
   posterName: string;
   posterAvatar?: string | null;
@@ -115,6 +125,17 @@ function IncomingApplicantSidebarPanel({
         ) : null}
       </section>
 
+      <section className={cn(portalDetailSectionClass, "shrink-0 !p-[14px] shadow-[var(--joballa-shadow-card)]")}>
+        <div className="flex flex-wrap items-center gap-2">
+          <ApplicantStatusActions
+            status={status}
+            statusLabels={statusLabels}
+            patchStatus={patchStatus}
+            ta={ta}
+          />
+        </div>
+      </section>
+
       <section className={cn(portalDetailSectionClass, "min-h-0 flex-1 overflow-y-auto p-6")}>
         <ProfileSections profile={profile} t={t} variant="page" coverNote={coverNote} />
       </section>
@@ -132,7 +153,9 @@ export function WorkerIncomingApplicantDetailPanel({
   variant?: "panel" | "page";
 }) {
   const t = useTranslations("employer.applicantDetail");
+  const ta = useTranslations("employer.applicants");
   const application = useWorkerIncomingApplication(applicationId);
+  const patchStatus = usePatchWorkerApplicantStatus(applicationId);
   const jobId = String(application.data?.jobId ?? "");
   const ownedJob = useWorkerOwnedJob(jobId);
   const workerMe = useWorkerMe();
@@ -157,6 +180,14 @@ export function WorkerIncomingApplicantDetailPanel({
         ? workerMe.data.workerProfile.avatarUrl
         : null;
 
+  const status = String(application.data?.status ?? "pending") as EmployerApplicantStatus;
+  const statusLabels: Record<string, string> = {
+    pending: ta("status.pending"),
+    shortlisted: ta("status.shortlisted"),
+    rejected: ta("status.rejected"),
+    hired: ta("status.hired"),
+  };
+
   const isLoading = application.isLoading || (jobId ? ownedJob.isLoading : false);
   const isError = application.isError || (jobId ? ownedJob.isError : false);
   const error = application.error ?? ownedJob.error;
@@ -178,7 +209,11 @@ export function WorkerIncomingApplicantDetailPanel({
             onClose={onClose}
             job={ownedJob.data}
             profile={profile}
+            status={status}
+            statusLabels={statusLabels}
             t={t}
+            ta={ta}
+            patchStatus={patchStatus}
             coverNote={coverNote}
             posterName={posterName}
             posterAvatar={posterAvatar}
@@ -195,7 +230,11 @@ export function WorkerIncomingApplicantDetailPanel({
               applicationId={applicationId}
               job={ownedJob.data}
               profile={profile}
+              status={status}
+              statusLabels={statusLabels}
               t={t}
+              ta={ta}
+              patchStatus={patchStatus}
               coverNote={coverNote}
               posterName={posterName}
               posterAvatar={posterAvatar}

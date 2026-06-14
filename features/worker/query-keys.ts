@@ -33,6 +33,9 @@ export const workerKeys = {
   incomingApplications: (params?: Record<string, unknown>) =>
     [...root, "incoming-applications", params ?? {}] as const,
   incomingApplication: (applicationId: string) => [...root, "incoming-applications", applicationId] as const,
+  workforce: (params?: { status?: string; page?: number; limit?: number }) =>
+    [...root, "workforce", params ?? {}] as const,
+  workforceWorker: (workerId: string) => [...root, "workforce", workerId] as const,
   paymentAccounts: () => [...root, "profile", "payment-accounts"] as const,
   notifications: (params?: { filter?: string; page?: number; limit?: number }) =>
     [...root, "notifications", params ?? {}] as const,

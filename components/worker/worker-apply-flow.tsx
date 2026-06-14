@@ -22,6 +22,7 @@ import {
   writeApplicationProfileDraft,
 } from "@/features/worker/lib/application-profile-draft-storage";
 import type { ApplicationProfileCustomization } from "@/features/worker/types/worker-portal";
+import { fieldMaxLength } from "@/lib/form-field-limits";
 import { IconChevronLeft } from "@/components/worker/icons";
 import { useRouter } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -86,6 +87,7 @@ export function WorkerApplyFlow({
   const apply = useApplyToJob();
 
   const chars = note.length;
+  const maxNoteLength = Math.min(500, fieldMaxLength("notes"));
   const submitting = apply.isPending || customizeProfile.isPending;
   const profile = profileQuery.data;
   const baseCustomization = useMemo(() => {
@@ -282,8 +284,9 @@ export function WorkerApplyFlow({
                 <div className="mt-6 overflow-hidden rounded-md border border-[var(--joballa-border)] shadow-xs">
                   <textarea
                     value={note}
-                    onChange={(e) => setNote(e.target.value.slice(0, 500))}
+                    onChange={(e) => setNote(e.target.value.slice(0, maxNoteLength))}
                     rows={8}
+                    maxLength={maxNoteLength}
                     placeholder={t("notePlaceholder")}
                     className="min-h-[200px] w-full resize-none border-0 bg-[var(--joballa-input-bg)] p-3 text-xs text-[var(--joballa-fg)] outline-none ring-0 placeholder:text-[var(--joballa-muted)]"
                   />

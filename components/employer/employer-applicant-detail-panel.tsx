@@ -13,7 +13,6 @@ import {
 } from "@/features/employer/hooks";
 import {
   parseApplicantDetailProfile,
-  parseLiveWorkerProfile,
   type ParsedApplicantProfile,
 } from "@/features/employer/lib/applicant-profile";
 import { toast } from "@/lib/toast";
@@ -279,6 +278,38 @@ function ApplicantProfilePageCard({
         )}
       </ProfileSectionRow>
 
+      <ProfileSectionRow label={<SectionLabel>{t("profile.certificationsTitle")}</SectionLabel>}>
+        {profile.certifications.length > 0 ? (
+          <ul className="flex flex-col gap-6">
+            {profile.certifications.map((item, index) => (
+              <li key={`${item.name}-${index}`} className="flex flex-col gap-1">
+                <p className="text-sm font-bold leading-5 text-[var(--joballa-fg)]">{item.name}</p>
+                {item.issuer ? (
+                  <p className="text-sm leading-5 text-[var(--joballa-fg)]">{item.issuer}</p>
+                ) : null}
+                {item.issueDate || item.expiryDate ? (
+                  <p className="text-xs text-[var(--joballa-muted)]">
+                    {[item.issueDate, item.expiryDate].filter(Boolean).join(" – ")}
+                  </p>
+                ) : null}
+                {item.credentialUrl ? (
+                  <a
+                    href={item.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold text-[var(--joballa-primary)]"
+                  >
+                    {item.credentialUrl}
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ProfileEmptyText>{t("profile.emptyCertifications")}</ProfileEmptyText>
+        )}
+      </ProfileSectionRow>
+
       <ProfileSectionRow label={<SectionLabel>{t("profile.documentsTitle")}</SectionLabel>}>
         {profile.documents.length > 0 ? (
           <ul className="flex flex-col gap-8">
@@ -405,6 +436,46 @@ export function ProfileSections({
                   <p className="mt-1 text-sm leading-6 text-[var(--joballa-muted)]">{item.description}</p>
                 ) : null}
                 {item.period ? <p className="mt-1 text-xs text-[var(--joballa-muted)]">{item.period}</p> : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {profile.education.length > 0 ? (
+        <div className="grid gap-4 border-b border-[var(--joballa-border)] py-5 lg:grid-cols-[9rem_minmax(0,1fr)] lg:gap-6">
+          <SectionLabel>{t("profile.educationTitle")}</SectionLabel>
+          <ul className="space-y-5">
+            {profile.education.map((item, index) => (
+              <li key={`${item.institution}-${index}`}>
+                <p className="text-sm font-bold text-[var(--joballa-fg)]">{item.institution}</p>
+                <p className="text-sm text-[var(--joballa-muted)]">
+                  {[item.degree, item.field].filter(Boolean).join(" · ")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {profile.certifications.length > 0 ? (
+        <div className="grid gap-4 border-b border-[var(--joballa-border)] py-5 lg:grid-cols-[9rem_minmax(0,1fr)] lg:gap-6">
+          <SectionLabel>{t("profile.certificationsTitle")}</SectionLabel>
+          <ul className="space-y-4">
+            {profile.certifications.map((item, index) => (
+              <li key={`${item.name}-${index}`}>
+                <p className="text-sm font-bold text-[var(--joballa-fg)]">{item.name}</p>
+                {item.issuer ? <p className="text-sm text-[var(--joballa-muted)]">{item.issuer}</p> : null}
+                {item.credentialUrl ? (
+                  <a
+                    href={item.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 block text-xs font-semibold text-[var(--joballa-primary)] break-all"
+                  >
+                    {item.credentialUrl}
+                  </a>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -658,7 +729,7 @@ function ApplicantPanelActionsMenu({
   );
 }
 
-function ApplicantStatusActions({
+export function ApplicantStatusActions({
   status,
   statusLabels,
   patchStatus,
@@ -666,7 +737,13 @@ function ApplicantStatusActions({
 }: {
   status: EmployerApplicantStatus;
   statusLabels: Record<string, string>;
-  patchStatus: ReturnType<typeof usePatchEmployerApplicantStatus>;
+  patchStatus: {
+    isPending: boolean;
+    mutate: (
+      body: { status: "shortlisted" | "rejected" | "hired"; note?: string },
+      options?: { onSuccess?: () => void },
+    ) => void;
+  };
   ta: ReturnType<typeof useTranslations>;
 }) {
   const [rejectOpen, setRejectOpen] = useState(false);
@@ -842,7 +919,6 @@ export function EmployerApplicantDetailPanel({
 
   const status = String(applicant.data?.status ?? "pending") as EmployerApplicantStatus;
   const profile = parseApplicantDetailProfile(applicant.data);
-  const liveProfile = status === "hired" ? parseLiveWorkerProfile(applicant.data) : null;
   const employerNotes = typeof applicant.data?.employerNotes === "string" ? applicant.data.employerNotes : null;
   const coverNote =
     typeof applicant.data?.coverNote === "string"
@@ -1013,14 +1089,6 @@ export function EmployerApplicantDetailPanel({
                   </h3>
                   <ProfileSections profile={profile} t={t} variant="page" coverNote={coverNote} />
                 </div>
-                {liveProfile ? (
-                  <div className="border-t border-[var(--joballa-border)] pt-8">
-                    <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--joballa-muted)]">
-                      {t("profile.liveProfileTitle")}
-                    </h3>
-                    <ProfileSections profile={liveProfile} t={t} variant="page" />
-                  </div>
-                ) : null}
               </section>
             </div>
 

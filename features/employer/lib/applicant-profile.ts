@@ -190,6 +190,24 @@ function resolveEducationRaw(p: Record<string, unknown>): unknown[] | undefined 
   return Array.isArray(raw) ? raw : undefined;
 }
 
+function resolveCertificationsRaw(p: Record<string, unknown>): unknown[] | undefined {
+  const raw = p.certifications;
+  return Array.isArray(raw) ? raw : undefined;
+}
+
+function mapCertificationRow(
+  item: unknown,
+): ParsedApplicantProfile["certifications"][number] {
+  const row = item as Record<string, unknown>;
+  return {
+    name: String(row.name ?? ""),
+    issuer: String(row.issuer ?? ""),
+    issueDate: String(row.issueDate ?? ""),
+    expiryDate: String(row.expiryDate ?? ""),
+    credentialUrl: String(row.credentialUrl ?? row.url ?? ""),
+  };
+}
+
 function mapEducationRow(item: unknown): ParsedApplicantProfile["education"][number] {
   const row = item as Record<string, unknown>;
   const institution = String(row.institution ?? row.school ?? row.university ?? "");
@@ -230,6 +248,9 @@ export function coerceProfileSnapshot(profile: Record<string, unknown> | undefin
   const eduRaw = resolveEducationRaw(p);
   const education = eduRaw ? eduRaw.map(mapEducationRow) : undefined;
 
+  const certRaw = resolveCertificationsRaw(p);
+  const certifications = certRaw ? certRaw.map(mapCertificationRow) : undefined;
+
   const skills = asStringArray(p.skills);
   const highlightedSkills = asStringArray(p.highlightedSkills ?? p.topSkills);
 
@@ -252,6 +273,7 @@ export function coerceProfileSnapshot(profile: Record<string, unknown> | undefin
     highlightedSkills: highlightedSkills.length > 0 ? highlightedSkills : p.highlightedSkills,
     workHistory,
     education,
+    certifications,
     documents,
     avatarUrl: p.avatarUrl ?? p.photoUrl ?? p.profilePhotoUrl ?? p.photo,
     verificationStatus: p.verificationStatus ?? p.kycStatus,
@@ -323,6 +345,13 @@ export type ParsedApplicantProfile = {
   highlightedSkills: string[];
   workHistory: { company: string; role: string; description: string; period: string; location: string }[];
   education: { institution: string; degree: string; field: string; period: string; description: string }[];
+  certifications: {
+    name: string;
+    issuer: string;
+    issueDate: string;
+    expiryDate: string;
+    credentialUrl: string;
+  }[];
   documents: { name: string; type: string; size?: string; url?: string; downloadUrl?: string }[];
   avatarUrl: string | null;
   verified: boolean;
@@ -365,6 +394,11 @@ export function parseSubmittedProfile(profile: Record<string, unknown> | undefin
   const eduRaw = resolveEducationRaw(p);
   const education: ParsedApplicantProfile["education"] = eduRaw ? eduRaw.map(mapEducationRow) : [];
 
+  const certRaw = resolveCertificationsRaw(p);
+  const certifications: ParsedApplicantProfile["certifications"] = certRaw
+    ? certRaw.map(mapCertificationRow).filter((c) => c.name.trim())
+    : [];
+
   const avatarUrl =
     typeof p.photoUrl === "string"
       ? p.photoUrl
@@ -392,6 +426,7 @@ export function parseSubmittedProfile(profile: Record<string, unknown> | undefin
     highlightedSkills,
     workHistory,
     education,
+    certifications,
     documents,
     avatarUrl,
     verified,

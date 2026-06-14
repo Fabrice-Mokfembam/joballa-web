@@ -8,8 +8,9 @@ import {
   employerJobDurationLabel,
   employerJobStartDateLabel,
 } from "@/features/employer/lib/employer-job-fields";
-import { usePublishWorkerPostedJob, useWorkerMe, useWorkerOwnedJob } from "@/features/worker/hooks";
+import { usePublishWorkerPostedJob, usePatchWorkerOwnedJobStatus, useWorkerMe, useWorkerOwnedJob } from "@/features/worker/hooks";
 import { profileInitials } from "@/features/worker/lib/profile-display";
+import { workerOwnedJobStatusActions } from "@/features/worker/lib/worker-job-status";
 import { IconChevronLeft, IconClose } from "@/components/worker/icons";
 import { portalDetailSectionClass, portalIconButtonMutedClass, portalOutlineButtonClass } from "@/components/portal/portal-ui";
 import { buttonClassName } from "@/components/ui/button";
@@ -63,6 +64,7 @@ export function WorkerOwnedJobDetailView({
   const meQuery = useWorkerMe();
   const jobQuery = useWorkerOwnedJob(jobId);
   const publishJob = usePublishWorkerPostedJob(jobId);
+  const patchStatus = usePatchWorkerOwnedJobStatus(jobId);
   const job = jobQuery.data;
   const isPanel = variant === "panel";
 
@@ -75,6 +77,11 @@ export function WorkerOwnedJobDetailView({
   const canPublish = status === "draft";
   const canEdit = status !== "closed";
   const canViewApplicants = status === "live" || status === "active";
+  const canClose = workerOwnedJobStatusActions(status).includes("closed");
+  const rejectionReason =
+    typeof job?.rejectionReason === "string" && job.rejectionReason.trim()
+      ? job.rejectionReason.trim()
+      : null;
 
   const requirements = useMemo(
     () => (Array.isArray(job?.requirements) ? job!.requirements.filter((line): line is string => !!line?.trim()) : []),
@@ -159,6 +166,12 @@ export function WorkerOwnedJobDetailView({
       ) : null}
 
       <div className={cn("min-w-0 space-y-3", isPanel && "px-1 pb-3 pr-2", !isPanel && "mx-auto w-full max-w-3xl space-y-4")}>
+        {rejectionReason ? (
+          <div className="rounded-[14px] border border-[var(--joballa-danger-border)] bg-[var(--joballa-danger-bg)] px-4 py-3 text-sm text-[var(--joballa-danger-fg)]">
+            <p className="font-semibold">{tDetail("rejectionTitle")}</p>
+            <p className="mt-1 whitespace-pre-wrap">{rejectionReason}</p>
+          </div>
+        ) : null}
         <section className={cn(portalDetailSectionClass, isPanel && "!p-3.5")}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -219,6 +232,20 @@ export function WorkerOwnedJobDetailView({
               >
                 {t("actions.viewApplicants")}
               </Link>
+            ) : null}
+            {canClose ? (
+              <button
+                type="button"
+                disabled={patchStatus.isPending}
+                onClick={() => patchStatus.mutate("closed")}
+                className={cn(
+                  portalOutlineButtonClass,
+                  "h-12 text-[var(--joballa-danger-fg)]",
+                  !canPublish && !canEdit && "min-[420px]:col-span-2",
+                )}
+              >
+                {patchStatus.isPending ? t("actions.closing") : t("actions.close")}
+              </button>
             ) : null}
           </div>
 

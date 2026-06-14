@@ -25,6 +25,7 @@ import { IconGlobe, IconPhone, IconPin, IconShieldCheck, IconVerified } from "@/
 import { getVerificationStatus, isPendingStatus, isVerifiedStatus } from "@/features/worker/lib/verification";
 import { Link } from "@/lib/i18n/navigation";
 import type { ApplicationProfileCustomization } from "@/features/worker/types/worker-portal";
+import { fieldMaxLength } from "@/lib/form-field-limits";
 import { cn } from "@/lib/utils";
 
 function regionLabel(regionId: string): string {
@@ -179,6 +180,7 @@ export function WorkerApplicationProfileCustomize({ value, onChange, onContinue,
               <input
                 value={value.professionalTitle ?? ""}
                 onChange={(e) => patch({ professionalTitle: e.target.value })}
+                maxLength={fieldMaxLength("professionalTitle")}
                 className="mt-1 h-10 w-full rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 text-sm"
               />
             </label>
@@ -187,6 +189,7 @@ export function WorkerApplicationProfileCustomize({ value, onChange, onContinue,
               <textarea
                 value={value.professionalSummary ?? value.bio ?? ""}
                 onChange={(e) => patch({ professionalSummary: e.target.value, bio: e.target.value })}
+                maxLength={fieldMaxLength("bio")}
                 rows={4}
                 className="mt-1 w-full resize-none rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 py-2 text-sm"
               />
@@ -208,6 +211,7 @@ export function WorkerApplicationProfileCustomize({ value, onChange, onContinue,
                 })
               }
               placeholder={tProfile("editor.skillsHint")}
+              maxLength={fieldMaxLength("skillsList")}
               className="h-10 w-full rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 text-sm"
             />
             {skillPills.length > 0 ? (
@@ -245,6 +249,7 @@ export function WorkerApplicationProfileCustomize({ value, onChange, onContinue,
                   .filter(Boolean),
               })
             }
+            maxLength={fieldMaxLength("languages")}
             className="h-10 w-full rounded-[10px] border border-[var(--joballa-border)] bg-[var(--joballa-input-bg)] px-3 text-sm"
           />
         </section>

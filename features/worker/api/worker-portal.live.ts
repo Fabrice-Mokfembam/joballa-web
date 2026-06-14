@@ -5,6 +5,7 @@ import { joballaAxios } from "@/lib/http/axios-instance";
 import { clampListParams } from "@/lib/http/api-pagination";
 import { normalizePaginated } from "@/lib/http/normalize-paginated";
 import { normalizeWorkerDashboard } from "@/features/worker/lib/dashboard-mapper";
+import { mapApplicantStatusForApi } from "@/features/employer/lib/employer-applicant-status";
 import { normalizeWorkerJobListItem } from "@/features/worker/lib/normalize-worker-job";
 import {
   normalizeEarningTransaction,
@@ -82,6 +83,14 @@ import type {
   WorkerPublicProfile,
   WorkerWorkHistory,
 } from "@/features/worker/types/worker-portal";
+import {
+  normalizeEmployerWorkforceList,
+  normalizeEmployerWorkforceWorker,
+} from "@/features/employer/lib/normalize-employer-workforce";
+import type {
+  EmployerWorkforceList,
+  UpdateWorkforceStatusBody,
+} from "@/features/employer/types/employer-portal";
 
 const WORKER = "/worker";
 const JOBS = `${WORKER}/jobs`;
@@ -414,6 +423,7 @@ function normalizeWorkerOwnedJobListItem(item: unknown): WorkerOwnedJobListItem 
     assignedJobId: raw.assignedJobId != null ? String(raw.assignedJobId) : null,
     rejectionReason: raw.rejectionReason != null ? String(raw.rejectionReason) : null,
     changeRequest: raw.changeRequest != null ? String(raw.changeRequest) : null,
+    postedByType: raw.postedByType != null ? String(raw.postedByType) : undefined,
   };
 }
 
@@ -494,6 +504,46 @@ export async function getWorkerIncomingApplication(
 ): Promise<WorkerIncomingApplicationDetail> {
   const { data } = await joballaAxios.get(`${WORKER_APPLICANTS}/${applicationId}`);
   return normalizeWorkerIncomingApplicationDetail(data);
+}
+
+export async function patchWorkerApplicantStatus(
+  applicationId: string,
+  body: { status: string; note?: string },
+): Promise<WorkerIncomingApplicationDetail> {
+  const status = mapApplicantStatusForApi(body.status) ?? body.status;
+  const { data } = await joballaAxios.patch(`${WORKER_APPLICANTS}/${applicationId}/status`, {
+    status,
+    ...(body.note ? { note: body.note } : {}),
+  });
+  return normalizeWorkerIncomingApplicationDetail(data);
+}
+
+const WORKER_WORKFORCE = `${WORKER}/workforce`;
+
+export async function getWorkerWorkforce(params?: {
+  status?: string;
+  page?: number;
+  limit?: number;
+}): Promise<EmployerWorkforceList> {
+  const apiParams =
+    params?.status && params.status !== "all"
+      ? { page: params.page, limit: params.limit, status: params.status }
+      : { page: params?.page, limit: params?.limit };
+  const { data } = await joballaAxios.get(WORKER_WORKFORCE, { params: apiParams });
+  return normalizeEmployerWorkforceList(data);
+}
+
+export async function getWorkerWorkforceWorker(workerId: string): Promise<Record<string, unknown>> {
+  const { data } = await joballaAxios.get(`${WORKER_WORKFORCE}/${workerId}`);
+  return normalizeEmployerWorkforceWorker(data);
+}
+
+export async function patchWorkerWorkforceStatus(
+  workerId: string,
+  body: UpdateWorkforceStatusBody,
+): Promise<Record<string, unknown>> {
+  const { data } = await joballaAxios.patch(`${WORKER_WORKFORCE}/${workerId}/status`, body);
+  return normalizeEmployerWorkforceWorker(data);
 }
 
 // —— Jobs feed ——

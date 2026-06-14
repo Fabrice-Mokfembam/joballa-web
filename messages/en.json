@@ -1253,7 +1253,8 @@
         "report": "Report job",
         "hide": "Hide job"
       },
-      "emptyDescription": "No description provided for this role."
+      "emptyDescription": "No description provided for this role.",
+      "rejectionTitle": "Rejection reason"
     },
     "apply": {
       "closeModal": "Close application form",
@@ -1329,7 +1330,9 @@
         "publishing": "Publishing…",
         "edit": "Edit job",
         "delete": "Delete job",
-        "viewApplicants": "View applicants"
+        "viewApplicants": "View applicants",
+        "close": "Close job",
+        "closing": "Closing…"
       },
       "detail": {
         "loading": "Loading job details…",
@@ -2409,6 +2412,7 @@
         "workTitle": "WORK HISTORY",
         "documentsTitle": "SUPPORTING DOCUMENTS",
         "educationTitle": "EDUCATION",
+        "certificationsTitle": "CERTIFICATIONS",
         "coverNoteTitle": "APPLICATION NOTE",
         "notProvided": "Not provided",
         "emptySummary": "No professional summary on file.",
@@ -2416,6 +2420,7 @@
         "emptyWorkHistory": "No work history listed.",
         "emptyDocuments": "No supporting documents uploaded.",
         "emptyEducation": "No education listed.",
+        "emptyCertifications": "No certifications listed.",
         "emptyCoverNote": "No note included with this application."
       }
     },

@@ -303,6 +303,7 @@ export type WorkerOwnedJobListItem = {
   assignedJobId?: string | null;
   rejectionReason?: string | null;
   changeRequest?: string | null;
+  postedByType?: "worker" | "company" | string;
   title: string;
   location?: string;
   jobType?: string;

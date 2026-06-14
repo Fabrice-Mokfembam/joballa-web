@@ -59,6 +59,10 @@ export {
   useDeleteWorkerOwnedJob,
   useWorkerIncomingApplications,
   useWorkerIncomingApplication,
+  usePatchWorkerApplicantStatus,
+  useWorkerWorkforce,
+  useWorkerWorkforceWorker,
+  usePatchWorkerWorkforceStatus,
 } from "./use-worker-owned-jobs";
 export {
   useWorkerNotifications,

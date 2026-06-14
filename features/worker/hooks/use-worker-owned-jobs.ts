@@ -8,13 +8,18 @@ import {
   getWorkerIncomingApplications,
   getWorkerOwnedJob,
   getWorkerOwnedJobs,
+  getWorkerWorkforce,
+  getWorkerWorkforceWorker,
+  patchWorkerApplicantStatus,
   patchWorkerOwnedJob,
   patchWorkerOwnedJobStatus,
+  patchWorkerWorkforceStatus,
   publishWorkerPostedJob,
 } from "@/features/worker/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
 import { workerKeys } from "@/features/worker/query-keys";
 import type { CreateWorkerJobBody, UpdateWorkerJobBody } from "@/features/worker/types/worker-portal";
+import type { UpdateWorkforceStatusBody } from "@/features/employer/types/employer-portal";
 import { useAuthSessionReady } from "@/lib/auth/use-auth-session-ready";
 
 export function useWorkerOwnedJobs(params?: { status?: string; page?: number; limit?: number }) {
@@ -127,5 +132,51 @@ export function useWorkerIncomingApplication(applicationId: string) {
     queryKey: workerKeys.incomingApplication(applicationId),
     queryFn: () => getWorkerIncomingApplication(applicationId),
     enabled: sessionReady && !!applicationId,
+  });
+}
+
+export function usePatchWorkerApplicantStatus(applicationId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { status: string; note?: string }) =>
+      patchWorkerApplicantStatus(applicationId, body),
+    onSuccess: () => {
+      toastSuccess("Applicant status updated.");
+      void qc.invalidateQueries({ queryKey: workerKeys.incomingApplication(applicationId) });
+      void qc.invalidateQueries({ queryKey: workerKeys.incomingApplications() });
+      void qc.invalidateQueries({ queryKey: workerKeys.workforce() });
+    },
+    onError: (e) => toastApiError(e, "Could not update applicant."),
+  });
+}
+
+export function useWorkerWorkforce(params?: { status?: string; page?: number; limit?: number }) {
+  const sessionReady = useAuthSessionReady();
+  return useQuery({
+    queryKey: workerKeys.workforce(params),
+    queryFn: () => getWorkerWorkforce(params),
+    enabled: sessionReady,
+  });
+}
+
+export function useWorkerWorkforceWorker(workerId: string) {
+  const sessionReady = useAuthSessionReady();
+  return useQuery({
+    queryKey: workerKeys.workforceWorker(workerId),
+    queryFn: () => getWorkerWorkforceWorker(workerId),
+    enabled: sessionReady && !!workerId,
+  });
+}
+
+export function usePatchWorkerWorkforceStatus(workerId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateWorkforceStatusBody) => patchWorkerWorkforceStatus(workerId, body),
+    onSuccess: () => {
+      toastSuccess("Worker status updated.");
+      void qc.invalidateQueries({ queryKey: workerKeys.workforceWorker(workerId) });
+      void qc.invalidateQueries({ queryKey: workerKeys.workforce() });
+    },
+    onError: (e) => toastApiError(e, "Could not update worker status."),
   });
 }

@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
 import { findJobDepartment } from "@/features/employer/lib/job-departments";
+import { mapJobDetailToDraft } from "@/features/employer/lib/job-form-mapper";
+import { EmployerAsyncState } from "@/components/employer/employer-async-state";
 import {
   EMPTY_POST_JOB_DRAFT,
   formatPostJobStartPreview,
@@ -13,7 +15,7 @@ import {
   validateWorkerPostJobDraft,
   type PostJobDraft,
 } from "@/features/worker/lib/job-payload";
-import { useCreateWorkerJob, useWorkerDepartmentOptions, useWorkerKyc, useWorkerMe } from "@/features/worker/hooks";
+import { useCreateWorkerJob, usePatchWorkerOwnedJob, useWorkerDepartmentOptions, useWorkerKyc, useWorkerMe, useWorkerOwnedJob } from "@/features/worker/hooks";
 import { getVerificationStatus, isVerifiedStatus } from "@/features/worker/lib/verification";
 import { profileInitials } from "@/features/worker/lib/profile-display";
 import { VerificationGateDialog } from "@/components/verification/verification-gate-dialog";
@@ -315,16 +317,52 @@ function PostJobStepIndicator({ step, onStep }: { step: Step; onStep: (s: Step) 
   );
 }
 
-export function WorkerPostJobFlow() {
+export function WorkerPostJobFlow({ jobId }: { jobId?: string }) {
+  const isEdit = Boolean(jobId);
+  const jobQuery = useWorkerOwnedJob(jobId ?? "");
+
+  return (
+    <EmployerAsyncState
+      isLoading={isEdit && jobQuery.isLoading}
+      isError={isEdit && jobQuery.isError}
+      error={jobQuery.error}
+      onRetry={() => void jobQuery.refetch()}
+    >
+      {!isEdit || jobQuery.data ? (
+        <WorkerPostJobFlowEditor
+          key={jobId ?? "new"}
+          jobId={jobId}
+          initialDraft={
+            isEdit && jobQuery.data
+              ? normalizePostJobDraft(
+                  mapJobDetailToDraft(jobQuery.data as Parameters<typeof mapJobDetailToDraft>[0]),
+                )
+              : normalizePostJobDraft({ ...INITIAL_DRAFT, workMode: "onsite" })
+          }
+        />
+      ) : null}
+    </EmployerAsyncState>
+  );
+}
+
+function WorkerPostJobFlowEditor({
+  jobId,
+  initialDraft,
+}: {
+  jobId?: string;
+  initialDraft: PostJobDraft;
+}) {
+  const isEdit = Boolean(jobId);
   const t = useTranslations("worker.postJobFlow");
   const tRegions = useTranslations("worker.findJobsPage");
   const router = useRouter();
   const createJob = useCreateWorkerJob();
+  const patchJob = usePatchWorkerOwnedJob(jobId ?? "");
   const meQuery = useWorkerMe();
   const kycQuery = useWorkerKyc();
   const { departments, isLoading: departmentsLoading } = useWorkerDepartmentOptions();
   const [step, setStep] = useState<Step>("basics");
-  const [draft, setDraft] = useState(() => normalizePostJobDraft({ ...INITIAL_DRAFT, workMode: "onsite" }));
+  const [draft, setDraft] = useState(() => normalizePostJobDraft(initialDraft));
   const [verifyOpen, setVerifyOpen] = useState(false);
 
   const durationParts = useMemo(() => splitDuration(draft.duration), [draft.duration]);
@@ -409,6 +447,12 @@ export function WorkerPostJobFlow() {
       setStep("basics");
       return;
     }
+    if (isEdit && jobId) {
+      patchJob.mutate(body, {
+        onSuccess: () => router.push(`/worker/my-jobs?job=${encodeURIComponent(jobId)}`),
+      });
+      return;
+    }
     createJob.mutate(body, {
       onSuccess: () => router.push("/worker/my-jobs"),
     });
@@ -426,23 +470,25 @@ export function WorkerPostJobFlow() {
     update("duration", mergeDuration(amount, unit));
   }
 
-  const isSaving = createJob.isPending;
+  const isSaving = createJob.isPending || patchJob.isPending;
 
   return (
     <div className={portalPageShellClass}>
       <Link
-        href="/worker/my-jobs"
+        href={isEdit && jobId ? `/worker/my-jobs?job=${encodeURIComponent(jobId)}` : "/worker/my-jobs"}
         className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--joballa-muted)] transition hover:text-[var(--joballa-fg)]"
       >
-        <span aria-hidden>‹</span> {t("backToJobs")}
+        <span aria-hidden>‹</span> {isEdit ? t("backToJob") : t("backToJobs")}
       </Link>
 
       <div className="flex flex-col gap-5">
         <div>
           <h1 className="text-[1.625rem] font-semibold tracking-[-0.05em] text-[var(--joballa-fg)] sm:text-[1.875rem]">
-            {t("title")}
+            {isEdit ? t("editTitle") : t("title")}
           </h1>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--joballa-muted)]">{t("description")}</p>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--joballa-muted)]">
+            {isEdit ? t("editDescription") : t("description")}
+          </p>
         </div>
         <PostJobStepIndicator step={step} onStep={setStep} />
       </div>
