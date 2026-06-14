@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   applyToWorkerJob,
@@ -17,6 +18,7 @@ import {
 } from "@/features/worker/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
 import { patchJobSavedInCache } from "@/features/worker/lib/saved-jobs-cache";
+import { findWorkerJobInListCache } from "@/features/worker/lib/job-list-cache";
 import { workerKeys } from "@/features/worker/query-keys";
 import type {
   ApplyToJobBody,
@@ -37,10 +39,13 @@ export function useWorkerJobSearch(params?: JobSearchParams) {
 
 export function useWorkerJob(jobId: string) {
   const sessionReady = useAuthSessionReady();
+  const qc = useQueryClient();
+  const cachedJob = useMemo(() => findWorkerJobInListCache(qc, jobId), [qc, jobId]);
   return useQuery({
     queryKey: workerKeys.job(jobId),
     queryFn: () => getWorkerJob(jobId),
     enabled: sessionReady && !!jobId,
+    initialData: cachedJob,
   });
 }
 

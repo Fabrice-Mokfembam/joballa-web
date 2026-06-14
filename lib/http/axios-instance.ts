@@ -109,7 +109,7 @@ joballaAxios.interceptors.response.use(
 
     if (isNetworkFailure) {
       throw new JoballaApiError(
-        "We could not reach the Joballa server. Check your connection and try again.",
+        "We could not reach the joballa server. Check your connection and try again.",
         0,
       );
     }

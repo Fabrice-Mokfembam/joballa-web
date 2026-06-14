@@ -273,6 +273,7 @@ export function JobPostingCard({
           <p className="truncate text-xs font-semibold leading-4 text-[var(--joballa-muted)]">{companyName}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
+          {applyControl}
           {showBookmark ? (
             <button
               type="button"
@@ -287,7 +288,6 @@ export function JobPostingCard({
               {bookmarkFilled ? <IconBookmarkSolid className="size-4" /> : <IconBookmark className="size-4" />}
             </button>
           ) : null}
-          {applyControl}
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@
       "loading": "Loading",
       "remove": "Remove",
       "removeItem": "Remove {item}",
-      "home": "Joballa home",
+      "home": "joballa home",
       "jobActions": "Job actions"
     },
     "confirm": {
@@ -64,9 +64,9 @@
       "workerKycTitle": "Verify your KYC first",
       "employerTitle": "Verify your business first",
       "pendingDescription": "Your documents are already under review. Verification can take up to 24 hours or less.",
-      "employerDescription": "Employers need approved business registration documents before posting jobs on Joballa.",
-      "workerPostJobDescription": "Workers need approved KYC before posting jobs on Joballa.",
-      "workerApplyDescription": "Workers need approved KYC before applying for jobs on Joballa."
+      "employerDescription": "Employers need approved business registration documents before posting jobs on joballa.",
+      "workerPostJobDescription": "Workers need approved KYC before posting jobs on joballa.",
+      "workerApplyDescription": "Workers need approved KYC before applying for jobs on joballa."
     }
   },
   "notFound": {
@@ -78,7 +78,7 @@
   "public": {
     "brand": {
       "kicker": "Careers & hiring",
-      "name": "Joballa"
+      "name": "joballa"
     },
     "nav": {
       "home": "Home",
@@ -121,7 +121,7 @@
         "apply": "Apply"
       },
       "trustLine": "Secure. Reliable. Built for the future of work.",
-      "imageAlt": "Job seeker celebrating with a laptop wearing Joballa branded apparel",
+      "imageAlt": "Job seeker celebrating with a laptop wearing joballa branded apparel",
       "primaryCta": "Create an account",
       "secondaryCta": "Sign in",
       "signInWithEmail": "Email sign-in",
@@ -253,7 +253,7 @@
     "featureColumns": {
       "seekers": {
         "title": "Find opportunities that match your skills",
-        "description": "Browse curated roles, save searches, and apply with a verified Joballa profile instead of sending another one-off CV.",
+        "description": "Browse curated roles, save searches, and apply with a verified joballa profile instead of sending another one-off CV.",
         "cta": "Explore jobs →"
       },
       "employers": {
@@ -264,7 +264,7 @@
     },
     "howDual": {
       "kicker": "How it works",
-      "title": "How Joballa works",
+      "title": "How joballa works",
       "subtitle": "Simple for workers. Powerful for employers.",
       "seekers": {
         "label": "For workers",
@@ -345,7 +345,7 @@
           "role": "Product designer"
         },
         "1": {
-          "quote": "Posting domestic roles used to be chaos. Joballa makes reviews predictable.",
+          "quote": "Posting domestic roles used to be chaos. joballa makes reviews predictable.",
           "name": "Marc T.",
           "role": "Operations lead"
         },
@@ -358,7 +358,7 @@
     },
     "appPromo": {
       "kicker": "Mobile first",
-      "title": "Take Joballa with you",
+      "title": "Take joballa with you",
       "description": "Manage applications, messages, and payouts on the go—native Android and iOS apps are on the roadmap.",
       "scanHint": "Scan to download when available",
       "storeSoon": "App Store & Google Play — coming soon"
@@ -391,7 +391,7 @@
           "privacy": "Privacy"
         },
         "about": {
-          "title": "About Joballa",
+          "title": "About joballa",
           "story": "Our story",
           "contact": "Contact"
         }
@@ -423,7 +423,7 @@
       },
       "admin": {
         "title": "Admins moderate trust across the marketplace.",
-        "description": "The admin surface is built around verification queues, job review, disputes, reporting, and Joballa-managed departments."
+        "description": "The admin surface is built around verification queues, job review, disputes, reporting, and joballa-managed departments."
       }
     },
     "preview": {
@@ -451,7 +451,7 @@
       }
     },
     "departments": {
-      "kicker": "Joballa departments",
+      "kicker": "joballa departments",
       "title": "Informal work, formally organised.",
       "description": "Not every job comes from a registered business. joballa's managed departments connect workers in informal sectors with clients who need them — verified, structured, and trusted.",
       "items": {
@@ -501,7 +501,7 @@
       "signUp": "Sign up with Google",
       "signIn": "Sign in with Google",
       "errors": {
-        "noAccount": "No Joballa account for this Google account. Please sign up first.",
+        "noAccount": "No joballa account for this Google account. Please sign up first.",
         "conflict": "This email is already registered. Sign in with your password or use Google on the sign-in page.",
         "invalid": "Google sign-in could not be completed. Please try again.",
         "suspended": "This account is suspended. Contact support.",
@@ -525,7 +525,7 @@
       "back": "Back to home",
       "eyebrow": "Entry points",
       "title": "Choose the surface you want to enter",
-      "description": "Sign in with your Joballa account to open the worker, employer, or admin workspace that matches your role.",
+      "description": "Sign in with your joballa account to open the worker, employer, or admin workspace that matches your role.",
       "signIn": "Sign in",
       "signUp": "Create account",
       "afterAuthHint": "After you tap Sign in, you choose either the email page or the phone page—each form matches one identifier type. New accounts use OTP verification; sessions use JWT access tokens from our API, with refresh tokens in an httpOnly cookie where supported.",
@@ -582,7 +582,7 @@
       "afterPasswordResetHint": "Your password was updated. Choose email or phone below, then sign in with your new password.",
       "email": {
         "title": "Email and password",
-        "description": "Sign in with the email address on your Joballa account.",
+        "description": "Sign in with the email address on your joballa account.",
         "cta": "Continue with email"
       },
       "phone": {
@@ -627,7 +627,7 @@
     },
     "signUpForm": {
       "eyebrow": "Create account",
-      "title": "Register with Joballa",
+      "title": "Register with joballa",
       "description": "Choose email or phone, then confirm the six-digit code we send you. Your role was picked on the previous step when you tapped worker or employer.",
       "roleHint": "Signing up as: {role}",
       "roles": {
@@ -1330,6 +1330,7 @@
         "publishing": "Publishing…",
         "edit": "Edit job",
         "delete": "Delete job",
+        "deleting": "Deleting…",
         "viewApplicants": "View applicants",
         "close": "Close job",
         "closing": "Closing…"
@@ -1376,6 +1377,7 @@
         "workMode": "Select work mode",
         "location": "Neighbourhood, City, Region — e.g. Bonanjo, Douala, Littoral",
         "city": "Select city",
+        "town": "Select town",
         "region": "Select region",
         "pay": "e.g. 60000",
         "payMin": "e.g. 50000",
@@ -1458,6 +1460,7 @@
         "workMode": "Work mode",
         "location": "Location",
         "city": "City",
+        "town": "Town",
         "region": "Region",
         "pay": "Pay",
         "payMin": "Pay from",
@@ -1490,7 +1493,7 @@
         "panelTitle": "Submission panel",
         "panelDescription": "When you submit, the role moves into the moderation flow before it becomes visible to workers.",
         "moderationTitle": "Moderation note",
-        "moderationDescription": "Joballa reviews structure, safety, and clarity before publication.",
+        "moderationDescription": "joballa reviews structure, safety, and clarity before publication.",
         "applications": "Applications",
         "applicationsCount": "0 so far",
         "listedBy": "Listed by {department}",
@@ -1515,7 +1518,7 @@
     },
     "postJob": {
       "title": "Post a job",
-      "description": "Share a role with candidates on Joballa.",
+      "description": "Share a role with candidates on joballa.",
       "comingSoon": "The worker job posting flow is coming soon. Use this page to preview navigation from your profile.",
       "viewMyJobs": "My jobs",
       "backToProfile": "Back to profile"
@@ -1639,7 +1642,7 @@
         "paymentLabel": "Payment details",
         "paymentPrivate": "Visible only to you",
         "primaryPayment": "Primary",
-        "verificationTooltip": "Identification document verified by Joballa",
+        "verificationTooltip": "Identification document verified by joballa",
         "summaryLabel": "Professional summary",
         "skillsLabel": "Skills",
         "workLabel": "Work history",
@@ -1843,7 +1846,7 @@
         "actions": "Actions",
         "viewJobListing": "View job listing",
         "relatedTransactions": "Related transactions",
-        "receiptTitle": "Joballa Payment Receipt",
+        "receiptTitle": "joballa Payment Receipt",
         "fields": {
           "date": "Date",
           "transactionTime": "Transaction time",
@@ -1946,7 +1949,7 @@
         },
         "signOut": {
           "title": "Sign out",
-          "description": "End your current Joballa session on this device.",
+          "description": "End your current joballa session on this device.",
           "button": "Sign out",
           "busy": "Signing out..."
         }
@@ -2266,7 +2269,7 @@
         "panelTitle": "Submission panel",
         "panelDescription": "When you submit, the role moves into the moderation flow before it becomes visible to workers.",
         "moderationTitle": "Moderation note",
-        "moderationDescription": "Joballa reviews structure, safety, and clarity before publication.",
+        "moderationDescription": "joballa reviews structure, safety, and clarity before publication.",
         "applications": "Applications",
         "applicationsCount": "0 so far",
         "listedBy": "Listed by {department}",
@@ -2586,7 +2589,7 @@
       "departmentId": "Department ID",
       "titleLabel": "Request title",
       "category": "Department category",
-      "paymentManaged": "Payment managed by Joballa",
+      "paymentManaged": "Payment managed by joballa",
       "notes": "Additional details",
       "validation": "Department ID and title are required.",
       "submitError": "Could not submit the request. Try again.",
@@ -2695,7 +2698,7 @@
         },
         "signOut": {
           "title": "Sign out",
-          "description": "End your current Joballa session on this device.",
+          "description": "End your current joballa session on this device.",
           "button": "Sign out",
           "busy": "Signing out..."
         }
@@ -2758,7 +2761,7 @@
         "title": "Admin operations",
         "description": "This space prepares for department management, dispute flows, and health metrics.",
         "highlight": {
-          "title": "Joballa-managed departments remain first-class",
+          "title": "joballa-managed departments remain first-class",
           "description": "The admin surface now has a dedicated place for internal department activity."
         }
       }
@@ -2802,7 +2805,7 @@
     },
     "departments": {
       "eyebrow": "Departments",
-      "title": "Manage Joballa-owned departments",
+      "title": "Manage joballa-owned departments",
       "description": "This route supports the informal job categories described in the scope document.",
       "cards": {
         "departments": {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/lib/i18n/navigation";
@@ -91,8 +92,8 @@ function MetaRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function formatStartDate(value?: string | null, startAsap?: boolean): string {
-  if (startAsap) return "As soon as possible";
+function formatStartDate(value?: string | null, startAsap?: boolean, asapLabel = "As soon as possible"): string {
+  if (startAsap) return asapLabel;
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -185,17 +186,34 @@ export function WorkerJobDetailView({
       startDate?: string;
       startAsap?: boolean;
       department?: { name?: string };
+      employmentType?: string;
+      jobType?: string;
+      region?: string | null;
+      country?: string | null;
     };
     const detailRaw = detail as Record<string, unknown> | undefined;
     const departmentValue =
       job.department?.trim() ||
+      (typeof detail?.category === "string" ? detail.category : "") ||
       (ext?.department?.name ? String(ext.department.name) : "") ||
       (typeof detailRaw?.departmentName === "string" ? detailRaw.departmentName : "");
+    const employmentType =
+      job.employmentType?.trim() ||
+      (typeof ext?.jobType === "string" ? String(ext.jobType).replace(/_/g, " ") : "") ||
+      (typeof ext?.employmentType === "string" ? String(ext.employmentType).replace(/_/g, " ") : "") ||
+      schedule;
+    const locationParts = [detail?.city, ext?.region ?? detail?.region, ext?.country ?? (detailRaw?.country as string | undefined)]
+      .filter((part): part is string => typeof part === "string" && !!part.trim())
+      .map((part) => part.trim());
+    const locationValue = locationParts.length > 0 ? locationParts.join(", ") : location;
     const rows = [
       { label: t("meta.department"), value: displayValue(departmentValue) },
-      { label: t("meta.jobType"), value: displayValue(job.employmentType || schedule) },
-      { label: t("meta.location"), value: displayValue(location || detail?.city) },
-      { label: t("meta.startDate"), value: displayValue(formatStartDate(ext?.startDate, ext?.startAsap)) },
+      { label: t("meta.jobType"), value: displayValue(employmentType) },
+      { label: t("meta.location"), value: displayValue(locationValue) },
+      {
+        label: t("meta.startDate"),
+        value: displayValue(formatStartDate(ext?.startDate, ext?.startAsap, t("values.startDate"))),
+      },
       { label: t("meta.duration"), value: displayValue(formatDuration(detail)) },
       {
         label: t("meta.applications"),
@@ -281,7 +299,6 @@ export function WorkerJobDetailView({
 
   const menuItems = useMemo(
     () => [
-      { label: saved ? t("menu.unsave") : t("menu.save"), onSelect: toggleSave },
       { label: t("menu.share"), onSelect: shareJob },
       {
         label: t("menu.report"),
@@ -303,7 +320,7 @@ export function WorkerJobDetailView({
         destructive: true,
       },
     ],
-    [hideJob, jobId, reportJob, router, saved, shareJob, t, toggleSave],
+    [hideJob, jobId, reportJob, router, shareJob, t],
   );
 
   return (
@@ -355,57 +372,69 @@ export function WorkerJobDetailView({
                 <p className="mt-0.5 text-sm font-semibold leading-5 text-[var(--joballa-muted)]">{scheduleLine}</p>
               ) : null}
             </div>
-            <DetailActionMenu label={t("moreActions")} items={menuItems} />
-          </div>
-
-          <div className="mt-5 min-w-0">
-            <h2 className="text-lg font-bold leading-7 text-[var(--joballa-fg)]">{job.title}</h2>
-            <div className="mt-1.5 flex min-w-0 items-center gap-2">
-              <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white", job.companyColor)}>
-                {job.companyInitial}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-[var(--joballa-muted)]">{job.company}</p>
-                {posterType ? (
-                  <p className="text-xs font-medium text-[var(--joballa-fg-subtle)]">{t(`posterType.${posterType}`)}</p>
-                ) : null}
-              </div>
+            <div className="hidden min-[600px]:block">
+              <DetailActionMenu label={t("moreActions")} items={menuItems} />
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
-            <button
-              type="button"
-              onClick={openApply}
-              disabled={alreadyApplied || isOwnPostedJob}
-              className={cn(
-                "flex h-12 items-center justify-center rounded-[12px] px-4 text-sm font-semibold shadow-[0_1px_1px_rgba(0,0,0,0.1)] transition",
-                alreadyApplied || isOwnPostedJob
-                  ? "cursor-not-allowed bg-[var(--joballa-primary)]/45 text-white/85"
-                  : "bg-[var(--joballa-primary)] text-white hover:opacity-[0.96]",
+          <div className="mt-4 min-w-0 sm:mt-5">
+            <h2 className="text-xl font-bold leading-7 text-[var(--joballa-fg)] sm:text-lg">{job.title}</h2>
+            <div className="mt-2 flex min-w-0 items-center gap-2">
+              {job.companyLogoUrl ? (
+                <Image
+                  src={job.companyLogoUrl}
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="size-7 shrink-0 rounded-full object-cover"
+                  unoptimized={job.companyLogoUrl.startsWith("http")}
+                />
+              ) : (
+                <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white", job.companyColor)}>
+                  {job.companyInitial}
+                </div>
               )}
-            >
-              {alreadyApplied ? t("applied") : isOwnPostedJob ? t("ownJob") : t("applyNow")}
-            </button>
+              <p className="truncate text-sm font-semibold text-[var(--joballa-muted)]">{job.company}</p>
+            </div>
+            {posterType ? (
+              <p className="mt-1 text-xs font-medium text-[var(--joballa-fg-subtle)] max-[599px]:hidden">{t(`posterType.${posterType}`)}</p>
+            ) : null}
+          </div>
+
+          <div className="mt-5 flex gap-2 min-[600px]:grid min-[600px]:grid-cols-2 min-[600px]:gap-3">
+            {isOwnPostedJob ? null : alreadyApplied ? (
+              <p className="flex h-12 min-w-0 flex-1 items-center justify-center text-sm font-semibold text-[var(--joballa-muted)]">
+                {t("applied")}
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={openApply}
+                className="flex h-12 min-w-0 flex-1 items-center justify-center rounded-[12px] bg-[var(--joballa-primary)] px-4 text-sm font-semibold text-white shadow-[0_1px_1px_rgba(0,0,0,0.1)] transition hover:opacity-[0.96] max-[599px]:flex-[1_1_0%] min-[600px]:flex-none"
+              >
+                {t("applyNow")}
+              </button>
+            )}
             <button
               type="button"
               onClick={toggleSave}
               disabled={saveJob.isPending || unsaveJob.isPending}
               aria-pressed={saved}
+              aria-label={saved ? t("menu.unsave") : t("saveJob")}
               className={cn(
-                "flex h-12 items-center justify-center gap-2 rounded-[12px] border px-4 text-sm font-semibold transition disabled:opacity-50",
+                "flex h-12 shrink-0 items-center justify-center rounded-[12px] border text-sm font-semibold transition disabled:opacity-50 max-[599px]:w-auto max-[599px]:px-3.5 min-[600px]:gap-2 min-[600px]:px-4",
                 saved
                   ? "border-[var(--joballa-primary)] bg-[var(--joballa-jade-3)] text-[var(--joballa-primary)] hover:opacity-90"
                   : "border-[var(--joballa-border)] bg-[var(--joballa-card)] text-[var(--joballa-fg)] hover:border-[var(--joballa-primary)] hover:text-[var(--joballa-primary)]",
               )}
             >
               {saved ? <IconBookmarkSolid className="size-4" /> : <IconBookmark className="size-4" />}
-              {saved ? t("menu.unsave") : t("saveJob")}
+              <span className="hidden min-[600px]:inline">{saved ? t("menu.unsave") : t("saveJob")}</span>
             </button>
           </div>
 
           {metaRows.length > 0 ? (
-            <dl className="mt-5 space-y-2.5">
+            <dl className="mt-5 space-y-2.5 border-t border-[var(--joballa-border)] pt-5">
               {metaRows.map((row) => (
                 <MetaRow key={row.label} label={row.label} value={row.value} />
               ))}

@@ -14,11 +14,9 @@ import {
 import {
   useHideWorkerJob,
   useReportWorkerJob,
-  useUnsaveWorkerJob,
-  useSaveWorkerJob,
-  useWorkerJob,
   useWorkerApplications,
   useWorkerDepartmentOptions,
+  useWorkerJob,
   useWorkerJobSearch,
 } from "@/features/worker/hooks";
 import { buildJobSearchParams } from "@/features/worker/lib/job-search-params";
@@ -43,7 +41,7 @@ import {
 } from "@/components/worker/icons";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
-import { WorkerFindJobsPageSkeleton } from "@/components/worker/worker-loading-skeletons";
+import { WorkerFindJobsPageSkeleton, WorkerJobDetailPanelSkeleton } from "@/components/worker/worker-loading-skeletons";
 import {
   PortalEmptyState,
   portalFilterButtonClass,
@@ -143,8 +141,6 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
 
   const jobsQuery = useWorkerJobSearch(apiSearchParams);
   const appsQuery = useWorkerApplications({ limit: 100 });
-  const saveJob = useSaveWorkerJob();
-  const unsaveJob = useUnsaveWorkerJob();
   const hideJob = useHideWorkerJob();
   const reportJob = useReportWorkerJob();
 
@@ -175,11 +171,16 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
     [appliedJobIds],
   );
 
-  const panelJobQuery = useWorkerJob(jobParam ?? "");
+  const panelJobRaw = useMemo(() => {
+    if (!jobParam) return null;
+    const items = jobsQuery.data?.items ?? [];
+    return items.find((job) => job.slug === jobParam || job.id === jobParam) ?? null;
+  }, [jobParam, jobsQuery.data?.items]);
+
   const selectedJob = useMemo(() => {
-    if (!jobParam || !panelJobQuery.data) return null;
-    return workerJobCardFromApi(panelJobQuery.data);
-  }, [jobParam, panelJobQuery.data]);
+    if (!panelJobRaw) return null;
+    return workerJobCardFromApi(panelJobRaw);
+  }, [panelJobRaw]);
   const useSplit = isLg === true;
 
   const selectJob = useCallback(
@@ -209,22 +210,11 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
     router.push(`/worker/jobs/search?q=${encodeURIComponent(term)}`);
   }, [q, router]);
 
+  const showPanel = useSplit && !!jobParam;
+  const panelDetailQuery = useWorkerJob(showPanel ? (jobParam ?? "") : "");
+
   const jobMenuItems = useCallback(
     (job: WorkerJobCard): JobPostingCardMenuItem[] => [
-      {
-        label: t("menu.openDetails"),
-        onSelect: () => {
-          if (useSplit) {
-            selectJob(job.slug);
-            return;
-          }
-          void router.push(`/worker/jobs/${job.slug}`);
-        },
-      },
-      {
-        label: job.isSaved ? t("menu.unsave") : t("menu.save"),
-        onSelect: () => (job.isSaved ? unsaveJob.mutate(job.slug) : saveJob.mutate(job.slug)),
-      },
       {
         label: t("menu.share"),
         onSelect: () => {
@@ -247,15 +237,15 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
         destructive: true,
       },
     ],
-    [hideJob, reportJob, router, saveJob, selectJob, t, unsaveJob, useSplit],
+    [hideJob, reportJob, t],
   );
 
   useEffect(() => {
-    if (isLg !== true || !jobParam || panelJobQuery.isLoading) return;
-    if (panelJobQuery.isError || (!panelJobQuery.isLoading && !panelJobQuery.data)) {
+    if (isLg !== true || !jobParam || jobsQuery.isLoading) return;
+    if (jobsQuery.isError || (!jobsQuery.isLoading && !panelJobRaw)) {
       router.replace(pathname);
     }
-  }, [isLg, jobParam, panelJobQuery.data, panelJobQuery.isError, panelJobQuery.isLoading, pathname, router]);
+  }, [isLg, jobParam, panelJobRaw, jobsQuery.isError, jobsQuery.isLoading, pathname, router]);
 
   useEffect(() => {
     if (isLg === null || isLg) return;
@@ -268,7 +258,7 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
     setQ(queryParam);
   }, [queryParam]);
 
-  const showPanel = useSplit && !!jobParam;
+  const panelDetail = panelDetailQuery.data ?? panelJobRaw;
 
   return (
     <div
@@ -280,7 +270,7 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
       <h1 className="sr-only">{searchMode ? t("resultsTitle") : t("title")}</h1>
 
       <div className="flex w-full flex-col gap-2 min-[600px]:gap-3">
-        <div className="flex min-w-0 items-stretch gap-2 min-[600px]:gap-3">
+        <div className="flex min-w-0 items-stretch gap-2">
           <form
             className={portalSearchFormClass}
             onSubmit={(event) => {
@@ -498,14 +488,14 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
 
         {showPanel ? (
           <aside className="hidden w-full max-w-full self-start rounded-[22px] border border-[var(--joballa-border)] bg-[var(--joballa-page)] p-3 lg:flex lg:max-h-[calc(100dvh-8.5rem)] lg:flex-col lg:overflow-y-auto">
-            {panelJobQuery.isLoading || !selectedJob ? (
-              <WorkerFindJobsPageSkeleton cards={1} />
+            {!selectedJob || (panelDetailQuery.isLoading && !panelDetail) ? (
+              <WorkerJobDetailPanelSkeleton />
             ) : (
               <WorkerJobDetailView
                 job={selectedJob}
                 jobId={jobParam!}
-                isSaved={!!(panelJobQuery.data?.saved ?? panelJobQuery.data?.isSaved)}
-                detail={panelJobQuery.data}
+                isSaved={!!(panelDetail?.saved ?? panelDetail?.isSaved)}
+                detail={panelDetail}
                 variant="panel"
                 onClosePanel={closePanel}
               />

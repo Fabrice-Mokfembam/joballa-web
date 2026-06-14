@@ -28,7 +28,7 @@ function statusBadgeClass(status: EarningTransactionStatus) {
 function downloadStatement(rows: EarningTransaction[]) {
   downloadSimplePdf(
     "joballa-earnings-statement.pdf",
-    "Joballa Earnings Statement",
+    "joballa Earnings Statement",
     rows.flatMap((row) => [
       `${row.dateLabel || "--"} | ${row.employer} | ${row.jobTitle}`,
       `${row.amountPrimary} | ${row.status.toUpperCase()} | ${row.paymentPlatform ?? ""}`,

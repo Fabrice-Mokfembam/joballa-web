@@ -219,17 +219,29 @@ export function WorkerProfilePublic({
               )}
             </div>
             <div className="min-w-0">
-              <div className={cn("flex flex-wrap items-center justify-start gap-1.5", !forceMobileLayout && "sm:gap-2")}>
-                <h2
+              <h2
+                className={cn(
+                  compact
+                    ? "text-sm font-bold leading-5 tracking-tight text-[var(--joballa-fg)]"
+                    : "text-base font-bold leading-6 tracking-tight text-[var(--joballa-fg)]",
+                  !forceMobileLayout && "min-[480px]:text-xl sm:text-2xl",
+                )}
+              >
+                {name}
+              </h2>
+              {profileHeadline(profile) ? (
+                <p
                   className={cn(
                     compact
-                      ? "text-sm font-bold leading-5 tracking-tight text-[var(--joballa-fg)]"
-                      : "text-base font-bold leading-6 tracking-tight text-[var(--joballa-fg)]",
-                    !forceMobileLayout && "min-[480px]:text-xl sm:text-2xl",
+                      ? "mt-1 text-[11px] font-medium leading-4 text-[var(--joballa-fg-subtle)]"
+                      : "mt-1 text-xs font-medium leading-5 text-[var(--joballa-fg-subtle)]",
+                    !compact && !forceMobileLayout && "min-[480px]:text-sm",
                   )}
                 >
-                  {name}
-                </h2>
+                  {profileHeadline(profile)}
+                </p>
+              ) : null}
+              <div className={cn("mt-2 flex flex-wrap items-center justify-start gap-1.5", !forceMobileLayout && "sm:gap-2")}>
                 {verified ? (
                   <span className="group relative inline-flex">
                     <IconVerified
@@ -257,20 +269,6 @@ export function WorkerProfilePublic({
                     {tProfile("preview.verifyKyc")}
                   </Link>
                 )}
-              </div>
-              {profileHeadline(profile) ? (
-                <p
-                  className={cn(
-                    compact
-                      ? "mt-0.5 text-[11px] font-medium leading-4 text-[var(--joballa-fg-subtle)]"
-                      : "mt-0.5 text-xs font-medium leading-5 text-[var(--joballa-fg-subtle)]",
-                    !compact && !forceMobileLayout && "min-[480px]:text-sm",
-                  )}
-                >
-                  {profileHeadline(profile)}
-                </p>
-              ) : null}
-              <div className="mt-2 flex flex-wrap items-center justify-start gap-2">
                 {available ? (
                   <span
                     className={cn(
@@ -324,10 +322,11 @@ export function WorkerProfilePublic({
         <section className={sectionGridClass()}>
           <p className={sectionLabelClass}>{tProfile("preview.summaryLabel")}</p>
           <div className={bodyBlockClass}>
-            {profile.professionalTitle?.trim() ? (
-              <p className="text-[var(--joballa-fg)]">{profile.professionalTitle}</p>
+            {profile.summary?.trim() ? (
+              <p className="text-[var(--joballa-fg-subtle)]">{profile.summary}</p>
+            ) : !profileHeadline(profile) ? (
+              <p className="text-[var(--joballa-fg-subtle)]">{tProfile("preview.emptySummary")}</p>
             ) : null}
-            {profile.summary?.trim() ? <p className="text-[var(--joballa-fg-subtle)]">{profile.summary}</p> : null}
             {profileIndustriesLine(profile) || profileEmploymentTypes(profile) ? (
               <p className="text-[var(--joballa-fg-subtle)]">
                 {[profileIndustriesLine(profile), profileEmploymentTypes(profile)].filter(Boolean).join(" · ")}

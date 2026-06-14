@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n/navigation";
 import { EmployerAsyncState } from "@/components/employer/employer-async-state";
-import { useEmployerWorkforceWorker, usePatchEmployerWorkforceStatus } from "@/features/employer/hooks";
+import { useEmployerMe, useEmployerWorkforceWorker, usePatchEmployerWorkforceStatus } from "@/features/employer/hooks";
 import { buttonClassName } from "@/components/ui/button";
 import { parseSubmittedProfile, type ParsedApplicantProfile } from "@/features/employer/lib/applicant-profile";
 import { displayWorkforceJobType } from "@/features/employer/lib/workforce-display";
@@ -130,6 +130,7 @@ function ProfileSections({ profile, t }: { profile: ParsedApplicantProfile; t: R
 export function EmployerWorkforceWorkerProfile({ workerId }: { workerId: string }) {
   const t = useTranslations("employer.workforceDetail");
   const tw = useTranslations("employer.workforce");
+  const me = useEmployerMe();
   const detail = useEmployerWorkforceWorker(workerId);
   const patchStatus = usePatchEmployerWorkforceStatus(workerId);
 
@@ -139,6 +140,7 @@ export function EmployerWorkforceWorkerProfile({ workerId }: { workerId: string 
   const requirements = Array.isArray(job?.requirements) ? job.requirements : [];
   const responsibilities = Array.isArray(job?.responsibilities) ? job.responsibilities : [];
   const companyName = String(job?.company ?? "—");
+  const companyLogo = me.data?.company?.logo ?? null;
   const statusLabels: Record<string, string> = {
     active: tw("status.active"),
     terminated: tw("status.terminated"),
@@ -195,9 +197,15 @@ export function EmployerWorkforceWorkerProfile({ workerId }: { workerId: string 
                     {job?.title ?? String(detail.data.role ?? "—")}
                   </h2>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-fg)] text-[8px] font-bold text-[var(--joballa-on-primary)]">
-                      {companyName.charAt(0)}
-                    </span>
+                    {companyLogo ? (
+                      <span className="relative flex size-6 shrink-0 overflow-hidden rounded-full">
+                        <Image src={companyLogo} alt="" fill className="object-cover" sizes="24px" unoptimized />
+                      </span>
+                    ) : (
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-fg)] text-[8px] font-bold text-[var(--joballa-on-primary)]">
+                        {companyName.charAt(0)}
+                      </span>
+                    )}
                     <span className="text-xs font-semibold text-[var(--joballa-muted)]">{companyName}</span>
                   </div>
                 </div>

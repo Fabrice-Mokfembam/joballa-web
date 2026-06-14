@@ -10,12 +10,10 @@ import {
   getCitiesForRegion,
   type CameroonRegionId,
 } from "@/lib/cameroon-region-cities";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { useDeleteSavedJob, useSavedJobs, useWorkerApplications, useWorkerDepartmentOptions } from "@/features/worker/hooks";
+import { useSavedJobs, useWorkerApplications, useWorkerDepartmentOptions } from "@/features/worker/hooks";
 import { buildJobSearchParams } from "@/features/worker/lib/job-search-params";
 import { workerApplicationRowsFromApi } from "@/features/worker/lib/application-mappers";
 import { workerJobCardFromApi } from "@/features/worker/lib/job-mappers";
-import { useConfirmAction } from "@/lib/hooks/use-confirm-action";
 import { JoballaApiError } from "@/lib/joballa/request";
 import { WorkerFindJobsPageSkeleton } from "@/components/worker/worker-loading-skeletons";
 import { WorkerJobGridCard } from "@/components/worker/worker-job-grid-card";
@@ -41,8 +39,6 @@ export function WorkerSavedJobsView() {
   const router = useRouter();
   const t = useTranslations("worker.savedJobsPage");
   const tf = useTranslations("worker.findJobsPage");
-  const tc = useTranslations("common.confirm");
-  const { requestConfirm, dialogProps } = useConfirmAction();
   const [grid, setGrid] = useState(true);
   const [q, setQ] = useState("");
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -100,7 +96,6 @@ export function WorkerSavedJobsView() {
 
   const savedQuery = useSavedJobs(savedSearchParams);
   const appsQuery = useWorkerApplications({ limit: 100 });
-  const deleteSaved = useDeleteSavedJob();
   const [listNow] = useState(() => Date.now());
 
   const cityLabel = city === CITY_ALL ? tf("cityAll") : city;
@@ -140,19 +135,6 @@ export function WorkerSavedJobsView() {
 
   const jobMenuItems = useCallback(
     (job: (typeof rows)[number]["job"]) => [
-      { label: tf("menu.openDetails"), onSelect: () => void router.push(`/worker/jobs/${job.slug}`) },
-      {
-        label: tf("menu.unsave"),
-        onSelect: () =>
-          requestConfirm({
-            title: tc("unsaveJob.title"),
-            description: tc("unsaveJob.description"),
-            confirmLabel: tc("unsaveJob.confirm"),
-            cancelLabel: tc("cancel"),
-            destructive: true,
-            onConfirm: () => deleteSaved.mutate(job.slug),
-          }),
-      },
       {
         label: tf("menu.share"),
         onSelect: () => {
@@ -161,7 +143,7 @@ export function WorkerSavedJobsView() {
         },
       },
     ],
-    [deleteSaved, requestConfirm, router, tc, tf],
+    [tf],
   );
 
   if (savedQuery.isLoading) {
@@ -347,7 +329,6 @@ export function WorkerSavedJobsView() {
           </table>
         </div>
       )}
-      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

@@ -14,7 +14,7 @@ type Props = {
   alt?: string;
 };
 
-export function JoballaPanelLogoMark({ className, size = 40, alt = "Joballa" }: Props) {
+export function JoballaPanelLogoMark({ className, size = 40, alt = "joballa" }: Props) {
   return (
     <Image
       src={SRC}

@@ -10,7 +10,7 @@ import { displayWorkforceJobType } from "@/features/employer/lib/workforce-displ
 import { useEmployerWorkforce } from "@/features/employer/hooks";
 import type { EmployerDashboardStat, EmployerWorkforceListItem } from "@/features/employer/types/employer-portal";
 import { useEmployerPortalStore } from "@/lib/stores/employer-portal-store";
-import { portalCardClass, portalPageShellClass, PortalStatCard } from "@/components/portal/portal-ui";
+import { portalCardClass, portalPageShellClass, PortalStatCard, PortalAvatar } from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
 
 type StatusTab = "all" | "active" | "terminated";
@@ -163,9 +163,11 @@ function WorkforceViewInner() {
                           onClick={(event) => event.stopPropagation()}
                           className="flex items-center gap-2.5 text-xs text-[var(--joballa-fg)] transition hover:text-[var(--joballa-primary)]"
                         >
-                          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-primary)] text-[8px] font-bold text-[var(--joballa-on-primary)]">
-                            {workerRowName(worker).charAt(0)}
-                          </span>
+                          <PortalAvatar
+                            name={workerRowName(worker)}
+                            photoUrl={worker.avatarUrl ?? null}
+                            sizeClassName="size-5 text-[8px]"
+                          />
                           {workerRowName(worker)}
                         </Link>
                       </div>

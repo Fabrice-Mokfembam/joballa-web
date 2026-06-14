@@ -24,7 +24,7 @@ function mapApiNotification(
   item: EmployerNotification | WorkerNotificationItem,
 ): WorkerNotification {
   const filter = notificationFilter(item.type);
-  const title = item.title ?? "Joballa";
+  const title = item.title ?? "joballa";
   const body = item.body ?? "";
   return {
     id: item.id,

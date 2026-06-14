@@ -7,9 +7,9 @@ import { AppProviders } from "@/components/providers/app-providers";
 import { routing } from "@/lib/i18n/routing";
 
 export const metadata: Metadata = {
-  title: "Joballa",
+  title: "joballa",
   description:
-    "Joballa connects workers, employers, and admins in one bilingual hiring platform.",
+    "joballa connects workers, employers, and admins in one bilingual hiring platform.",
 };
 
 export const viewport: Viewport = {

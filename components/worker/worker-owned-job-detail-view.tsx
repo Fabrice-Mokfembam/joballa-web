@@ -1,17 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/lib/i18n/navigation";
+import { Link, useRouter } from "@/lib/i18n/navigation";
 import {
   employerJobDurationLabel,
   employerJobStartDateLabel,
 } from "@/features/employer/lib/employer-job-fields";
-import { usePublishWorkerPostedJob, usePatchWorkerOwnedJobStatus, useWorkerMe, useWorkerOwnedJob } from "@/features/worker/hooks";
+import {
+  usePublishWorkerPostedJob,
+  usePatchWorkerOwnedJobStatus,
+  useDeleteWorkerOwnedJob,
+  useWorkerMe,
+  useWorkerOwnedJob,
+} from "@/features/worker/hooks";
 import { profileInitials } from "@/features/worker/lib/profile-display";
 import { workerOwnedJobStatusActions } from "@/features/worker/lib/worker-job-status";
 import { IconChevronLeft, IconClose } from "@/components/worker/icons";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { portalDetailSectionClass, portalIconButtonMutedClass, portalOutlineButtonClass } from "@/components/portal/portal-ui";
 import { buttonClassName } from "@/components/ui/button";
 import { jobStatusPillClass } from "@/lib/job-status-pill";
@@ -61,10 +68,14 @@ export function WorkerOwnedJobDetailView({
 }) {
   const t = useTranslations("worker.myJobs");
   const tDetail = useTranslations("worker.jobDetail");
+  const tc = useTranslations("common.confirm");
+  const router = useRouter();
   const meQuery = useWorkerMe();
   const jobQuery = useWorkerOwnedJob(jobId);
   const publishJob = usePublishWorkerPostedJob(jobId);
   const patchStatus = usePatchWorkerOwnedJobStatus(jobId);
+  const deleteJob = useDeleteWorkerOwnedJob();
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const job = jobQuery.data;
   const isPanel = variant === "panel";
 
@@ -75,6 +86,7 @@ export function WorkerOwnedJobDetailView({
 
   const status = normalizeStatus(String(job?.status ?? ""));
   const canPublish = status === "draft";
+  const canDelete = status === "draft";
   const canEdit = status !== "closed";
   const canViewApplicants = status === "live" || status === "active";
   const canClose = workerOwnedJobStatusActions(status).includes("closed");
@@ -247,6 +259,20 @@ export function WorkerOwnedJobDetailView({
                 {patchStatus.isPending ? t("actions.closing") : t("actions.close")}
               </button>
             ) : null}
+            {canDelete ? (
+              <button
+                type="button"
+                disabled={deleteJob.isPending}
+                onClick={() => setDeleteOpen(true)}
+                className={cn(
+                  portalOutlineButtonClass,
+                  "h-12 text-[var(--joballa-danger-fg)]",
+                  canPublish && canEdit && "min-[420px]:col-span-2",
+                )}
+              >
+                {deleteJob.isPending ? t("actions.deleting") : t("actions.delete")}
+              </button>
+            ) : null}
           </div>
 
           <dl className="mt-5 space-y-2.5">
@@ -297,6 +323,28 @@ export function WorkerOwnedJobDetailView({
           ) : null}
         </section>
       </div>
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={tc("deleteJobPosting.title")}
+        description={tc("deleteJobPosting.description")}
+        confirmLabel={tc("deleteJobPosting.confirm")}
+        cancelLabel={tc("cancel")}
+        destructive
+        onConfirm={() =>
+          deleteJob.mutate(jobId, {
+            onSuccess: () => {
+              setDeleteOpen(false);
+              if (isPanel && onClose) {
+                onClose();
+              } else {
+                router.push("/worker/my-jobs");
+              }
+            },
+          })
+        }
+        busy={deleteJob.isPending}
+      />
     </div>
   );
 }

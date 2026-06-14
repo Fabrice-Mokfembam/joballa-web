@@ -152,50 +152,76 @@ export function WorkerFindJobsPageSkeleton({ cards = 6, grid = true }: { cards?:
   );
 }
 
-/** Job detail: back link + article + sticky sidebar. */
+/** Job detail page: back link + stacked sections (matches WorkerJobDetailView). */
 export function WorkerJobDetailPageSkeleton() {
   return (
     <div className={portalPageShellClass} aria-busy>
       <Skeleton className="h-5 w-40" />
-      <div className="flex min-h-0 flex-1 flex-col gap-5 lg:flex-row lg:items-start">
-        <div className="min-w-0 flex-1 space-y-4">
-          <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4 shadow-sm sm:p-6">
-            <div className="flex justify-between gap-3">
-              <Skeleton className="h-3 w-20" />
-              <Skeleton className="h-5 w-24 rounded-full" />
-            </div>
-            <Skeleton className="mt-4 h-8 w-4/5 max-w-xl" />
-            <Skeleton className="mt-3 h-4 w-1/2" />
-            <div className="mt-4 flex gap-2">
-              <Skeleton className="h-7 w-20 rounded-full" />
-              <Skeleton className="h-7 w-28 rounded-full" />
-            </div>
-            <div className="mt-6 flex items-center gap-2 border-t border-[var(--joballa-border)] pt-6">
-              <Skeleton className="size-10 rounded-full" />
-              <Skeleton className="h-4 w-32" />
-            </div>
+      <div className="mx-auto w-full max-w-3xl flex-1 space-y-4">
+        <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4 shadow-sm sm:p-5">
+          <Skeleton className="h-7 w-36" />
+          <Skeleton className="mt-2 h-4 w-32" />
+          <Skeleton className="mt-5 h-7 w-4/5 max-w-md" />
+          <div className="mt-3 flex items-center gap-2">
+            <Skeleton className="size-7 rounded-full" />
+            <Skeleton className="h-4 w-32" />
           </div>
-          <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4 shadow-sm sm:p-6">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="mt-3 h-3 w-full" />
-            <Skeleton className="mt-2 h-3 w-full" />
-            <Skeleton className="mt-2 h-3 w-5/6" />
-            <Skeleton className="mt-6 h-6 w-40" />
-            <div className="mt-3 space-y-2">
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-4/5" />
-            </div>
+          <div className="mt-5 flex gap-2">
+            <Skeleton className="h-12 min-w-0 flex-1 rounded-[12px]" />
+            <Skeleton className="h-12 w-11 shrink-0 rounded-[12px]" />
+          </div>
+          <div className="mt-5 space-y-3 border-t border-[var(--joballa-border)] pt-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex justify-between gap-4">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-28" />
+              </div>
+            ))}
           </div>
         </div>
-        <aside className="w-full shrink-0 lg:w-[300px]">
-          <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4 shadow-sm sm:p-5">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="mt-2 h-8 w-32" />
-            <Skeleton className="mt-3 h-3 w-full" />
-            <Skeleton className="mt-5 h-11 w-full rounded-xl" />
-          </div>
-        </aside>
+        <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-4 shadow-sm sm:p-5">
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="mt-4 h-3 w-full" />
+          <Skeleton className="mt-2 h-3 w-full" />
+          <Skeleton className="mt-2 h-3 w-4/5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Find-jobs split pane job detail panel. */
+export function WorkerJobDetailPanelSkeleton() {
+  return (
+    <div className="min-w-0 space-y-3 px-1 pb-3 pr-2" aria-busy>
+      <div className="flex justify-end px-2 py-2">
+        <Skeleton className="size-10 rounded-[14px]" />
+      </div>
+      <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-3.5 shadow-sm">
+        <Skeleton className="h-7 w-32" />
+        <Skeleton className="mt-2 h-4 w-28" />
+        <Skeleton className="mt-5 h-6 w-4/5" />
+        <div className="mt-3 flex items-center gap-2">
+          <Skeleton className="size-7 rounded-full" />
+          <Skeleton className="h-4 w-28" />
+        </div>
+        <div className="mt-5 flex gap-2">
+          <Skeleton className="h-12 min-w-0 flex-1 rounded-[12px]" />
+          <Skeleton className="h-12 w-11 shrink-0 rounded-[12px]" />
+        </div>
+        <div className="mt-5 space-y-3 border-t border-[var(--joballa-border)] pt-5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex justify-between gap-4">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="rounded-[14px] border border-[var(--joballa-border)] bg-[var(--joballa-card)] p-3.5 shadow-sm">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="mt-4 h-3 w-full" />
+        <Skeleton className="mt-2 h-3 w-full" />
       </div>
     </div>
   );

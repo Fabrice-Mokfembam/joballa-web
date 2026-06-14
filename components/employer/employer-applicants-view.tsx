@@ -42,6 +42,7 @@ import {
   PortalStatCard,
   portalStatGridClass,
   portalTabPillClass,
+  PortalAvatar,
 } from "@/components/portal/portal-ui";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
@@ -448,9 +449,11 @@ function ApplicantsTable({
                 </td>
                 <td className={portalListTableTdClass}>
                   <span className="flex items-center gap-2 font-medium text-[var(--joballa-fg)]">
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-primary)] text-[9px] font-bold text-[var(--joballa-on-primary)]">
-                      {applicantName(applicant).charAt(0)}
-                    </span>
+                    <PortalAvatar
+                      name={applicantName(applicant)}
+                      photoUrl={applicant.photoUrl ?? applicant.avatarUrl ?? applicant.applicantAvatarUrl ?? null}
+                      sizeClassName="size-6 text-[9px]"
+                    />
                     {applicantName(applicant)}
                   </span>
                 </td>

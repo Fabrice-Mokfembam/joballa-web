@@ -92,7 +92,8 @@ export function formatCertificationMeta(entry: WorkerCertification): string {
 function formatMonthYear(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+  // Fixed locale + UTC so SSR and client hydration produce identical strings.
+  return d.toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
 }
 
 export function profileSectionCompletion(profile: WorkerFullProfile) {

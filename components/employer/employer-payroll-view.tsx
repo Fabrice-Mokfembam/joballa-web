@@ -13,7 +13,7 @@ import {
 import type { EmployerPayWorkerRow } from "@/features/employer/types/employer-portal";
 import { useEmployerPortalStore } from "@/lib/stores/employer-portal-store";
 import { formatStatValue } from "@/features/employer/lib/applicant-helpers";
-import { portalCardClass, portalInputClass, portalPageShellClass, PortalStatCard, portalStatGridClass } from "@/components/portal/portal-ui";
+import { portalCardClass, portalInputClass, portalPageShellClass, PortalStatCard, portalStatGridClass, PortalAvatar } from "@/components/portal/portal-ui";
 import { cn } from "@/lib/utils";
 import { buttonClassName } from "@/components/ui/button";
 
@@ -220,13 +220,15 @@ function PayWorkerRow({ row, period }: { row: EmployerPayWorkerRow; period: stri
   const paid = row.alreadyPaid === true || row.paid === true || row.status === "paid";
   const provider = row.provider === "orange_money" ? "orange_money" : "mtn_momo";
   const workerName = row.workerName ?? row.name ?? "Worker";
+  const workerPhoto =
+    (typeof row.photoUrl === "string" ? row.photoUrl : null) ??
+    (typeof row.avatarUrl === "string" ? row.avatarUrl : null) ??
+    (typeof row.workerPhotoUrl === "string" ? row.workerPhotoUrl : null);
 
   return (
     <div className="grid gap-3 border-b border-[var(--joballa-border)] px-4 py-4 last:border-0 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] sm:items-center">
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[var(--joballa-primary)] text-sm font-bold text-[var(--joballa-on-primary)]">
-          {workerName.charAt(0)}
-        </span>
+        <PortalAvatar name={workerName} photoUrl={workerPhoto} sizeClassName="size-10 text-sm" />
         <div className="min-w-0">
           <p className="truncate font-semibold text-[var(--joballa-fg)]">{workerName}</p>
           <p className="text-xs text-[var(--joballa-muted)] sm:hidden">{String(row.role ?? "—")}</p>

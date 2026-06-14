@@ -16,7 +16,7 @@
       "loading": "Chargement",
       "remove": "Retirer",
       "removeItem": "Retirer {item}",
-      "home": "Accueil Joballa",
+      "home": "Accueil joballa",
       "jobActions": "Actions sur l'offre"
     },
     "confirm": {
@@ -64,9 +64,9 @@
       "workerKycTitle": "Verifiez d'abord votre KYC",
       "employerTitle": "Verifiez d'abord votre entreprise",
       "pendingDescription": "Vos documents sont deja en cours d'examen. La verification peut prendre jusqu'a 24 heures ou moins.",
-      "employerDescription": "Les employeurs doivent avoir des documents d'immatriculation approuves avant de publier des offres sur Joballa.",
-      "workerPostJobDescription": "Les travailleurs doivent avoir un KYC approuve avant de publier des offres sur Joballa.",
-      "workerApplyDescription": "Les travailleurs doivent avoir un KYC approuve avant de postuler aux offres sur Joballa."
+      "employerDescription": "Les employeurs doivent avoir des documents d'immatriculation approuves avant de publier des offres sur joballa.",
+      "workerPostJobDescription": "Les travailleurs doivent avoir un KYC approuve avant de publier des offres sur joballa.",
+      "workerApplyDescription": "Les travailleurs doivent avoir un KYC approuve avant de postuler aux offres sur joballa."
     }
   },
   "notFound": {
@@ -78,7 +78,7 @@
   "public": {
     "brand": {
       "kicker": "Carrieres & recrutement",
-      "name": "Joballa"
+      "name": "joballa"
     },
     "nav": {
       "home": "Accueil",
@@ -121,7 +121,7 @@
         "apply": "Postuler"
       },
       "trustLine": "Securise. Fiable. Pense pour le travail de demain.",
-      "imageAlt": "Personne enthousiaste avec un ordinateur portable portant la marque Joballa",
+      "imageAlt": "Personne enthousiaste avec un ordinateur portable portant la marque joballa",
       "primaryCta": "Creer un compte",
       "secondaryCta": "Connexion",
       "signInWithEmail": "Connexion par email",
@@ -253,7 +253,7 @@
     "featureColumns": {
       "seekers": {
         "title": "Trouvez des opportunites alignees sur vos competences",
-        "description": "Parcourez des offres selectionnees, enregistrez vos recherches et postulez avec un profil Joballa verifie au lieu d'un CV ponctuel.",
+        "description": "Parcourez des offres selectionnees, enregistrez vos recherches et postulez avec un profil joballa verifie au lieu d'un CV ponctuel.",
         "cta": "Explorer les offres →"
       },
       "employers": {
@@ -264,7 +264,7 @@
     },
     "howDual": {
       "kicker": "Comment ca marche",
-      "title": "Comment fonctionne Joballa",
+      "title": "Comment fonctionne joballa",
       "subtitle": "Simple pour les travailleurs. Puissant pour les employeurs.",
       "seekers": {
         "label": "Pour les travailleurs",
@@ -345,7 +345,7 @@
           "role": "Product designer"
         },
         "1": {
-          "quote": "Publier des roles domestiques etait le chaos. Joballa rend les examens previsibles.",
+          "quote": "Publier des roles domestiques etait le chaos. joballa rend les examens previsibles.",
           "name": "Marc T.",
           "role": "Responsable operations"
         },
@@ -358,7 +358,7 @@
     },
     "appPromo": {
       "kicker": "Mobile d'abord",
-      "title": "Emportez Joballa partout",
+      "title": "Emportez joballa partout",
       "description": "Gerez candidatures, messages et paiements en deplacement—applications natives Android et iOS prevues.",
       "scanHint": "Scannez pour telecharger des que disponible",
       "storeSoon": "App Store & Google Play — bientot"
@@ -391,7 +391,7 @@
           "privacy": "Confidentialite"
         },
         "about": {
-          "title": "A propos de Joballa",
+          "title": "A propos de joballa",
           "story": "Notre histoire",
           "contact": "Contact"
         }
@@ -423,7 +423,7 @@
       },
       "admin": {
         "title": "Les administrateurs protegent la confiance sur la place de marche.",
-        "description": "L'espace admin est construit autour de la verification, de la moderation des offres, des litiges, des rapports et des departements Joballa."
+        "description": "L'espace admin est construit autour de la verification, de la moderation des offres, des litiges, des rapports et des departements joballa."
       }
     },
     "preview": {
@@ -501,7 +501,7 @@
       "signUp": "S'inscrire avec Google",
       "signIn": "Se connecter avec Google",
       "errors": {
-        "noAccount": "Aucun compte Joballa pour ce compte Google. Inscrivez-vous d'abord.",
+        "noAccount": "Aucun compte joballa pour ce compte Google. Inscrivez-vous d'abord.",
         "conflict": "Cet e-mail est deja enregistre. Connectez-vous avec votre mot de passe ou utilisez Google sur la page de connexion.",
         "invalid": "La connexion Google n'a pas pu aboutir. Reessayez.",
         "suspended": "Ce compte est suspendu. Contactez le support.",
@@ -525,7 +525,7 @@
       "back": "Retour a l'accueil",
       "eyebrow": "Points d'entree",
       "title": "Choisissez la surface que vous voulez ouvrir",
-      "description": "Connectez-vous avec votre compte Joballa pour ouvrir l'espace travailleur, employeur ou admin qui correspond a votre role.",
+      "description": "Connectez-vous avec votre compte joballa pour ouvrir l'espace travailleur, employeur ou admin qui correspond a votre role.",
       "signIn": "Se connecter",
       "signUp": "Creer un compte",
       "afterAuthHint": "Apres Connexion, vous choisissez la page email ou la page telephone : chaque formulaire correspond a un type d'identifiant. Les nouveaux comptes utilisent un code OTP ; la session repose sur des jetons JWT, avec rafraichissement en cookie httpOnly lorsque c'est supporte.",
@@ -582,7 +582,7 @@
       "afterPasswordResetHint": "Votre mot de passe a ete mis a jour. Choisissez email ou telephone ci-dessous, puis connectez-vous avec le nouveau mot de passe.",
       "email": {
         "title": "Email et mot de passe",
-        "description": "Connectez-vous avec l'adresse email de votre compte Joballa.",
+        "description": "Connectez-vous avec l'adresse email de votre compte joballa.",
         "cta": "Continuer avec l'email"
       },
       "phone": {
@@ -627,7 +627,7 @@
     },
     "signUpForm": {
       "eyebrow": "Creer un compte",
-      "title": "Inscription Joballa",
+      "title": "Inscription joballa",
       "description": "Choisissez email ou telephone, puis confirmez le code a six chiffres. Le role a ete choisi a l'etape precedente (travailleur ou employeur).",
       "roleHint": "Inscription en tant que : {role}",
       "roles": {
@@ -1347,7 +1347,10 @@
         "publishing": "Publication…",
         "edit": "Modifier l'offre",
         "delete": "Supprimer l'offre",
-        "viewApplicants": "Voir les candidats"
+        "deleting": "Suppression…",
+        "viewApplicants": "Voir les candidats",
+        "close": "Fermer l'offre",
+        "closing": "Fermeture…"
       },
       "detail": {
         "loading": "Chargement des details…",
@@ -1391,6 +1394,8 @@
         "workMode": "Choisir le mode de travail",
         "location": "Quartier, Ville, Region — ex. Bonanjo, Douala, Littoral",
         "city": "Choisir une ville",
+        "town": "Choisir une ville",
+        "region": "Choisir une region",
         "pay": "ex. 60000",
         "payPer": "Choisir la structure de paie",
         "openings": "ex. 1",
@@ -1470,6 +1475,8 @@
         "workMode": "Mode de travail",
         "location": "Lieu",
         "city": "Ville",
+        "town": "Ville",
+        "region": "Region",
         "pay": "Paie",
         "payPer": "Par",
         "openings": "Nombre de postes",
@@ -1499,7 +1506,7 @@
         "panelTitle": "Panneau de soumission",
         "panelDescription": "Quand vous soumettez, l'offre entre dans le flux de moderation avant publication.",
         "moderationTitle": "Note de moderation",
-        "moderationDescription": "Joballa verifie la structure, la securite et la clarte avant publication.",
+        "moderationDescription": "joballa verifie la structure, la securite et la clarte avant publication.",
         "applications": "Candidatures",
         "applicationsCount": "0 pour l'instant",
         "listedBy": "Publie par {department}",
@@ -1524,7 +1531,7 @@
     },
     "postJob": {
       "title": "Publier une offre",
-      "description": "Partagez un role avec les candidats sur Joballa.",
+      "description": "Partagez un role avec les candidats sur joballa.",
       "comingSoon": "Le flux de publication cote travailleur arrive bientot. Cette page sert a tester la navigation depuis le profil.",
       "viewMyJobs": "Mes offres",
       "backToProfile": "Retour au profil"
@@ -1648,7 +1655,7 @@
         "paymentLabel": "Coordonnees de paiement",
         "paymentPrivate": "Visible uniquement par vous",
         "primaryPayment": "Principal",
-        "verificationTooltip": "Piece d'identite verifiee par Joballa",
+        "verificationTooltip": "Piece d'identite verifiee par joballa",
         "summaryLabel": "Resume professionnel",
         "skillsLabel": "Competences",
         "workLabel": "Experience",
@@ -1852,7 +1859,7 @@
         "actions": "Actions",
         "viewJobListing": "Voir l'offre",
         "relatedTransactions": "Transactions liees",
-        "receiptTitle": "Recu de paiement Joballa",
+        "receiptTitle": "Recu de paiement joballa",
         "fields": {
           "date": "Date",
           "transactionTime": "Heure de la transaction",
@@ -1937,7 +1944,7 @@
         },
         "signOut": {
           "title": "Se deconnecter",
-          "description": "Terminer votre session Joballa sur cet appareil.",
+          "description": "Terminer votre session joballa sur cet appareil.",
           "button": "Se deconnecter",
           "busy": "Deconnexion..."
         }
@@ -2252,7 +2259,7 @@
         "panelTitle": "Panneau de soumission",
         "panelDescription": "Quand vous soumettez, l'offre entre dans le flux de moderation avant publication.",
         "moderationTitle": "Note de moderation",
-        "moderationDescription": "Joballa verifie la structure, la securite et la clarte avant publication.",
+        "moderationDescription": "joballa verifie la structure, la securite et la clarte avant publication.",
         "applications": "Candidatures",
         "applicationsCount": "0 pour l'instant",
         "listedBy": "Publie par {department}",
@@ -2570,7 +2577,7 @@
       "departmentId": "ID du departement",
       "titleLabel": "Titre de la demande",
       "category": "Categorie",
-      "paymentManaged": "Paiement gere par Joballa",
+      "paymentManaged": "Paiement gere par joballa",
       "notes": "Details supplementaires",
       "validation": "L'ID departement et le titre sont obligatoires.",
       "submitError": "Impossible d'envoyer la demande. Reessayez.",
@@ -2679,7 +2686,7 @@
         },
         "signOut": {
           "title": "Deconnexion",
-          "description": "Terminez votre session Joballa sur cet appareil.",
+          "description": "Terminez votre session joballa sur cet appareil.",
           "button": "Se deconnecter",
           "busy": "Deconnexion…"
         }
@@ -2742,7 +2749,7 @@
         "title": "Operations admin",
         "description": "Cet espace prepare la gestion des departements, les flux de litiges et les metriques de sante.",
         "highlight": {
-          "title": "Les departements geres par Joballa restent de premiere classe",
+          "title": "Les departements geres par joballa restent de premiere classe",
           "description": "La surface admin a maintenant une place dediee pour l'activite des departements internes."
         }
       }
@@ -2786,7 +2793,7 @@
     },
     "departments": {
       "eyebrow": "Departements",
-      "title": "Gerer les departements Joballa",
+      "title": "Gerer les departements joballa",
       "description": "Cette route prend en charge les categories d'emploi informel decrites dans le scope document.",
       "cards": {
         "departments": {

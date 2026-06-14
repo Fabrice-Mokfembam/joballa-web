@@ -7,17 +7,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, usePathname, useRouter } from "@/lib/i18n/navigation";
 import { JobPostingCard } from "@/components/job-posting/job-posting-card";
 import type { JobPostingCardMenuItem } from "@/components/job-posting/job-posting-card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { portalPageShellClass } from "@/components/portal/portal-ui";
 import { buttonClassName } from "@/components/ui/button";
 import { IconPlus } from "@/components/worker/icons";
 import { WorkerOwnedJobDetailView } from "@/components/worker/worker-owned-job-detail-view";
-import { useWorkerMe, useWorkerOwnedJobs } from "@/features/worker/hooks";
+import { useWorkerMe, useWorkerOwnedJobs, useDeleteWorkerOwnedJob } from "@/features/worker/hooks";
 import { publishWorkerPostedJob } from "@/features/worker/api";
 import { toastApiError, toastSuccess } from "@/features/employer/lib/mutation-feedback";
 import { workerKeys } from "@/features/worker/query-keys";
 import { profileInitials } from "@/features/worker/lib/profile-display";
 import { WorkerApplicationsPageSkeleton } from "@/components/worker/worker-loading-skeletons";
 import { useMediaQuery } from "@/lib/use-media-query";
+import { useConfirmAction } from "@/lib/hooks/use-confirm-action";
 import { jobStatusPillClass } from "@/lib/job-status-pill";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +50,7 @@ function jobMenuItems(
   t: ReturnType<typeof useTranslations>,
   router: ReturnType<typeof useRouter>,
   onPublish: (jobId: string) => void,
+  onDelete: (jobId: string) => void,
   publishingJobId: string | null,
 ): JobPostingCardMenuItem[] {
   const normalized = normalizeStatus(String(job.status ?? ""));
@@ -62,6 +65,11 @@ function jobMenuItems(
     items.push({
       label: publishingJobId === job.jobId ? t("actions.publishing") : t("actions.publish"),
       onSelect: () => onPublish(job.jobId),
+    });
+    items.push({
+      label: t("actions.delete"),
+      onSelect: () => onDelete(job.jobId),
+      destructive: true,
     });
   }
 
@@ -84,11 +92,13 @@ function jobMenuItems(
 
 function WorkerMyJobsViewInner() {
   const t = useTranslations("worker.myJobs");
+  const tc = useTranslations("common.confirm");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isLg = useMediaQuery("(min-width: 1024px)");
   const jobParam = searchParams.get("job");
+  const { requestConfirm, dialogProps } = useConfirmAction();
   const meQuery = useWorkerMe();
   const jobsQuery = useWorkerOwnedJobs({ page: 1, limit: 50 });
   const jobs = useMemo(() => jobsQuery.data?.items ?? [], [jobsQuery.data?.items]);
@@ -106,6 +116,7 @@ function WorkerMyJobsViewInner() {
     },
     onError: (e) => toastApiError(e, "Could not submit job for review."),
   });
+  const deleteJob = useDeleteWorkerOwnedJob();
   const showPanel = !!jobParam && isLg === true;
 
   const closePanel = useCallback(() => {
@@ -119,10 +130,38 @@ function WorkerMyJobsViewInner() {
     [publishMutation],
   );
 
+  const handleDelete = useCallback(
+    (jobId: string) => {
+      requestConfirm({
+        title: tc("deleteJobPosting.title"),
+        description: tc("deleteJobPosting.description"),
+        confirmLabel: tc("deleteJobPosting.confirm"),
+        cancelLabel: tc("cancel"),
+        destructive: true,
+        onConfirm: () =>
+          deleteJob.mutate(jobId, {
+            onSuccess: () => {
+              if (jobParam === jobId) {
+                router.replace(pathname);
+              }
+            },
+          }),
+      });
+    },
+    [deleteJob, jobParam, pathname, requestConfirm, router, tc],
+  );
+
   const buildMenu = useCallback(
     (job: (typeof jobs)[number]) =>
-      jobMenuItems(job, t, router, handlePublish, publishMutation.isPending ? publishMutation.variables ?? null : null),
-    [handlePublish, publishMutation.isPending, publishMutation.variables, router, t],
+      jobMenuItems(
+        job,
+        t,
+        router,
+        handlePublish,
+        handleDelete,
+        publishMutation.isPending ? publishMutation.variables ?? null : null,
+      ),
+    [handleDelete, handlePublish, publishMutation.isPending, publishMutation.variables, router, t],
   );
 
   if (jobsQuery.isLoading) return <WorkerApplicationsPageSkeleton />;
@@ -201,6 +240,7 @@ function WorkerMyJobsViewInner() {
           </aside>
         ) : null}
       </div>
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

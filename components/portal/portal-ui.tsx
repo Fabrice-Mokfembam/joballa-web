@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
+import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
 import { Inbox } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
@@ -133,6 +134,39 @@ export const portalSectionLabelClass =
 
 export const portalAvatarPlaceholderClass =
   "flex shrink-0 items-center justify-center rounded-full bg-[var(--joballa-avatar-bg)] font-bold text-[var(--joballa-on-primary)]";
+
+export function PortalAvatar({
+  name,
+  photoUrl,
+  className,
+  sizeClassName = "size-8 text-xs",
+}: {
+  name: string;
+  photoUrl?: string | null;
+  className?: string;
+  sizeClassName?: string;
+}) {
+  const label = name.trim() || "?";
+  if (photoUrl?.trim()) {
+    return (
+      <span className={cn("relative shrink-0 overflow-hidden rounded-full", sizeClassName, className)}>
+        <Image
+          src={photoUrl}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="48px"
+          unoptimized={photoUrl.startsWith("http")}
+        />
+      </span>
+    );
+  }
+  return (
+    <span className={cn(portalAvatarPlaceholderClass, sizeClassName, className)}>
+      {label.charAt(0).toUpperCase()}
+    </span>
+  );
+}
 
 export const portalIconButtonMutedClass =
   "flex items-center justify-center rounded-xl bg-[var(--joballa-tag-bg)] text-[var(--joballa-muted)] transition hover:bg-[var(--joballa-row-hover)] hover:text-[var(--joballa-fg)]";

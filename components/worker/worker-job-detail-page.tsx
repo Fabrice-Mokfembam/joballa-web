@@ -19,7 +19,7 @@ export function WorkerJobDetailPage({ jobId }: { jobId: string }) {
     return workerJobCardFromApi(query.data);
   }, [query.data]);
 
-  if (query.isLoading) {
+  if (query.isLoading && !query.data) {
     return <WorkerJobDetailPageSkeleton />;
   }
 

@@ -32,9 +32,9 @@ const joballaDisplay = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Joballa",
+  title: "joballa",
   description:
-    "Joballa connects workers, employers, and admins in one bilingual hiring platform.",
+    "joballa connects workers, employers, and admins in one bilingual hiring platform.",
 };
 
 export default function RootLayout({
