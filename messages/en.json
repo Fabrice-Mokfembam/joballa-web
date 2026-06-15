@@ -12,6 +12,10 @@
       "error": "Something went wrong.",
       "retry": "Try again"
     },
+    "featureAlert": {
+      "inProgress": "This feature is in progress.",
+      "upcoming": "This feature is coming soon."
+    },
     "aria": {
       "loading": "Loading",
       "remove": "Remove",
@@ -622,7 +626,8 @@
       "errors": {
         "submit": "We couldn't sign you in. Please check your details and try again.",
         "invalidCredentials": "That email or password doesn't look right. Please try again.",
-        "notVerified": "Your account isn't verified yet. Enter the code we sent to finish signing up."
+        "notVerified": "Your account isn't verified yet. Enter the code we sent to finish signing up.",
+        "accountSuspended": "Your account has been suspended. Contact support for help."
       }
     },
     "signUpForm": {
@@ -1181,6 +1186,10 @@
       "bookmark": "Save",
       "apply": "Apply",
       "cardMenu": "More job actions",
+      "posterRole": {
+        "employer": "Employer",
+        "worker": "Individual"
+      },
       "menu": {
         "openDetails": "Open details",
         "save": "Save",
@@ -1323,6 +1332,10 @@
       "bookmark": "Save job",
       "manage": "Manage",
       "menu": "Job actions",
+      "applicantsCount": "{count, plural, one {# applicant} other {# applicants}}",
+      "posterRole": {
+        "worker": "Individual"
+      },
       "actions": {
         "apply": "Apply for job",
         "viewDetails": "View details",
@@ -1334,6 +1347,10 @@
         "viewApplicants": "View applicants",
         "close": "Close job",
         "closing": "Closing…"
+      },
+      "publishConfirm": {
+        "title": "Publish this job?",
+        "description": "Publishing will submit your job for review. Once approved, it will go live and accept applications."
       },
       "detail": {
         "loading": "Loading job details…",
@@ -2452,6 +2469,9 @@
         "paused": "Paused"
       },
       "posted": "Posted {time} ago",
+      "posterRole": {
+        "employer": "Employer"
+      },
       "applicantsShort": "{count} applicants · {shortlisted} shortlisted",
       "viewApplicants": "View applicants",
       "empty": "No jobs yet. Post your first role to start receiving applicants.",

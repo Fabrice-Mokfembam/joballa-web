@@ -563,7 +563,6 @@ function encodeJobSearchParams(params?: JobSearchParams): Record<string, unknown
   if (!params) return undefined;
   const encoded: Record<string, unknown> = { ...params };
   if (params.keyword && !params.search) encoded.search = params.keyword;
-  if (params.category && !params.departmentId) encoded.departmentId = params.category;
   if (params.jobType && !params.employmentType) encoded.employmentType = normalizeEmploymentType(String(params.jobType));
   if (params.sortBy && !params.sort) encoded.sort = params.sortBy === "payRate" ? "highest_pay" : "recent";
   delete encoded.keyword;
@@ -798,7 +797,7 @@ function encodeNotificationParams(params?: {
 function normalizeWorkerNotificationSettings(data: unknown): WorkerNotificationSettings {
   const raw = data && typeof data === "object" ? (data as Record<string, unknown>) : {};
   return {
-    pushEnabled: typeof raw.inAppEnabled === "boolean" ? raw.inAppEnabled : Boolean(raw.pushEnabled ?? true),
+    pushEnabled: typeof raw.pushEnabled === "boolean" ? raw.pushEnabled : true,
     emailEnabled: typeof raw.emailEnabled === "boolean" ? raw.emailEnabled : true,
     jobsEnabled:
       typeof raw.jobUpdates === "boolean"
@@ -817,7 +816,7 @@ function normalizeWorkerNotificationSettings(data: unknown): WorkerNotificationS
 
 function encodeWorkerNotificationSettings(body: WorkerNotificationSettings): Record<string, boolean | undefined> {
   return {
-    inAppEnabled: body.pushEnabled,
+    pushEnabled: body.pushEnabled,
     emailEnabled: body.emailEnabled,
     jobUpdates: body.jobsEnabled,
     engagementUpdates: body.messagesEnabled,

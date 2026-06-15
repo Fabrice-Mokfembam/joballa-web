@@ -2,8 +2,8 @@
 
 import type { MouseEvent, ReactNode } from "react";
 import { useState } from "react";
-import Image from "next/image";
 import { Link } from "@/lib/i18n/navigation";
+import { JobCardAvatar } from "@/components/job-posting/job-card-avatar";
 import { IconBookmark, IconBookmarkSolid, IconMoreHorizontal } from "@/components/worker/icons";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +31,8 @@ export type JobPostingCardProps = {
   /** Two chips (e.g. seniority + pay) */
   pillTags: readonly [string, string] | string[];
   companyName: string;
+  /** Shown below `companyName` (e.g. Employer / Individual). */
+  posterRoleLabel?: string;
   companyLogoUrl?: string | null;
   companyInitial?: string;
   companyAvatarClassName?: string;
@@ -42,6 +44,11 @@ export type JobPostingCardProps = {
   applyHref?: string;
   onApplyClick?: () => void;
   showApply?: boolean;
+  /** Muted pill in the apply slot when the worker already applied (mobile parity). */
+  appliedLabel?: string;
+  /** Primary footer action when apply is hidden (e.g. Publish on drafts). */
+  actionLabel?: string;
+  onActionClick?: () => void;
   /** Optional overflow menu (⋯) */
   menuItems?: JobPostingCardMenuItem[];
   /** Status pill shown beside the more menu (e.g. Draft, Live). */
@@ -90,6 +97,7 @@ export function JobPostingCard({
   locationLabel,
   pillTags,
   companyName,
+  posterRoleLabel,
   companyLogoUrl,
   companyInitial,
   companyAvatarClassName,
@@ -101,6 +109,9 @@ export function JobPostingCard({
   applyHref,
   onApplyClick,
   showApply = true,
+  appliedLabel,
+  actionLabel,
+  onActionClick,
   menuItems,
   statusPill,
   moreMenuAriaLabel,
@@ -123,7 +134,7 @@ export function JobPostingCard({
 
   const applyUsesHandler = Boolean(onApplyClick);
   const applyControl =
-    showApply && (applyUsesHandler || applyHref) ? (
+    showApply && !appliedLabel && (applyUsesHandler || applyHref) ? (
       applyUsesHandler ? (
         <button
           type="button"
@@ -142,6 +153,22 @@ export function JobPostingCard({
           {applyLabel}
         </Link>
       )
+    ) : appliedLabel ? (
+      <span
+        data-card-stop
+        className="inline-flex h-8 items-center justify-center rounded-xl bg-[var(--joballa-tag-bg)] px-3 text-sm font-semibold leading-5 text-[var(--joballa-muted)]"
+      >
+        {appliedLabel}
+      </span>
+    ) : actionLabel && onActionClick ? (
+      <button
+        type="button"
+        data-card-stop
+        className="inline-flex h-8 items-center justify-center rounded-xl bg-[var(--joballa-primary)] px-3 text-sm font-medium leading-5 text-[var(--joballa-on-primary)] shadow-[var(--joballa-shadow-card)] transition hover:brightness-110"
+        onClick={onActionClick}
+      >
+        {actionLabel}
+      </button>
     ) : null;
 
   return (
@@ -256,21 +283,18 @@ export function JobPostingCard({
 
       <div className="flex w-full shrink-0 items-end justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <div className="relative size-6 shrink-0 overflow-hidden rounded-full bg-[var(--joballa-avatar-bg)]">
-            {companyLogoUrl ? (
-              <Image src={companyLogoUrl} alt="" fill className="object-cover" sizes="24px" unoptimized={companyLogoUrl.startsWith("http")} />
-            ) : (
-              <div
-                className={cn(
-                  "flex size-full items-center justify-center text-[10px] font-bold text-[var(--joballa-on-primary)]",
-                  companyAvatarClassName ?? "bg-[var(--joballa-primary)]",
-                )}
-              >
-                {companyInitial ?? companyName.charAt(0).toUpperCase()}
-              </div>
-            )}
+          <JobCardAvatar
+            name={companyName}
+            logoUrl={companyLogoUrl}
+            initial={companyInitial}
+            className={companyAvatarClassName}
+          />
+          <div className="min-w-0">
+            <p className="truncate text-xs font-semibold leading-4 text-[var(--joballa-muted)]">{companyName}</p>
+            {posterRoleLabel ? (
+              <p className="truncate text-[10px] font-medium leading-4 text-[var(--joballa-fg-subtle)]">{posterRoleLabel}</p>
+            ) : null}
           </div>
-          <p className="truncate text-xs font-semibold leading-4 text-[var(--joballa-muted)]">{companyName}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           {applyControl}

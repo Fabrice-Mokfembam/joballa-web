@@ -55,9 +55,15 @@ loadEnvFile(path.join(ROOT, ".env.local"));
 const API_URL = (
   process.env.SEED_API_URL ||
   process.env.API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://127.0.0.1:8000"
-).replace(/\/$/, "");
+  process.env.NEXT_PUBLIC_API_BASE_URL
+)?.trim()?.replace(/\/$/, "");
+
+if (!API_URL) {
+  console.error(
+    "[seed:accounts] Set NEXT_PUBLIC_API_BASE_URL or API_URL in joballa-web/.env",
+  );
+  process.exit(1);
+}
 
 const SKIP_JOBS = process.env.SEED_SKIP_JOBS === "1";
 const SEED_TEACHING_JOBS = process.env.SEED_TEACHING_JOBS !== "0";

@@ -1,6 +1,7 @@
 import type { WorkerJobListItem } from "@/features/worker/types/worker-portal";
 import type { WorkerJobCard } from "@/lib/worker-job-data";
 import { normalizeWorkerJobListItem } from "@/features/worker/lib/normalize-worker-job";
+import { resolveJobPosterType } from "@/features/worker/lib/job-poster";
 
 const COMPANY_COLORS = [
   "bg-teal-600",
@@ -97,30 +98,73 @@ function formatPayStructure(payStructure?: string): string {
   return `/${normalized.toLowerCase()}`;
 }
 
-function formatSubtitle(job: WorkerJobListItem): string {
+function formatWorkModeLabel(raw?: string | null): string {
+  if (!raw) return "";
+  const normalized = String(raw).trim().replace(/_/g, " ");
+  if (!normalized) return "";
+  return normalized.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function formatCityLabel(job: WorkerJobListItem): string {
   const raw = job as Record<string, unknown>;
-  const type = formatJobType(String(job.jobType ?? raw.employmentType ?? ""));
-  const city = job.city?.trim();
-  const mode = job.workMode ? String(job.workMode).replace(/_/g, " ") : "";
-  const parts = [type, city, mode].filter(Boolean);
-  return parts.join(" • ");
+  const neighbourhood = String(raw.neighbourhood ?? "").trim();
+  const city = job.city?.trim() ?? "";
+  const region = String(job.region ?? "").trim();
+  if (neighbourhood && city) return `${neighbourhood}, ${city}`;
+  if (neighbourhood) return neighbourhood;
+  if (city) return city;
+  if (region) return region;
+  return "";
+}
+
+function formatCardLocationParts(job: WorkerJobListItem): { cityLabel: string; workModeLabel: string } {
+  const raw = job as Record<string, unknown>;
+  const workModeRaw = String(job.workMode ?? raw.workMode ?? "").toLowerCase();
+  const workModeLabel = formatWorkModeLabel(String(job.workMode ?? raw.workMode ?? ""));
+  const cityLabel = formatCityLabel(job);
+
+  if (workModeRaw.includes("remote")) {
+    return { workModeLabel: "Remote", cityLabel: cityLabel || "Worldwide" };
+  }
+
+  return { workModeLabel, cityLabel };
+}
+
+function formatSubtitle(job: WorkerJobListItem): string {
+  const { cityLabel, workModeLabel } = formatCardLocationParts(job);
+  return [cityLabel, workModeLabel].filter(Boolean).join(" • ");
 }
 
 function employerName(job?: WorkerJobListItem | null): string {
   if (!job) return "";
   const raw = job as Record<string, unknown>;
+  const owner = raw.owner as { displayName?: string; name?: string } | undefined;
   return (
-    job.employer?.companyName ??
-    job.employer?.name ??
     job.companyName ??
     (typeof raw.ownerName === "string" ? raw.ownerName : "") ??
+    owner?.displayName ??
+    owner?.name ??
+    job.employer?.companyName ??
+    job.employer?.name ??
     ""
   );
 }
 
 function employerLogo(job?: WorkerJobListItem | null): string | null {
   if (!job) return null;
-  return job.employer?.logoUrl ?? job.companyLogo ?? null;
+  const raw = job as Record<string, unknown>;
+  const owner = raw.owner as { photoUrl?: string; logoUrl?: string; avatarUrl?: string } | undefined;
+  return (
+    job.employer?.logoUrl ??
+    job.companyLogo ??
+    job.companyLogoUrl ??
+    owner?.photoUrl ??
+    owner?.avatarUrl ??
+    owner?.logoUrl ??
+    (typeof raw.ownerPhotoUrl === "string" ? raw.ownerPhotoUrl : null) ??
+    (typeof raw.posterPhotoUrl === "string" ? raw.posterPhotoUrl : null) ??
+    null
+  );
 }
 
 /** Drop duplicate jobs returned by the API (same id or slug). */
@@ -146,6 +190,7 @@ export function workerJobCardFromApi(
   const initial = company.trim() ? company.trim().charAt(0).toUpperCase() : "";
   const raw = job as Record<string, unknown>;
   const experienceLevel = raw.experienceLevel ?? raw.requiredLevel ?? raw.experience_level;
+  const { cityLabel, workModeLabel } = formatCardLocationParts(job);
   return {
     id: job.id,
     slug: job.slug ?? job.id,
@@ -153,6 +198,8 @@ export function workerJobCardFromApi(
     subtitle: formatSubtitle(job),
     department: departmentLabel(job),
     employmentType: formatJobType(String(job.jobType ?? raw.employmentType ?? "")),
+    cityLabel,
+    workModeLabel,
     seniority: formatExperienceLevel(
       typeof experienceLevel === "string" || typeof experienceLevel === "number"
         ? String(experienceLevel)
@@ -165,8 +212,10 @@ export function workerJobCardFromApi(
     companyInitial: initial,
     companyColor: hashColor(company || job.id),
     companyLogoUrl: employerLogo(job),
+    posterType: resolveJobPosterType(job),
     isSaved: !!(job.saved ?? job.isSaved),
     hasApplied: !!job.hasApplied,
+    isOwnJob: !!job.isOwnJob,
   };
 }
 

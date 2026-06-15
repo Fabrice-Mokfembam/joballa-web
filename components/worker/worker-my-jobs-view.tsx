@@ -92,6 +92,7 @@ function jobMenuItems(
 
 function WorkerMyJobsViewInner() {
   const t = useTranslations("worker.myJobs");
+  const tDetail = useTranslations("worker.jobDetail");
   const tc = useTranslations("common.confirm");
   const router = useRouter();
   const pathname = usePathname();
@@ -125,9 +126,15 @@ function WorkerMyJobsViewInner() {
 
   const handlePublish = useCallback(
     (jobId: string) => {
-      publishMutation.mutate(jobId);
+      requestConfirm({
+        title: t("publishConfirm.title"),
+        description: t("publishConfirm.description"),
+        confirmLabel: t("actions.publish"),
+        cancelLabel: tc("cancel"),
+        onConfirm: () => publishMutation.mutate(jobId),
+      });
     },
-    [publishMutation],
+    [publishMutation, requestConfirm, t, tc],
   );
 
   const handleDelete = useCallback(
@@ -198,21 +205,41 @@ function WorkerMyJobsViewInner() {
               {jobs.map((job) => {
                 const statusLabel = formatJobStatus(String(job.status ?? ""), t);
                 const selected = jobParam === job.jobId;
+                const isDraft = normalizeStatus(String(job.status ?? "")) === "draft";
+                const payLine = job.salary?.trim() || "—";
+                const jobTypeLabel = job.jobType
+                  ? String(job.jobType).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                  : "";
+                const locationLine = [job.location, jobTypeLabel].filter(Boolean).join(" • ");
+                const applicantsPill =
+                  job.applicantsCount != null
+                    ? t("applicantsCount", {
+                        count: job.applicantsCount,
+                        defaultValue:
+                          job.applicantsCount === 1
+                            ? "1 applicant"
+                            : `${job.applicantsCount} applicants`,
+                      })
+                    : "";
                 return (
                   <JobPostingCard
                     key={job.jobId}
                     postedLabel={formatPosted(job.postedAt)}
                     title={job.title}
-                    scheduleLabel={job.jobType ?? ""}
-                    locationLabel={job.location ?? ""}
-                    pillTags={[job.salary ?? ""].filter(Boolean)}
+                    scheduleLabel=""
+                    locationLabel={locationLine}
+                    pillTags={[payLine, applicantsPill].filter(Boolean)}
                     companyName={posterName}
+                    posterRoleLabel={tDetail("posterType.worker")}
                     companyLogoUrl={posterAvatarUrl}
-                    companyInitial={posterAvatarUrl ? undefined : posterInitial}
+                    companyInitial={posterInitial}
                     companyAvatarClassName="bg-[var(--joballa-primary)]"
+                    applyLabel=""
                     bookmarkLabel={t("bookmark")}
-                    applyLabel={t("manage")}
                     showApply={false}
+                    showBookmark={false}
+                    actionLabel={isDraft ? (publishMutation.isPending && publishMutation.variables === job.jobId ? t("actions.publishing") : t("actions.publish")) : undefined}
+                    onActionClick={isDraft ? () => handlePublish(job.jobId) : undefined}
                     statusPill={{
                       label: statusLabel,
                       className: jobStatusPillClass(String(job.status ?? "")),

@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "dev:clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && next dev",
+    "dev": "next dev --webpack",
+    "dev:clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "seed:accounts": "node scripts/seed-accounts.mjs",
     "seed:fabrice-jobs": "node scripts/post-fabrice-jobs.mjs",
     "seed:kongnyuy-jobs": "node scripts/post-kongnyuy-jobs.mjs",
@@ -27,12 +31,17 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
+    "jest": "^30.0.0",
+    "jest-environment-jsdom": "^30.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

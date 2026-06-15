@@ -115,15 +115,15 @@ export function WorkerProfilePublic({
       !forceMobileLayout && itemsStart && "md:items-start",
     );
   const sectionLabelClass = compact
-    ? "text-[10px] font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]"
-    : "text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]";
+    ? "text-[10px] font-bold uppercase tracking-wide text-[var(--joballa-muted)]"
+    : "text-xs font-bold uppercase tracking-wide text-[var(--joballa-muted)]";
   const bodyBlockClass = compact ? "space-y-1 text-xs leading-5" : "space-y-1.5 text-sm leading-6";
   const skillsTextClass = compact
     ? "text-xs font-semibold leading-5 text-[var(--joballa-fg)]"
     : "text-sm font-bold leading-6 text-[var(--joballa-fg)]";
   const entryTitleClass = compact
-    ? "text-sm font-bold leading-5 text-[var(--joballa-primary)]"
-    : "text-base font-bold leading-6 text-[var(--joballa-primary)]";
+    ? "text-sm font-bold leading-5 text-[var(--joballa-fg)]"
+    : "text-base font-bold leading-6 text-[var(--joballa-fg)]";
   const entryBodyClass = compact ? "text-xs leading-5" : "text-sm leading-6";
   const contactTextClass = compact ? "text-xs leading-5" : "text-sm leading-6";
   const contactIconClass = compact ? "size-3.5" : "size-4";
@@ -473,7 +473,7 @@ export function WorkerProfilePublic({
                         className="flex min-w-0 flex-1 items-center gap-3 underline-offset-2 hover:underline"
                       >
                         {fileIcon}
-                        <span className={cn("min-w-0 truncate font-bold text-[var(--joballa-primary)]", compact ? "text-xs" : "text-sm")}>
+                        <span className={cn("min-w-0 truncate font-bold text-[var(--joballa-fg)]", compact ? "text-xs" : "text-sm")}>
                           {label}
                         </span>
                       </a>

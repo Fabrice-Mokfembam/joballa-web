@@ -45,7 +45,7 @@ export function useWorkerJob(jobId: string) {
     queryKey: workerKeys.job(jobId),
     queryFn: () => getWorkerJob(jobId),
     enabled: sessionReady && !!jobId,
-    initialData: cachedJob,
+    placeholderData: cachedJob,
   });
 }
 

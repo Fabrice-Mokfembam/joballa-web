@@ -28,6 +28,7 @@ const AuthGoogleSignInButton = dynamic(
 import { postLogin } from "@/features/auth/api/auth";
 import { establishSessionAndNavigate } from "@/lib/auth/establish-session";
 import { JoballaApiError } from "@/lib/joballa/request";
+import { apiErrorCodeFromPayload } from "@/lib/http/api-message";
 
 export type SignInFormVariant = "email" | "phone";
 
@@ -85,8 +86,14 @@ function SignInFormInner({ variant, showAfterResetHint }: SignInFormInnerProps) 
     } catch (e: unknown) {
       if (e instanceof JoballaApiError) {
         if (e.status === 401) setError(t("errors.invalidCredentials"));
-        else if (e.status === 403) setError(t("errors.notVerified"));
-        else setError(e.message);
+        else if (e.status === 403) {
+          const code = apiErrorCodeFromPayload(e.payload);
+          if (code === "ACCOUNT_SUSPENDED") {
+            setError(t("errors.accountSuspended"));
+          } else {
+            setError(e.message || t("errors.notVerified"));
+          }
+        } else setError(e.message);
       } else setError(t("errors.submit"));
     } finally {
       setBusy(false);
@@ -121,6 +128,7 @@ function SignInFormInner({ variant, showAfterResetHint }: SignInFormInnerProps) 
             onChange={(event) => setIdentifier(event.target.value)}
             className={authInputClassName}
             placeholder={t(placeholderKey)}
+            data-testid="sign-in-identifier"
           />
         </div>
 
@@ -134,6 +142,7 @@ function SignInFormInner({ variant, showAfterResetHint }: SignInFormInnerProps) 
             className={authInputClassName}
             placeholder={t("passwordPlaceholder")}
             disabled={busy}
+            data-testid="sign-in-password"
           />
         </div>
 
@@ -145,7 +154,7 @@ function SignInFormInner({ variant, showAfterResetHint }: SignInFormInnerProps) 
 
         {error ? <p role="alert" className={authBannerErrorClassName}>{error}</p> : null}
 
-        <button type="submit" disabled={busy} className={authPrimaryButtonClassName}>
+        <button type="submit" disabled={busy} className={authPrimaryButtonClassName} data-testid="sign-in-submit">
           {busy ? t("actions.signingIn") : t("actions.signIn")}
         </button>
 

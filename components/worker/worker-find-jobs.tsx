@@ -19,9 +19,11 @@ import {
   useWorkerJob,
   useWorkerJobSearch,
 } from "@/features/worker/hooks";
-import { buildJobSearchParams } from "@/features/worker/lib/job-search-params";
+import { buildJobSearchParams, jobMatchesPayFilter } from "@/features/worker/lib/job-search-params";
 import { workerApplicationRowsFromApi } from "@/features/worker/lib/application-mappers";
 import { workerJobCardFromApi, workerJobCardsFromApi } from "@/features/worker/lib/job-mappers";
+import { canShowWorkerJobApply } from "@/features/worker/lib/job-apply-eligibility";
+import { matchesWorkerJobId } from "@/features/worker/lib/job-list-cache";
 import type { WorkerJobCard } from "@/lib/worker-job-data";
 import { JoballaApiError } from "@/lib/joballa/request";
 import { WorkerJobGridCard } from "@/components/worker/worker-job-grid-card";
@@ -74,6 +76,7 @@ function FindJobsFallback() {
 
 function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean }) {
   const t = useTranslations("worker.findJobsPage");
+  const tJobDetail = useTranslations("worker.jobDetail");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -135,8 +138,9 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
         jobTypeLabel: type === FILTER_ALL ? undefined : type,
         payLabel: pay === FILTER_ALL ? undefined : pay,
         category: dept === FILTER_ALL ? undefined : dept,
+        departments: departmentCatalog,
       }),
-    [city, dept, pay, queryParam, searchMode, type],
+    [city, departmentCatalog, dept, pay, queryParam, searchMode, type],
   );
 
   const jobsQuery = useWorkerJobSearch(apiSearchParams);
@@ -150,11 +154,16 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
       const regionCities = new Set(getCitiesForRegion(regionId));
       items = items.filter((job) => job.city && regionCities.has(job.city));
     }
+    if (pay !== FILTER_ALL) {
+      items = items.filter((job) =>
+        jobMatchesPayFilter(job as Record<string, unknown> & { payRate?: number | string | null }, pay),
+      );
+    }
     const cards = workerJobCardsFromApi(items);
     const needle = searchMode ? "" : q.trim().toLowerCase();
     if (!needle) return cards;
     return cards.filter((job) => jobMatchesQuery(job, needle));
-  }, [city, jobsQuery.data?.items, q, regionId, searchMode]);
+  }, [city, jobsQuery.data?.items, pay, q, regionId, searchMode]);
 
   const appliedJobIds = useMemo(
     () =>
@@ -169,6 +178,11 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
   const isJobApplied = useCallback(
     (job: WorkerJobCard) => appliedJobIds.has(job.slug) || appliedJobIds.has(job.id) || !!job.hasApplied,
     [appliedJobIds],
+  );
+
+  const canApplyToJob = useCallback(
+    (job: WorkerJobCard) => canShowWorkerJobApply(job, isJobApplied(job)),
+    [isJobApplied],
   );
 
   const panelJobRaw = useMemo(() => {
@@ -212,6 +226,16 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
 
   const showPanel = useSplit && !!jobParam;
   const panelDetailQuery = useWorkerJob(showPanel ? (jobParam ?? "") : "");
+
+  const panelDetailMatches = useMemo(
+    () => matchesWorkerJobId(panelDetailQuery.data, jobParam ?? ""),
+    [panelDetailQuery.data, jobParam],
+  );
+  const panelDetail = panelDetailMatches ? panelDetailQuery.data : undefined;
+  const panelDetailLoading =
+    !selectedJob ||
+    !panelDetailMatches ||
+    (panelDetailQuery.isFetching && !panelDetailQuery.isFetched);
 
   const jobMenuItems = useCallback(
     (job: WorkerJobCard): JobPostingCardMenuItem[] => [
@@ -257,8 +281,6 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
   useEffect(() => {
     setQ(queryParam);
   }, [queryParam]);
-
-  const panelDetail = panelDetailQuery.data ?? panelJobRaw;
 
   return (
     <div
@@ -421,7 +443,8 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
                   bookmarkFilled={!!job.isSaved}
                   moreMenuAriaLabel={t("cardMenu")}
                   applyLabel={t("apply")}
-                  showApply={!isJobApplied(job)}
+                  showApply={canApplyToJob(job)}
+                  appliedLabel={isJobApplied(job) ? tJobDetail("applied") : undefined}
                   menuItems={jobMenuItems(job)}
                   splitPane={useSplit}
                   isActive={useSplit && job.slug === jobParam}
@@ -458,7 +481,7 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
                       <td className="px-4 py-3 text-[var(--joballa-fg)]">{job.company}</td>
                       <td className="px-4 py-3 text-[var(--joballa-fg)]">{job.pay}</td>
                       <td className="px-4 py-3 text-right" data-card-stop>
-                        {!isJobApplied(job) ? (
+                        {canApplyToJob(job) ? (
                           useSplit ? (
                             <button
                               type="button"
@@ -475,6 +498,8 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
                               {t("apply")}
                             </Link>
                           )
+                        ) : isJobApplied(job) ? (
+                          <span className="text-sm font-semibold text-[var(--joballa-muted)]">{tJobDetail("applied")}</span>
                         ) : null}
                       </td>
                     </tr>
@@ -488,10 +513,11 @@ function WorkerFindJobsViewInner({ searchMode = false }: { searchMode?: boolean 
 
         {showPanel ? (
           <aside className="hidden w-full max-w-full self-start rounded-[22px] border border-[var(--joballa-border)] bg-[var(--joballa-page)] p-3 lg:flex lg:max-h-[calc(100dvh-8.5rem)] lg:flex-col lg:overflow-y-auto">
-            {!selectedJob || (panelDetailQuery.isLoading && !panelDetail) ? (
+            {!selectedJob || panelDetailLoading ? (
               <WorkerJobDetailPanelSkeleton />
             ) : (
               <WorkerJobDetailView
+                key={jobParam}
                 job={selectedJob}
                 jobId={jobParam!}
                 isSaved={!!(panelDetail?.saved ?? panelDetail?.isSaved)}

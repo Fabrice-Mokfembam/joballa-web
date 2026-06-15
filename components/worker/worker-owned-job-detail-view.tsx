@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/lib/i18n/navigation";
+import { JobCardAvatar } from "@/components/job-posting/job-card-avatar";
 import {
   employerJobDurationLabel,
   employerJobStartDateLabel,
@@ -76,6 +76,7 @@ export function WorkerOwnedJobDetailView({
   const patchStatus = usePatchWorkerOwnedJobStatus(jobId);
   const deleteJob = useDeleteWorkerOwnedJob();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
   const job = jobQuery.data;
   const isPanel = variant === "panel";
 
@@ -198,15 +199,13 @@ export function WorkerOwnedJobDetailView({
           <div className="mt-5 min-w-0">
             <h2 className="text-lg font-bold leading-7 text-[var(--joballa-fg)]">{job.title}</h2>
             <div className="mt-1.5 flex min-w-0 items-center gap-2">
-              <span className="relative flex size-7 shrink-0 overflow-hidden rounded-full bg-[var(--joballa-primary)]">
-                {posterAvatarUrl ? (
-                  <Image src={posterAvatarUrl} alt="" fill className="object-cover" sizes="28px" unoptimized />
-                ) : (
-                  <span className="flex size-full items-center justify-center text-xs font-bold text-[var(--joballa-on-primary)]">
-                    {posterInitial}
-                  </span>
-                )}
-              </span>
+              <JobCardAvatar
+                name={posterName}
+                logoUrl={posterAvatarUrl}
+                initial={posterInitial}
+                className="bg-[var(--joballa-primary)]"
+                sizeClassName="size-7"
+              />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-[var(--joballa-muted)]">{posterName}</p>
                 <p className="text-xs font-medium text-[var(--joballa-fg-subtle)]">{tDetail("posterType.worker")}</p>
@@ -219,7 +218,7 @@ export function WorkerOwnedJobDetailView({
               <button
                 type="button"
                 disabled={publishJob.isPending}
-                onClick={() => publishJob.mutate(undefined)}
+                onClick={() => setPublishOpen(true)}
                 className={cn(buttonClassName("primary"), "h-12 disabled:opacity-60")}
               >
                 {publishJob.isPending ? t("actions.publishing") : t("actions.publish")}
@@ -323,6 +322,20 @@ export function WorkerOwnedJobDetailView({
           ) : null}
         </section>
       </div>
+      <ConfirmDialog
+        open={publishOpen}
+        onOpenChange={setPublishOpen}
+        title={t("publishConfirm.title")}
+        description={t("publishConfirm.description")}
+        confirmLabel={t("actions.publish")}
+        cancelLabel={tc("cancel")}
+        onConfirm={() =>
+          publishJob.mutate(undefined, {
+            onSuccess: () => setPublishOpen(false),
+          })
+        }
+        busy={publishJob.isPending}
+      />
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}

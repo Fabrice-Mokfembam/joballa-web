@@ -173,7 +173,7 @@ export function WorkerApplicationProfileCustomize({ value, onChange, onContinue,
         </div>
 
         <section className="flex flex-col gap-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.summaryLabel")}</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-muted)]">{tProfile("preview.summaryLabel")}</p>
           <div className="space-y-3">
             <label className="block text-xs font-medium text-[var(--joballa-muted)]">
               {tProfile("editor.yourTitle")}
@@ -198,7 +198,7 @@ export function WorkerApplicationProfileCustomize({ value, onChange, onContinue,
         </section>
 
         <section className="flex flex-col gap-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("preview.skillsLabel")}</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-muted)]">{tProfile("preview.skillsLabel")}</p>
           <div>
             <input
               value={(value.skills ?? []).join(", ")}
@@ -238,7 +238,7 @@ export function WorkerApplicationProfileCustomize({ value, onChange, onContinue,
         </section>
 
         <section className="flex flex-col gap-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("editor.languages")}</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-muted)]">{tProfile("editor.languages")}</p>
           <input
             value={(value.languages ?? []).join(", ")}
             onChange={(e) =>
@@ -255,7 +255,7 @@ export function WorkerApplicationProfileCustomize({ value, onChange, onContinue,
         </section>
 
         <section className="flex flex-col gap-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{tProfile("editor.region")}</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-muted)]">{tProfile("editor.region")}</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <select
               value={region}
@@ -386,7 +386,7 @@ function DetachableSection({
   if (items.length === 0) {
     return (
       <section className="flex flex-col gap-3">
-        <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-label-fg)]">{label}</p>
+        <p className="text-xs font-bold uppercase tracking-wide text-[var(--joballa-muted)]">{label}</p>
         <p className="text-sm text-[var(--joballa-fg-subtle)]">{empty}</p>
       </section>
     );

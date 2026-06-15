@@ -1,11 +1,21 @@
 import type { EmployerJobListItem } from "@/features/employer/types/employer-portal";
 import { employerJobId } from "@/features/employer/lib/normalize-employer-job";
 
+function formatEmploymentType(jobType?: string | null): string {
+  if (!jobType) return "";
+  return String(jobType)
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 /** Card shape shared with {@link JobPostingCard} for employer job lists. */
 export type EmployerJobCardModel = {
   jobId: string;
   title: string;
   subtitle: string;
+  employmentType: string;
+  location: string;
   pay: string;
   posted: string;
   status: string;
@@ -20,14 +30,16 @@ export type EmployerJobCardModel = {
 export function employerJobToCard(job: EmployerJobListItem, companyName = "Your company"): EmployerJobCardModel {
   const jobId = employerJobId(job);
   const location = job.location ?? "";
-  const jobType = job.jobType ?? "";
-  const subtitle = [jobType, location].filter(Boolean).join(" • ") || "—";
+  const employmentType = formatEmploymentType(job.jobType);
+  const subtitle = [employmentType, location].filter(Boolean).join(" • ") || "—";
   const pay = job.salary ?? "—";
 
   return {
     jobId,
     title: job.title ?? "Untitled job",
     subtitle,
+    employmentType,
+    location,
     pay: String(pay),
     posted: job.postedAt ? formatPostedAgo(job.postedAt) : "—",
     status: String(job.status ?? "draft"),

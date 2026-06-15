@@ -11,9 +11,10 @@ import {
   type CameroonRegionId,
 } from "@/lib/cameroon-region-cities";
 import { useSavedJobs, useWorkerApplications, useWorkerDepartmentOptions } from "@/features/worker/hooks";
-import { buildJobSearchParams } from "@/features/worker/lib/job-search-params";
+import { buildJobSearchParams, jobMatchesPayFilter } from "@/features/worker/lib/job-search-params";
 import { workerApplicationRowsFromApi } from "@/features/worker/lib/application-mappers";
 import { workerJobCardFromApi } from "@/features/worker/lib/job-mappers";
+import { canShowWorkerJobApply } from "@/features/worker/lib/job-apply-eligibility";
 import { JoballaApiError } from "@/lib/joballa/request";
 import { WorkerFindJobsPageSkeleton } from "@/components/worker/worker-loading-skeletons";
 import { WorkerJobGridCard } from "@/components/worker/worker-job-grid-card";
@@ -39,6 +40,7 @@ export function WorkerSavedJobsView() {
   const router = useRouter();
   const t = useTranslations("worker.savedJobsPage");
   const tf = useTranslations("worker.findJobsPage");
+  const tJobDetail = useTranslations("worker.jobDetail");
   const [grid, setGrid] = useState(true);
   const [q, setQ] = useState("");
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -90,8 +92,9 @@ export function WorkerSavedJobsView() {
         jobTypeLabel: type === FILTER_ALL ? undefined : type,
         payLabel: pay === FILTER_ALL ? undefined : pay,
         category: dept === FILTER_ALL ? undefined : dept,
+        departments: departmentCatalog,
       }),
-    [city, dept, pay, type],
+    [city, departmentCatalog, dept, pay, type],
   );
 
   const savedQuery = useSavedJobs(savedSearchParams);
@@ -106,6 +109,16 @@ export function WorkerSavedJobsView() {
       const regionCities = new Set(getCitiesForRegion(regionId));
       items = items.filter((item) => item.job?.city && regionCities.has(item.job.city));
     }
+    if (pay !== FILTER_ALL) {
+      items = items.filter(
+        (item) =>
+          item.job &&
+          jobMatchesPayFilter(
+            item.job as Record<string, unknown> & { payRate?: number | string | null },
+            pay,
+          ),
+      );
+    }
     const appliedJobIds = new Set(workerApplicationRowsFromApi(appsQuery.data?.items ?? []).map((app) => app.linkedJobSlug).filter(Boolean));
     return items.filter((item) => item.job).map((item) => {
       const job = workerJobCardFromApi(item.job);
@@ -117,7 +130,7 @@ export function WorkerSavedJobsView() {
       }
       return { slug: job.slug, kind: "posted" as const, time, job, applied: appliedJobIds.has(job.slug) };
     });
-  }, [appsQuery.data?.items, city, listNow, regionId, savedQuery.data?.items]);
+  }, [appsQuery.data?.items, city, listNow, pay, regionId, savedQuery.data?.items]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -284,7 +297,8 @@ export function WorkerSavedJobsView() {
               moreMenuAriaLabel={t("cardMenu")}
               menuItems={jobMenuItems(job)}
               applyLabel={tf("apply")}
-              showApply={!applied}
+              showApply={canShowWorkerJobApply(job, applied)}
+              appliedLabel={applied ? tJobDetail("applied") : undefined}
             />
           ))}
         </div>
@@ -317,10 +331,12 @@ export function WorkerSavedJobsView() {
                   <td className="px-4 py-3 text-[var(--joballa-fg)]">{job.company}</td>
                   <td className="px-4 py-3 text-[var(--joballa-fg)]">{job.pay}</td>
                   <td className="px-4 py-3 text-right" data-card-stop>
-                    {!applied ? (
+                    {canShowWorkerJobApply(job, applied) ? (
                       <Link href={`/worker/jobs/${job.slug}?apply=1`} className="font-semibold text-[var(--joballa-primary)] hover:underline">
                         {tf("apply")}
                       </Link>
+                    ) : applied ? (
+                      <span className="text-sm font-semibold text-[var(--joballa-muted)]">{tJobDetail("applied")}</span>
                     ) : null}
                   </td>
                 </tr>

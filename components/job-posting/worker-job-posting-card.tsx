@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { WorkerJobCard } from "@/lib/worker-job-data";
 import { JobPostingCard, type JobPostingCardMenuItem } from "@/components/job-posting/job-posting-card";
 
@@ -22,6 +23,9 @@ type WorkerJobPostingCardProps = {
   onBookmarkClick?: () => void;
   applyLabel: string;
   showApply?: boolean;
+  appliedLabel?: string;
+  actionLabel?: string;
+  onActionClick?: () => void;
   /** `null` = no default job link. */
   titleHref?: string | null;
   applyHref?: string | null;
@@ -45,6 +49,9 @@ export function WorkerJobPostingCard({
   onBookmarkClick,
   applyLabel,
   showApply = true,
+  appliedLabel,
+  actionLabel,
+  onActionClick,
   titleHref: titleHrefProp,
   applyHref: applyHrefProp,
   onTitleClick,
@@ -54,7 +61,9 @@ export function WorkerJobPostingCard({
   moreMenuAriaLabel,
   className,
 }: WorkerJobPostingCardProps) {
-  const { schedule, location } = splitJobSubtitle(job.subtitle);
+  const t = useTranslations("worker.findJobsPage");
+  const scheduleLabel = job.cityLabel || "";
+  const locationLabel = job.workModeLabel || "";
   const titleHref =
     onCardClick != null
       ? undefined
@@ -77,10 +86,11 @@ export function WorkerJobPostingCard({
       matchLabel={matchLabel}
       matchTextOverride={matchTextOverride}
       title={job.title}
-      scheduleLabel={schedule}
-      locationLabel={location}
-      pillTags={[job.seniority, job.pay].filter(Boolean)}
+      scheduleLabel={scheduleLabel}
+      locationLabel={locationLabel}
+      pillTags={[job.pay, job.employmentType].filter(Boolean)}
       companyName={job.company}
+      posterRoleLabel={job.posterType ? t(`posterRole.${job.posterType}`) : undefined}
       companyLogoUrl={job.companyLogoUrl}
       companyInitial={job.companyInitial}
       companyAvatarClassName={job.companyColor}
@@ -89,6 +99,9 @@ export function WorkerJobPostingCard({
       onBookmarkClick={onBookmarkClick}
       applyLabel={applyLabel}
       showApply={showApply}
+      appliedLabel={appliedLabel}
+      actionLabel={actionLabel}
+      onActionClick={onActionClick}
       applyHref={applyHref}
       onApplyClick={onApplyClick}
       menuItems={menuItems}

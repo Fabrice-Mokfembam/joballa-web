@@ -12,6 +12,10 @@
       "error": "Une erreur s'est produite.",
       "retry": "Reessayer"
     },
+    "featureAlert": {
+      "inProgress": "Cette fonctionnalite est en cours de developpement.",
+      "upcoming": "Cette fonctionnalite arrive bientot."
+    },
     "aria": {
       "loading": "Chargement",
       "remove": "Retirer",
@@ -622,7 +626,8 @@
       "errors": {
         "submit": "Connexion impossible. Verifiez vos informations et reessayez.",
         "invalidCredentials": "Email ou mot de passe incorrect. Reessayez.",
-        "notVerified": "Compte non verifie. Saisissez le code recu pour terminer l'inscription."
+        "notVerified": "Compte non verifie. Saisissez le code recu pour terminer l'inscription.",
+        "accountSuspended": "Votre compte a ete suspendu. Contactez le support pour obtenir de l'aide."
       }
     },
     "signUpForm": {
@@ -1181,6 +1186,10 @@
       "bookmark": "Enregistrer",
       "apply": "Postuler",
       "cardMenu": "Plus d'actions sur l'offre",
+      "posterRole": {
+        "employer": "Employeur",
+        "worker": "Particulier"
+      },
       "menu": {
         "openDetails": "Ouvrir les details",
         "save": "Enregistrer",
@@ -1340,6 +1349,7 @@
       "bookmark": "Enregistrer l'offre",
       "manage": "Gerer",
       "menu": "Actions de l'offre",
+      "applicantsCount": "{count, plural, one {# candidat} other {# candidats}}",
       "actions": {
         "apply": "Postuler a l'offre",
         "viewDetails": "Voir les details",
@@ -1351,6 +1361,10 @@
         "viewApplicants": "Voir les candidats",
         "close": "Fermer l'offre",
         "closing": "Fermeture…"
+      },
+      "publishConfirm": {
+        "title": "Publier cette offre ?",
+        "description": "La publication enverra votre offre en revue. Une fois approuvee, elle sera en ligne et acceptera des candidatures."
       },
       "detail": {
         "loading": "Chargement des details…",
@@ -2440,6 +2454,10 @@
         "paused": "En pause"
       },
       "posted": "Publie il y a {time}",
+      "posted": "Publie il y a {time}",
+      "posterRole": {
+        "employer": "Employeur"
+      },
       "applicantsShort": "{count} candidats · {shortlisted} preselectionnes",
       "viewApplicants": "Voir les candidats",
       "empty": "Aucune offre pour le moment. Publiez votre premiere offre pour recevoir des candidats.",

@@ -2,8 +2,16 @@ import type { QueryClient } from "@tanstack/react-query";
 import type { WorkerJobDetail, WorkerJobListItem } from "@/features/worker/types/worker-portal";
 import { workerKeys } from "@/features/worker/query-keys";
 
-function matchesJobId(job: WorkerJobListItem, jobId: string): boolean {
+export function matchesWorkerJobId(
+  job: { id?: string; slug?: string } | null | undefined,
+  jobId: string,
+): boolean {
+  if (!job || !jobId) return false;
   return job.id === jobId || job.slug === jobId;
+}
+
+function matchesJobId(job: WorkerJobListItem, jobId: string): boolean {
+  return matchesWorkerJobId(job, jobId);
 }
 
 function findInPagedQueries(

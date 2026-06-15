@@ -341,7 +341,7 @@ function encodeNotificationParams(params?: {
 function normalizeEmployerNotificationSettings(data: unknown): EmployerNotificationSettings {
   const raw = data && typeof data === "object" ? (data as Record<string, unknown>) : {};
   return {
-    pushEnabled: typeof raw.inAppEnabled === "boolean" ? raw.inAppEnabled : Boolean(raw.pushEnabled ?? true),
+    pushEnabled: typeof raw.pushEnabled === "boolean" ? raw.pushEnabled : true,
     emailEnabled: typeof raw.emailEnabled === "boolean" ? raw.emailEnabled : true,
     applicantsEnabled:
       typeof raw.applicationUpdates === "boolean"
@@ -360,7 +360,7 @@ function normalizeEmployerNotificationSettings(data: unknown): EmployerNotificat
 
 function encodeEmployerNotificationSettings(body: EmployerNotificationSettings): Record<string, boolean | undefined> {
   return {
-    inAppEnabled: body.pushEnabled,
+    pushEnabled: body.pushEnabled,
     emailEnabled: body.emailEnabled,
     applicationUpdates: body.applicantsEnabled,
     engagementUpdates: body.messagesEnabled,

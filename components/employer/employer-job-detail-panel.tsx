@@ -312,6 +312,7 @@ export function EmployerJobDetailPanel({
         <>
           {resolvedVariant === "panel" ? (
             <JobSidebarPanel
+              key={jobId}
               jobId={jobId}
               job={job.data}
               onClose={onClose}

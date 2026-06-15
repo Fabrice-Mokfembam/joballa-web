@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/lib/i18n/navigation";
+import { JobCardAvatar } from "@/components/job-posting/job-card-avatar";
 import {
   useHideWorkerJob,
   useReportWorkerJob,
@@ -146,9 +146,10 @@ export function WorkerJobDetailView({
   const ownedJobsQuery = useWorkerOwnedJobs({ page: 1, limit: 100 });
   const meWorkerId = meQuery.data?.id;
 
-  const { schedule, location } = useMemo(() => splitJobSubtitle(job.subtitle), [job.subtitle]);
+  const { location } = useMemo(() => splitJobSubtitle(job.subtitle), [job.subtitle]);
   const isPanel = variant === "panel";
-  const scheduleLine = schedule.trim();
+  const employmentTypeLine = job.employmentType?.trim() || "";
+  const locationLine = [job.seniority, location].filter(Boolean).join(" • ");
 
   const requirements = Array.isArray(detail?.requirements)
     ? detail.requirements.filter((line): line is string => typeof line === "string" && !!line.trim())
@@ -179,7 +180,10 @@ export function WorkerJobDetailView({
     );
   }, [detail, jobId, meWorkerId, ownedJobsQuery.data?.items]);
 
-  const posterType = useMemo(() => resolveJobPosterType(detail ?? null), [detail]);
+  const posterType = useMemo(
+    () => resolveJobPosterType(detail ?? null) ?? job.posterType ?? null,
+    [detail, job.posterType],
+  );
 
   const metaRows = useMemo(() => {
     const ext = detail as WorkerJobDetail & {
@@ -201,7 +205,7 @@ export function WorkerJobDetailView({
       job.employmentType?.trim() ||
       (typeof ext?.jobType === "string" ? String(ext.jobType).replace(/_/g, " ") : "") ||
       (typeof ext?.employmentType === "string" ? String(ext.employmentType).replace(/_/g, " ") : "") ||
-      schedule;
+      "";
     const locationParts = [detail?.city, ext?.region ?? detail?.region, ext?.country ?? (detailRaw?.country as string | undefined)]
       .filter((part): part is string => typeof part === "string" && !!part.trim())
       .map((part) => part.trim());
@@ -221,7 +225,7 @@ export function WorkerJobDetailView({
       },
     ];
     return rows.filter((row) => row.value);
-  }, [detail, job.department, job.employmentType, location, schedule, t]);
+  }, [detail, job.department, job.employmentType, location, t]);
 
   useEffect(() => {
     if (searchParams.get("apply") !== "1") {
@@ -367,9 +371,14 @@ export function WorkerJobDetailView({
         <section className={cn(portalDetailSectionClass, isPanel && "!p-3.5")}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xl font-bold leading-7 tracking-tight text-[var(--joballa-primary)] sm:text-[22px]">{job.pay}</p>
-              {scheduleLine ? (
-                <p className="mt-0.5 text-sm font-semibold leading-5 text-[var(--joballa-muted)]">{scheduleLine}</p>
+              <p className="text-xl font-bold leading-7 tracking-tight text-[var(--joballa-primary)] sm:text-[22px]">
+                {job.pay}
+                {employmentTypeLine ? (
+                  <span className="text-base font-semibold text-[var(--joballa-muted)]"> · {employmentTypeLine}</span>
+                ) : null}
+              </p>
+              {locationLine ? (
+                <p className="mt-0.5 text-sm font-semibold leading-5 text-[var(--joballa-muted)]">{locationLine}</p>
               ) : null}
             </div>
             <div className="hidden min-[600px]:block">
@@ -380,24 +389,17 @@ export function WorkerJobDetailView({
           <div className="mt-4 min-w-0 sm:mt-5">
             <h2 className="text-xl font-bold leading-7 text-[var(--joballa-fg)] sm:text-lg">{job.title}</h2>
             <div className="mt-2 flex min-w-0 items-center gap-2">
-              {job.companyLogoUrl ? (
-                <Image
-                  src={job.companyLogoUrl}
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="size-7 shrink-0 rounded-full object-cover"
-                  unoptimized={job.companyLogoUrl.startsWith("http")}
-                />
-              ) : (
-                <div className={cn("flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white", job.companyColor)}>
-                  {job.companyInitial}
-                </div>
-              )}
+              <JobCardAvatar
+                name={job.company}
+                logoUrl={job.companyLogoUrl}
+                initial={job.companyInitial}
+                className={job.companyColor}
+                sizeClassName="size-7"
+              />
               <p className="truncate text-sm font-semibold text-[var(--joballa-muted)]">{job.company}</p>
             </div>
             {posterType ? (
-              <p className="mt-1 text-xs font-medium text-[var(--joballa-fg-subtle)] max-[599px]:hidden">{t(`posterType.${posterType}`)}</p>
+              <p className="mt-0.5 text-xs font-medium text-[var(--joballa-fg-subtle)]">{t(`posterType.${posterType}`)}</p>
             ) : null}
           </div>
 
@@ -454,8 +456,8 @@ export function WorkerJobDetailView({
             <>
               <h3 className="mt-7 text-sm font-bold text-[var(--joballa-fg)]">{t("reqTitle")}</h3>
               <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
-                {requirements.map((line) => (
-                  <li key={line}>{line}</li>
+                {requirements.map((line, index) => (
+                  <li key={`req-${index}`}>{line}</li>
                 ))}
               </ul>
             </>
@@ -465,8 +467,8 @@ export function WorkerJobDetailView({
             <>
               <h3 className="mt-7 text-sm font-bold text-[var(--joballa-fg)]">{t("whatTitle")}</h3>
               <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-[var(--joballa-muted)]">
-                {responsibilities.map((line) => (
-                  <li key={line}>{line}</li>
+                {responsibilities.map((line, index) => (
+                  <li key={`resp-${index}`}>{line}</li>
                 ))}
               </ul>
             </>

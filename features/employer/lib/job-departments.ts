@@ -44,3 +44,49 @@ export function findJobDepartment(
 ): EmployerJobDepartment | undefined {
   return departments.find((dept) => dept.id === id);
 }
+
+function normalizeDepartmentLabel(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s*&\s*/g, " and ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Map a UI department label (or slug/category) to the department UUID for API filters. */
+export function resolveDepartmentIdByLabel(
+  label: string,
+  departments: EmployerJobDepartment[],
+): string | undefined {
+  const trimmed = label.trim();
+  if (!trimmed) return undefined;
+
+  const byId = departments.find((dept) => dept.id === trimmed);
+  if (byId?.id) return byId.id;
+
+  const lower = trimmed.toLowerCase();
+  const byName = departments.find((dept) => String(dept.name ?? "").toLowerCase() === lower);
+  if (byName?.id) return byName.id;
+
+  const normalized = normalizeDepartmentLabel(trimmed);
+  const byNormalized = departments.find(
+    (dept) => normalizeDepartmentLabel(String(dept.name ?? "")) === normalized,
+  );
+  if (byNormalized?.id) return byNormalized.id;
+
+  for (const slug of [
+    lower.replace(/\s+/g, "-"),
+    lower.replace(/&/g, "").replace(/\s+/g, "-").replace(/-+/g, "-"),
+    lower.replace(/[\s&]+/g, "-").replace(/-+/g, "-"),
+  ]) {
+    const bySlug = departments.find((dept) => String(dept.slug ?? "").toLowerCase() === slug);
+    if (bySlug?.id) return bySlug.id;
+  }
+
+  const categorySlug = lower.replace(/[\s&]+/g, "_").replace(/_+/g, "_");
+  const byCategory = departments.find(
+    (dept) => String(dept.category ?? "").toLowerCase() === categorySlug,
+  );
+  return byCategory?.id;
+}

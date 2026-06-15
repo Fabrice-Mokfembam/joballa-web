@@ -66,9 +66,16 @@ if (!catalog) {
 
 const API_URL = (
   process.env.POST_JOBS_API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000"
-).replace(/\/$/, "");
+  process.env.API_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL
+)?.trim()?.replace(/\/$/, "");
+
+if (!API_URL) {
+  console.error(
+    "[employer-jobs] Set NEXT_PUBLIC_API_BASE_URL or API_URL in joballa-web/.env",
+  );
+  process.exit(1);
+}
 
 const EMAIL = process.env.POST_JOBS_EMPLOYER_EMAIL || catalog.email;
 const PASSWORD = process.env.POST_JOBS_EMPLOYER_PASSWORD || "Thiago+123.";

@@ -15,6 +15,7 @@ import {
 import { profileSectionCompletion } from "@/features/worker/lib/profile-display";
 import { workerApplicationRowsFromApi } from "@/features/worker/lib/application-mappers";
 import { workerJobCardsFromApi } from "@/features/worker/lib/job-mappers";
+import { canShowWorkerJobApply } from "@/features/worker/lib/job-apply-eligibility";
 import type { WorkerJobCard } from "@/lib/worker-job-data";
 import type { WorkerApplicationRow } from "@/lib/worker-applications-data";
 import { WorkerJobPostingCard } from "@/components/job-posting/worker-job-posting-card";
@@ -43,20 +44,26 @@ function sortJobs(jobs: WorkerJobCard[]): WorkerJobCard[] {
 function DashboardJobCard({
   job,
   t,
+  tJobDetail,
   grid,
   showApply = true,
+  appliedLabel,
 }: {
   job: WorkerJobCard;
   t: (key: string, values?: Record<string, string | number>) => string;
+  tJobDetail: (key: string) => string;
   grid: boolean;
   showApply?: boolean;
+  appliedLabel?: string;
 }) {
   const router = useRouter();
   const saveJob = useSaveWorkerJob();
   const hideJob = useHideWorkerJob();
   const reportJob = useReportWorkerJob();
   const menuItems = [
-    { label: t("recommended.apply"), onSelect: () => void router.push(`/worker/jobs/${job.slug}?apply=1`) },
+    ...(showApply && !appliedLabel
+      ? [{ label: t("recommended.apply"), onSelect: () => void router.push(`/worker/jobs/${job.slug}?apply=1`) }]
+      : []),
     { label: t("recommended.save"), onSelect: () => saveJob.mutate(job.slug) },
     {
       label: t("recommended.share"),
@@ -86,11 +93,16 @@ function DashboardJobCard({
       bookmarkLabel={t("recommended.bookmark")}
       applyLabel={t("recommended.apply")}
       showApply={showApply}
+      appliedLabel={appliedLabel}
       moreMenuAriaLabel={t("recommended.menu")}
       titleHref={null}
       applyHref={null}
       onCardClick={() => void router.push(`/worker/jobs/${job.slug}`)}
-      onApplyClick={() => void router.push(`/worker/jobs/${job.slug}?apply=1`)}
+      onApplyClick={
+        showApply && !appliedLabel
+          ? () => void router.push(`/worker/jobs/${job.slug}?apply=1`)
+          : undefined
+      }
       menuItems={menuItems}
     />
   );
@@ -98,6 +110,7 @@ function DashboardJobCard({
 
 export function WorkerDashboard() {
   const t = useTranslations("worker.dashboardPage");
+  const tJobDetail = useTranslations("worker.jobDetail");
   const router = useRouter();
   const dashboardQuery = useWorkerDashboard();
   const profileCompleteness = useWorkerProfileCompleteness();
@@ -172,6 +185,11 @@ export function WorkerDashboard() {
   const isJobApplied = useCallback(
     (job: WorkerJobCard) => appliedJobIds.has(job.slug) || appliedJobIds.has(job.id) || !!job.hasApplied,
     [appliedJobIds],
+  );
+
+  const canApplyToJob = useCallback(
+    (job: WorkerJobCard) => canShowWorkerJobApply(job, isJobApplied(job)),
+    [isJobApplied],
   );
 
   const earningsStats = useMemo(() => {
@@ -309,7 +327,15 @@ export function WorkerDashboard() {
           ) : grid ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {recommendedGrid.map((job) => (
-                <DashboardJobCard key={job.id} job={job} t={t} grid showApply={!isJobApplied(job)} />
+                <DashboardJobCard
+                  key={job.id}
+                  job={job}
+                  t={t}
+                  tJobDetail={tJobDetail}
+                  grid
+                  showApply={canApplyToJob(job)}
+                  appliedLabel={isJobApplied(job) ? tJobDetail("applied") : undefined}
+                />
               ))}
             </div>
           ) : (
@@ -357,13 +383,15 @@ export function WorkerDashboard() {
                       <td className="px-4 py-3">{job.subtitle.split("•")[1]?.trim()}</td>
                       <td className="px-4 py-3">{job.match != null ? `${job.match}%` : ""}</td>
                       <td className="px-4 py-3 text-right" data-card-stop>
-                        {!isJobApplied(job) ? (
+                        {canApplyToJob(job) ? (
                           <Link
                             href={`/worker/jobs/${job.slug}?apply=1`}
                             className="font-semibold text-[var(--joballa-primary)] hover:underline"
                           >
                             {t("recommended.apply")}
                           </Link>
+                        ) : isJobApplied(job) ? (
+                          <span className="text-sm font-semibold text-[var(--joballa-muted)]">{tJobDetail("applied")}</span>
                         ) : null}
                       </td>
                     </tr>

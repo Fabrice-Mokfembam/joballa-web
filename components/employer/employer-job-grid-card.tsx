@@ -30,9 +30,7 @@ export function EmployerJobGridCard({
   const tc = useTranslations("common.aria");
   const router = useRouter();
   const resolvedViewApplicantsLabel = viewApplicantsLabel ?? t("viewApplicants");
-  const parts = job.subtitle.split(/\s*•\s*/).map((s) => s.trim());
-  const schedule = parts[0] ?? job.subtitle;
-  const location = parts.slice(1).join(" • ");
+  const locationLine = job.location || job.subtitle;
 
   return (
     <JobPostingCard
@@ -40,14 +38,15 @@ export function EmployerJobGridCard({
         isActive ? "border-2 border-[var(--joballa-primary)] shadow-[0_0_0_1px_var(--joballa-primary)]" : undefined
       }
       title={job.title}
-      scheduleLabel={schedule}
-      locationLabel={location}
-      pillTags={[job.pay]}
+      scheduleLabel=""
+      locationLabel={locationLine}
+      pillTags={[job.pay, job.employmentType].filter(Boolean)}
       statusPill={{
         label: t(`status.${employerJobStatusKey(job.status)}`),
         className: jobStatusPillClass(job.status),
       }}
       companyName={job.company}
+      posterRoleLabel={t("posterRole.employer")}
       companyLogoUrl={job.companyLogoUrl}
       companyInitial={job.companyInitial}
       companyAvatarClassName={job.companyColor}

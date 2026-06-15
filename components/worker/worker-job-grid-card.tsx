@@ -17,6 +17,9 @@ type Props = {
   moreMenuAriaLabel?: string;
   applyLabel?: string;
   showApply?: boolean;
+  appliedLabel?: string;
+  actionLabel?: string;
+  onActionClick?: () => void;
   /** Desktop split pane: card opens sidebar; apply opens in-pane flow. */
   splitPane?: boolean;
   isActive?: boolean;
@@ -35,6 +38,9 @@ export function WorkerJobGridCard({
   moreMenuAriaLabel,
   applyLabel,
   showApply = true,
+  appliedLabel,
+  actionLabel,
+  onActionClick,
   splitPane,
   isActive,
   onSelectJob,
@@ -72,6 +78,9 @@ export function WorkerJobGridCard({
       onBookmarkClick={toggleBookmark}
       applyLabel={resolvedApplyLabel}
       showApply={showApply}
+      appliedLabel={appliedLabel}
+      actionLabel={actionLabel}
+      onActionClick={onActionClick}
       menuItems={menuItems}
       moreMenuAriaLabel={resolvedMoreMenuAriaLabel}
       titleHref={null}
@@ -83,13 +92,17 @@ export function WorkerJobGridCard({
         }
         void router.push(`/worker/jobs/${job.slug}`);
       }}
-      onApplyClick={() => {
-        if (splitPane && onApplyInPane) {
-          onApplyInPane(job.slug);
-          return;
-        }
-        void router.push(`/worker/jobs/${job.slug}?apply=1`);
-      }}
+      onApplyClick={
+        showApply && !appliedLabel
+          ? () => {
+              if (splitPane && onApplyInPane) {
+                onApplyInPane(job.slug);
+                return;
+              }
+              void router.push(`/worker/jobs/${job.slug}?apply=1`);
+            }
+          : undefined
+      }
     />
   );
 }
